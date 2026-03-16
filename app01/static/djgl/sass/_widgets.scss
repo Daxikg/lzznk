@@ -1,0 +1,260 @@
+/*-----------------Widgets-------------*/
+.widget {
+    .widget-title {
+        font-size: 20px;
+        text-transform: capitalize;
+    }
+    .logo {
+        height: inherit;
+        max-width: inherit;
+        position: relative;
+        a {
+            font-size: 28px;
+            font-weight: 900;
+            position: inherit;
+            top: -10px;
+            left: 0;
+        }
+    }
+    .about-text {
+        p {
+            margin-bottom: .5rem;
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+    .links {
+        ul {
+            li {
+                a {
+                    font-size: 14px;
+                    &::before {
+                        content: '\f054';
+                        display: inline-block;
+                        font-style: normal;
+                        font-variant: normal;
+                        text-rendering: auto;
+                        -webkit-font-smoothing: antialiased;
+                        font-family: "Font Awesome 5 Free";
+                        font-weight: 900;
+                        font-size: 12px;
+                        margin-right: 7px;
+                    }                        
+                }
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+        }
+    }
+    .projects-links {
+        ul {
+            li {
+                a {
+                    display: block;
+                    position: relative;
+                    border: 1px solid transparent;
+                    margin-bottom: 5px;
+                    padding: 5px;
+                    font-size: 14px;     
+                    &::after {
+                        content: '\f054';
+                        display: inline-block;
+                        font-style: normal;
+                        font-variant: normal;
+                        text-rendering: auto;
+                        -webkit-font-smoothing: antialiased;
+                        font-family: "Font Awesome 5 Free";
+                        font-weight: 900;
+                        font-size: 12px;
+                        position: absolute;
+                        right: 3%;
+                        top: 25%;
+                    }                        
+                }
+                &:last-child {
+                    margin-bottom: 0;
+                    a {
+                        margin-bottom: 0;
+                    }
+                }
+            }
+        }
+    }
+    .tags {
+        ul {
+            li {
+                display: inline-block;
+                a {
+                    display: block;
+                    border: 1px solid transparent;
+                    padding: 5px;
+                    border-radius: 5px;
+                    margin: 3px;
+                    font-size: 14px;                                
+                }
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+        }
+    }
+    .contacts {
+        .contact-info {
+            margin-bottom: 15px;
+            h6 {
+                font-size: 14px;
+                text-transform: uppercase;
+                font-family: 'Roboto', sans-serif;
+            }
+            span {
+                font-size: 15px;
+                display: block;
+                i {
+                    font-size: 15px;
+                    vertical-align: middle;
+                    margin-right: 5px;
+                }
+                a {
+                    font-size: 15px;
+                    color: $darkwhite;
+                    &:hover {
+                        color: $primary;
+                    }
+                }
+            }
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+    .subscribe-form {
+        p {
+            margin-bottom: 1rem;
+        }
+        form {
+            .form-control {
+                &:focus {
+                    box-shadow: none;
+                }
+            }
+        }
+    }
+    .social-widget {
+        .social-links {
+            text-align: left;
+            li {
+                margin-right: 3px;
+                &:last-child {
+                    margin-right: 0;
+                }
+                a {
+                    color: $white;
+                    background-color: $dark;
+                    padding: 7px 0;
+                    width: 40px;
+                    border-radius: 3px;
+                    text-align: center;
+                    &:hover {
+                        background-color: $primary;
+                    }
+                }
+            }
+        }
+    }
+    .blog-posts {
+        .post-item {
+            display: flex;
+            border: 1px solid $darkwhite;
+            margin-bottom: 8px;
+            &:last-child {
+                margin-bottom: 0;
+            }
+            .post-thumb {
+                margin-right: 10px;
+                a {
+                    display: block;
+                    img {
+                        width: 85px;
+                        height: 70px;
+                    }
+                }
+            }
+            .post-info {
+                h5 {
+                    margin-top: 3px;
+                    a {
+                        font-size: 15px;
+                        color: $dark;
+                        &:hover {
+                            color: $primary;
+                        }
+                    }
+                }
+                span {
+                    font-size: 12px;
+                    font-weight: bold;
+                    i {
+                        font-size: 14px;
+                    }
+                }
+            }
+        }
+    }
+    
+    &.sidebar-widget {
+        margin-bottom: 1rem;
+        &:last-child {
+            margin-bottom: 0;
+        }
+        .links {
+            ul {
+                li {
+                    a {
+                       color: $secondary;
+                       font-weight: 600;
+                       &:hover {
+                           color: $primary;
+                       }
+                    }
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+                }
+            }
+        }
+        .projects-links {
+            ul {
+                li {
+                    a {
+                       color: $primary;
+                       border-color: $darkwhite;
+                       font-weight: 600;
+                       &:hover {
+                           background-color: $primary;
+                           color: $white;
+                       }
+                    }
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+                }
+            }
+        }
+        .tags {
+            ul {
+                li {
+                    a {
+                        border-color: $darkwhite;
+                        color: $gray;
+                        &:hover {
+                            color: $white;
+                            background-color: $primary;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

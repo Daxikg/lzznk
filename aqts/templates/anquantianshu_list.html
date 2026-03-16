@@ -1,0 +1,114 @@
+{% extends 'base_aqts.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="container-fluid">
+        <!-- ============================================================== -->
+        <!-- Start Page Content -->
+        <!-- ============================================================== -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        {% if banzu == 13 %}
+                            <button class="btn btn-success"
+                                    data-toggle="modal"
+                                    data-target="#addModal"
+                                    onclick="$('#addForm input[name=anquanfenlei]').val('{{ fenlei }}');">
+                                新建{{ fenlei|default:'安全' }}通知
+                            </button>
+                        {% else %}
+                        {% endif %}
+                        <div class="card-body">
+                            <h1 class="card-title">{{ fenlei }}通知</h1>
+                        </div>
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th class="col-md-1">序号</th>
+                                <th class="col-md-6">标题</th>
+                                <th class="col-md-1">发布人</th>
+                                <th class="col-md-2">日期</th>
+                                <th class="col-md-2">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in items %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ item.anquanbiaoti }}</td>
+                                    <td>{{ item.user }}</td>
+                                    <td>{{ item.todaytime|date:'Y-m-d H:i' }}</td>
+                                    <td>
+                                        <a href="{% url 'aqts:anquantianshu_detail' item.id %}"
+                                           class="btn btn-info">详情</a>
+                                        {% if banzu == 13 %}
+                                            <form method="post"
+                                                  action="{% url 'aqts:delete_anquantianshu' item.id %}?fenlei={{ fenlei }}"
+                                                  style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger"
+                                                        onclick="return confirm('确定要删除吗？');">删除
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- "发布新通知"模态框 -->
+                    <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                                <form id="addForm" method="post" enctype="multipart/form-data"
+                                      action="{% url 'aqts:add_anquantianshu' %}">
+                                    {% csrf_token %}
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="addModalLabel">发布新安全通知</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <input type="hidden" name="anquanfenlei" value="{{ fenlei }}">
+                                        <!-- 标题 -->
+                                        <div class="form-group">
+                                            <label>标题</label>
+                                            <input type="text" name="anquanbiaoti" class="form-control" required>
+                                        </div>
+                                        <!-- 发布人 -->
+                                        <div class="form-group">
+                                            <label>发布人</label>
+                                            <input type="text" name="user" class="form-control">
+                                        </div>
+                                        <!-- 内容 -->
+                                        <div class="form-group">
+                                            <label>内容</label>
+                                            <textarea name="anquanneirong" class="form-control" rows="4"></textarea>
+                                        </div>
+                                        <!-- 附件 (仅一个) -->
+                                        <div class="form-group">
+                                            <label>附件</label>
+                                            <input type="file" name="file" class="form-control" accept="">
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">发布</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

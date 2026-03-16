@@ -1,0 +1,66 @@
+{# cgjq_table_partial.html #}
+{% load static %}
+{% load my_tags %}
+
+<div class="row">
+    <table class="table table-bordered" style="text-align: center;">
+        <thead>
+        <tr>
+            <th>姓名</th>
+            <th>一季度</th>
+            <th>二季度</th>
+            <th>三季度</th>
+            <th>四季度</th>
+        </tr>
+        {% if selected_year == 2026 %}
+        <tr>
+            <th>编辑</th>
+            {% for quarter in 1|make_list:4 %}
+            <th>
+                <a href="/djgl/dangyuancgjq/{{ banzu }}/{{ forloop.counter }}/edit/"
+                   class="btn btn-outline-danger btn-xs"
+                   style="font-size:15px;padding:5px 10px;">编辑</a>
+            </th>
+            {% endfor %}
+        </tr>
+        {% endif %}
+        </thead>
+        <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.name }}</td>
+            {% for quarter in 1|make_list:4 %}
+            <td>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-danger dropdown-toggle"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{ user.quarter_zerengang|get_item:quarter|default:"暂无" }}
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">暂无（小于80分）</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">先锋岗（98-100分）</a>
+                        <a class="dropdown-item" href="#">达标岗（90-97分）</a>
+                        <a class="dropdown-item" href="#">警示岗（80-89分）</a>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary dropdown-toggle"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{ user.quarter_zerenqu|get_item:quarter|default:"暂无" }}
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">暂无（小于80分）</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">红旗区（98-100分）</a>
+                        <a class="dropdown-item" href="#">达标区（90-97分）</a>
+                        <a class="dropdown-item" href="#">警示区（80-89分）</a>
+                    </div>
+                </div>
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

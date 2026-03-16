@@ -1,0 +1,47 @@
+{% extends 'base10.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        <!-- ============================================================== -->
+        <!-- Start Page Content -->
+        <!-- ============================================================== -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <!-- 修车车间统计 -->
+                    <h2 class="card-title m-b-10">1.修车车间在册职工情况</h2>
+                    <p class="card-title m-b-10" style="font-size: 20px; font-weight:normal;">
+                        职工总人数：{{ xiu_che.total }}人，其中男职工：{{ xiu_che.gender.male }}人，占比：{{ xiu_che.gender_pct.male_pct }}%；
+                        其中女职工：{{ xiu_che.gender.female }}人，占比：{{ xiu_che.gender_pct.female_pct }}%。</p>
+
+                    <h2 class="card-title m-b-10">2.修车车间政治面貌情况</h2>
+                    <p class="card-title m-b-10" style="font-size: 20px; font-weight:normal;">
+                        党员：{{ xiu_che.mianmao.dangyuan }}人，团员：{{ xiu_che.mianmao.tuanyuan }}人。</p>
+
+                    <h2 class="card-title m-b-10">3.修车车间职业技能等级情况</h2>
+                    <p class="card-title m-b-10" style="font-size: 20px; font-weight:normal;">
+                        高级技师{{ xiu_che.dengji.gaojishi }}人，技师{{ xiu_che.dengji.jishi }}人，高级工{{ xiu_che.dengji.gaojigong }}人，
+                        中级工{{ xiu_che.dengji.zhongjigong }}人，初级工{{ xiu_che.dengji.chujigong }}人。</p>
+
+                    <h2 class="card-title m-b-10">4.修车车间职工学历情况</h2>
+                    <p class="card-title m-b-20" style="font-size: 20px; font-weight:normal;">
+                        研究生{{ xiu_che.wenhua.yanjiusheng }}人，本科{{ xiu_che.wenhua.benke }}人，专科{{ xiu_che.wenhua.zhuanyekao }}人，
+                        中专{{ xiu_che.wenhua.zhongzhuan }}人，高中、中技{{ xiu_che.wenhua.gaozhong|add:xiu_che.wenhua.zhongji }}人，
+                        初中{{ xiu_che.wenhua.chuzhong }}人。</p>
+
+                    <h2 class="card-title m-b-10">5.修车车间组织机构</h2>
+                    <h4 class="card-title m-b-10">（1）设主任、书记各1名。</h4>
+                    <h4 class="card-title m-b-10">
+                        （2）设副主任2名，分管生产、安全、材料副主任1名，分管设备、职教、技术1名。</h4>
+                    <h4 class="card-title m-b-10">
+                        （3）设技术员4名，分管内制动、外制动、技术规章1名，分管预修、车体、职教1名，分管调车、双化1名；分管架车、设备1名。</h4>
+{#                    <h4 class="card-title m-b-10">（4）设班技两名，外制动班组1名，轮轴班组1名。</h4>#}
+                    <h2 class="card-title m-b-10">6.修车车间生产班组：</h2>
+                    <p class="card-title m-b-20" style="font-size: 20px; font-weight:normal;">
+                        车间下设生产班组6个：预修、车体、架车、外制动、内制动、调车组。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

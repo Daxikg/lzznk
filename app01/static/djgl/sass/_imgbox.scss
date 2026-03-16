@@ -1,0 +1,41 @@
+/*-----------------Image Box-------------*/
+.image-box {
+    .thumb {
+        overflow: hidden;
+        img {
+            @include transition(.5s);
+        }
+    }
+    .img-title {
+        margin-bottom: 15px;
+    }
+    .img-link {
+        a {
+            font-weight: bold;
+            color: $primary;
+            i {
+                vertical-align: middle;
+                font-size: 18px;
+                margin-left: 2px;
+                @include transition(.3s);
+            }
+            &:hover {
+                color: $dark;
+                i {
+                    margin-left: 5px;
+                }
+            }
+        }
+    }
+    &.white {
+        background: $white;
+        border-bottom: 5px solid $primary;
+    }
+    &:hover {
+        .thumb {
+            img {
+                transform: scale(1.1);
+            }
+        }
+    }
+}

@@ -1,0 +1,114 @@
+{% extends 'base1.html' %}
+
+{% block content %}
+    <header class="navbar-expand-md">
+        <div class="bs-example" data-example-id="table-within-panel">
+            <div class="container">
+                <div class="panel-default">
+                    <div class="panel-default">
+                        <H3 class="font-weight-bold title">
+                            数据编辑(三次入库)[出车顺序
+                            {% for order in orders %}
+                                {{ order.gudao1 }}{{ order.gudao2 }}{{ order.gudao3 }}
+                            {% endfor %}]
+                            <H4>
+                                {% if messages %}
+                                    <ul class="messages">
+                                        {% for message in messages %}
+                                            <li{% if message.tags %}
+                                                class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </H4>
+                        </H3>
+                        <ul class="pagination m-0 xs-auto" id="nav">
+                            <li class="page-item">
+                                <a href="/架车班信息手持机查看界面1/"
+                                   class="page-link {% if current_url_name == 'user_list4' or current_url_name == 'user_list5' or current_url_name == 'user_list6' %}active{% endif %}"
+                                   role="button">一次入库</a>
+                            <li class="page-item">
+                                <a href="/架车班信息手持机查看界面4/"
+                                   class="page-link {% if current_url_name == 'user_list7' or current_url_name == 'user_list8' or current_url_name == 'user_list9' %}active{% endif %}"
+                                   role="button">二次入库</a>
+                            <li class="page-item">
+                                <a href="/架车班信息手持机查看界面7/"
+                                   class="page-link {% if current_url_name == 'user_list20' %}active{% endif %}"
+                                   role="button">三次入库</a>
+                        </ul>
+
+                    </div>
+                </div>
+                <div class="panel-default">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>台位顺序</th>
+                            <th>编辑</th>
+                            <th>二位钩高</th>
+                            <th>二位旁承</th>
+                            <th>二位垫板</th>
+                            <th>二位轮径</th>
+                            <th>一位钩高</th>
+                            <th>一位旁承</th>
+                            <th>一位垫板</th>
+                            <th>一位轮径</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for position, data in positions.items %}
+                            <tr>
+                                <td>{{ position }}</td>
+                                <td>
+                                    {% if data %}
+                                        <a href="/架车班信息采集界面/{{ data.taiwei }}/{{ data.shunxu }}/edit0/"
+                                           style="font-size: 15px; padding: 5px 10px;"
+                                           class="btn btn-primary btn-xs">编辑</a>
+                                        {#                                        <a href="#"#}
+                                        {#                                           data-url="/架车班信息采集界面/{{ data.taiwei }}/{{ data.shunxu }}/delete/"#}
+                                        {#                                           style="font-size: 15px; padding: 5px 10px;"#}
+                                        {#                                           class="btn btn-danger btn-xs delete-btn">删除</a>#}
+                                    {% endif %}
+                                </td>
+                                <td>{% if data.chegou2 %}{{ data.chegou2 }}{% endif %}</td>
+                                <td>{% if data.pangcheng2 is not None %}{{ data.pangcheng2 }}{% endif %}</td>
+                                <td>{% if data.dianban2 is not None %}{{ data.dianban2 }}{% endif %}</td>
+                                <td>{% if data.lunjing2 %}{{ data.lunjing2 }}{% endif %}</td>
+                                <td>{% if data.chegou1 %}{{ data.chegou1 }}{% endif %}</td>
+                                <td>{% if data.pangcheng1 is not None %}{{ data.pangcheng1 }}{% endif %}</td>
+                                <td>{% if data.dianban1 is not None %}{{ data.dianban1 }}{% endif %}</td>
+                                <td>{% if data.lunjing1 %}{{ data.lunjing1 }}{% endif %}</td>
+
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    {#    <script>#}
+    {#        $('.delete-btn').click(function (e) {#}
+    {#            e.preventDefault();#}
+    {#            var deleteUrl = $(this).data('url');#}
+    {#            var alertResponse = confirm("确定要删除这辆车的全部数据吗?");#}
+    {#            if (alertResponse) {#}
+    {#                $.ajax({#}
+    {#                    url: deleteUrl,#}
+    {#                    type: 'POST',#}
+    {#                    success: function (result) {#}
+    {#                        // 在这进行你的数据处理，例如刷新页面#}
+    {#                        location.reload();#}
+    {##}
+    {#                    },#}
+    {#                    error: function (result) {#}
+    {#                        // 处理任何错误#}
+    {#                        alert('删除操作失败。');#}
+    {#                    }#}
+    {#                });#}
+    {#            }#}
+    {#        });#}
+    {#    </script>#}
+
+{% endblock %}

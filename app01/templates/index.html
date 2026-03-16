@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <style>
+        body, html {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .table {
+            width: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            overflow: auto;
+        }
+    </style>
+    <script>
+        $(function () {
+            $("#datepicker").datepicker();
+        });
+    </script>
+    <div class="bs-example" data-example-id="table-within-panel">
+        <div class="container">
+            <div class="panel-default">
+                {#               <div class="container mb-4">#}
+                <H1 class="font-weight-bold title">查询历史入库及出库数据[出车顺序
+                    {% for order in orders %}
+                        {{ order.gudao1 }}{{ order.gudao2 }}{{ order.gudao3 }}
+                    {% endfor %}]
+                </H1>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="panel-default">
+            <div style="margin-bottom: 10px" class="input-group">
+                <span style="margin-bottom: 10px" class="input-group-addon">查询日期 : {{ today }}</span>
+                {% if context1.shunxu_display %}
+                    <span style="margin-bottom: 10px" class="input-group-addon">{{ context1.shunxu_display }}</span>
+                {% endif %}
+            </div>
+            <form method="POST" style="margin-bottom: 10px" action="#">
+                {% csrf_token %}
+                <label for="datepicker">日期: </label>
+                <input type="text" name="date" value="{{ date|default:'default_date_here' }}" autocomplete="off"
+                       id="datepicker">
+                <label for="storageType">入库顺序: </label>
+                <select id="storageType" name="shunxu"
+                        style="width: 15%; padding: 0.5em; border: 1px solid #ddd; border-radius: 5px;">
+                    <option value="1" {% if shunxu == '1' %}selected{% endif %}>一次入库</option>
+                    <option value="2" {% if shunxu == '2' %}selected{% endif %}>二次入库</option>
+                    <option value="3" {% if shunxu == '3' %}selected{% endif %}>三次入库</option>
+                </select>
+                <button id="queryButton" type="submit"
+                        style="width: 8%; padding: 0.5em; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    查询数据
+                </button>
+                <a href="{% url 'view_log' %}" class="ms-2">查看日志</a>
+                <a href="{% url 'initial' %}" class="ms-2">物料数据包</a>
+            </form>
+
+            <table class="table table-bordered">
+                <thead>
+                <tr class="table-row">
+                    <th style="background-color: #8ec2ed;">台位顺序</th>
+                    <th style="background-color: #7ccecd;">货车修程</th>
+                    <th style="background-color: #7ccecd;">车型车种</th>
+                    <th style="background-color: #7ccecd;">轮对年限</th>
+                    <th style="background-color: #7ccecd;">临时出车顺序</th>
+                    <th style="background-color: #8fd19e;">二位入库钩高</th>
+                    <th style="background-color: #8fd19e;">二位入库旁承</th>
+                    <th style="background-color: #8fd19e;">二位入库垫板</th>
+                    <th style="background-color: #8fd19e;">二位出库垫板</th>
+                    <th style="background-color: #8fd19e;">二位入库轮径</th>
+                    <th style="background-color: #8fd19e;">二位出库轮径</th>
+                    <th style="background-color: #8ec2ed;">一位入库钩高</th>
+                    <th style="background-color: #8ec2ed;">一位入库旁承</th>
+                    <th style="background-color: #8ec2ed;">一位入库垫板</th>
+                    <th style="background-color: #8ec2ed;">一位出库垫板</th>
+                    <th style="background-color: #8ec2ed;">一位入库轮径</th>
+                    <th style="background-color: #8ec2ed;">一位出库轮径</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in data_list %}
+                    <tr class="table-row">
+                        <td style="background-color: #8ec2ed;">{{ item.position }}</td>  <!--台位顺序-->
+                        <td style="background-color: #7ccecd;">{% if item.data.data2.get_xiucheng_display %}
+                            {{ item.data.data2.get_xiucheng_display }}{% endif %}</td><!--货车修程-->
+                        <td style="background-color: #7ccecd;">{% if item.data.data2.chexing %}
+                            {{ item.data.data2.chexing }}{% endif %}</td><!--车型车种-->
+                        <td style="background-color: #7ccecd;">{% if item.data.data2.get_nianxian_display %}
+                            {{ item.data.data2.get_nianxian_display }}{% endif %}</td><!--轮对年限-->
+                        <td style="background-color: #7ccecd;">{% if item.data.data2.get_beizhu_display %}
+                            {{ item.data.data2.get_beizhu_display }}{% endif %}</td><!--临时出车顺序-->
+                        <td style="background-color: #8fd19e;">
+                            {% if item.data.data2.chegou2 %}{{ item.data.data2.chegou2 }}{% endif %}</td><!--北头入库车钩-->
+                        <td style="background-color: #8fd19e;">{% if item.data.data2.pangcheng2 is not None %}
+                            {{ item.data.data2.pangcheng2 }}{% endif %}</td>
+                        <td style="background-color: #8fd19e;">
+                            {% if item.data.data2.dianban2 is not None %}{{ item.data.data2.dianban2 }}{% endif %}</td>
+                        <!--北头入库垫板-->
+                        <td style="background-color: #8fd19e;">
+                            {% if item.data.data1.dianban2 is not None %}{{ item.data.data1.dianban2 }}{% endif %}</td>
+                        <!--北头出库垫板-->
+                        <td style="background-color: #8fd19e;">
+                            {% if item.data.data2.lunjing2 %}{{ item.data.data2.lunjing2 }}{% endif %}</td><!--北头入库轮径-->
+                        <td style="background-color: #8fd19e;">
+                            {% if item.data.data1.lunjing2 %}{{ item.data.data1.lunjing2 }}{% endif %}</td><!--北头出库轮径-->
+                        <td style="background-color: #8ec2ed;">
+                            {% if item.data.data2.chegou1 %}{{ item.data.data2.chegou1 }}{% endif %}</td><!--南头入库车钩-->
+                        <td style="background-color: #8ec2ed;">{% if item.data.data2.pangcheng1 is not None %}
+                            {{ item.data.data2.pangcheng1 }}{% endif %}</td>
+                        <td style="background-color: #8ec2ed;">
+                            {% if item.data.data2.dianban1 is not None %}{{ item.data.data2.dianban1 }}{% endif %}</td>
+                        <!--南头入库垫板-->
+                        <td style="background-color: #8ec2ed;">
+                            {% if item.data.data1.dianban1 is not None %}{{ item.data.data1.dianban1 }}{% endif %}</td>
+                        <!--南头出库垫板-->
+                        <td style="background-color: #8ec2ed;">
+                            {% if item.data.data2.lunjing1 %}{{ item.data.data2.lunjing1 }}{% endif %}</td><!--南头入库轮径-->
+                        <td style="background-color: #8ec2ed;">
+                            {% if item.data.data1.lunjing1 %}{{ item.data.data1.lunjing1 }}{% endif %}</td><!--南头出库轮径-->
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

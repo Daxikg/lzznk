@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>车间选择 - 物料系统</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .workshop-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .workshop-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        .workshop-card.selected {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+        .workshop-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .workshop-desc {
+            color: #666;
+            font-size: 14px;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .error {
+            color: #e74c3c;
+            background: #ffeaea;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .footer {
+            margin-top: 30px;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏭 物料管理系统</h1>
+        <div class="subtitle">请选择要访问的车间</div>
+
+        <!-- 移除了原有的隐藏表单 -->
+
+        <div class="workshop-card" onclick="selectWorkshop('workshop1')">
+            <div class="workshop-name">修车车间</div>
+            <div class="workshop-desc">贵阳南车辆段修车车间</div>
+        </div>
+
+        <div class="workshop-card" onclick="selectWorkshop('workshop2')">
+            <div class="workshop-name">修配车间</div>
+            <div class="workshop-desc">贵阳南车辆段修配车间</div>
+        </div>
+
+        <button class="btn" id="submitBtn" disabled onclick="navigateToWorkshop()">
+            进入系统 →
+        </button>
+
+        <div class="footer">
+            系统版本: v2.0 | 技术支持: GNL
+        </div>
+    </div>
+
+    <script>
+        let selectedWorkshop = null;
+
+        // 定义每个车间对应的URL，请将这里的示例URL替换成您真实的URL
+        const workshopUrls = {
+            'workshop1': 'http://10.199.102.18:10010/', // 请替换为修车车间的真实登录地址
+            'workshop2': 'http://10.199.102.18:10002/'  // 请替换为修配车间的真实登录地址
+        };
+
+        function selectWorkshop(workshopKey) {
+            // 清除之前的选择
+            document.querySelectorAll('.workshop-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // 设置当前选择
+            event.currentTarget.classList.add('selected');
+            selectedWorkshop = workshopKey;
+
+            // 启用提交按钮
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        function navigateToWorkshop() {
+            if (selectedWorkshop && workshopUrls[selectedWorkshop]) {
+                // 在当前窗口打开新地址
+                window.location.href = workshopUrls[selectedWorkshop];
+                // 如果希望在新标签页打开，可以使用：
+                // window.open(workshopUrls[selectedWorkshop], '_blank');
+            } else {
+                alert("请选择一个车间！");
+            }
+        }
+
+        // 支持键盘回车选择
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && selectedWorkshop) {
+                navigateToWorkshop();
+            }
+        });
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,282 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" http-equiv="refresh" content="15">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/favicon.png' %}">
+    <title>轮轴班轮对选配展示（二次入库）</title>
+    <style>
+        .updated {
+            color: #34ce57 !important;
+        }
+
+        .large-font {
+            font-size: 60px !important; /* 你可以根据需要设置字体大小 */
+            color: yellow !important;
+        }
+
+        .large-font1 {
+            font-size: 50px !important; /* 你可以根据需要设置字体大小 */
+            color: white !important;
+        }
+
+        .third-column {
+            border-right: 10px double yellow !important; /* 为右边增加一条线 */
+        }
+
+        .large-font2 {
+            font-size: 40px !important; /* 你可以根据需要设置字体大小 */
+        }
+
+        .highlight {
+            color: yellow !important; /* 70T黄色显示，60T默认颜色显示 */
+        }
+
+        body {
+            min-height: 100vh;
+            /* 将背景图片设置为 'background.jpg' */
+            background-image: url("{% static 'img/2.jpg' %}");
+
+            /* 设置背景图片大小为覆盖整个容器 */
+            background-size: cover;
+
+            /* 设置背景图片不重复 */
+            background-repeat: no-repeat;
+
+            /* 设置背景图片位置为居中 */
+            background-position: center center;
+            color: white; /*将所有字体设置为白色*/
+            font-weight: bold; /*加粗所有字体*/
+        }
+
+        .title {
+            text-align: center; /* 标题居中 */
+            color: yellow;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .column {
+            width: 34%;
+        }
+
+        .table {
+            border-collapse: collapse; /* 这样设置没有边框的表格 */
+            margin-bottom: 5px; /* 为每个表格底部添加5px的间距 */
+        }
+
+        .table th {
+            color: yellow; /*将表头字体设置为黄色*/
+            border-bottom: 2px solid white; /* 这样可以在表头行底部添加一条实线 */
+        }
+
+        .table td {
+            border-bottom: 1px dashed white; /* 在每个cell底部添加一条虚线 */
+            width: 100px; /* 确定的宽度 */
+            height: 90px; /* 确定的高度 */
+            overflow: hidden; /* 如果内容太大，隐藏它 */
+        }
+
+        .table tr {
+            border-bottom: 1px dashed white; /* 设置底部边框为虚线 */
+        }
+
+        .table td, .table th {
+            font-size: 25px; /* 调整字体大小到你想要的值 */
+            font-weight: bold; /* 加粗文字 */
+            text-align: center; /* 让文本居中 */
+            border-left: none; /* 移除左边框 */
+            border-right: none; /* 移除右边框 */
+            border-bottom: none;
+        }
+
+        .table thead tr {
+            border-bottom: 2px solid white; /* 为表头设置实线 */
+        }
+
+
+        .table-layout {
+            display: inline-block;
+            margin-right: 5px; /* 可以自由调整表格间的距离 */
+        }
+
+        .table-layout th:nth-child(1),
+        .table-layout td:nth-child(1) {
+            width: 70px;
+        }
+
+        .table-layout th:nth-child(2),
+        .table-layout td:nth-child(2) {
+            width: 60px;
+        }
+
+        .table-layout th:nth-child(3),
+        .table-layout td:nth-child(3) {
+            width: 145px;
+        }
+
+        .table-layout th:nth-child(4),
+        .table-layout td:nth-child(4) {
+            width: 80px;
+        }
+
+        .table-layout th:nth-child(5),
+        .table-layout td:nth-child(5) {
+            width: 140px;
+        }
+
+        .table-layout th:nth-child(6),
+        .table-layout td:nth-child(6) {
+            width: 140px;
+        }
+
+
+        .btn {
+            /* 设置背景和文字颜色 */
+            background-color: #004ab8;
+            color: white;
+
+            /* 内边距和字体大小 */
+            padding: 15px 32px;
+            text-align: center;
+            font-size: 16px;
+
+            /* 边框样式 */
+            border: none;
+            border-radius: 4px;
+
+            /* 文字装饰 */
+            text-decoration: none;
+            display: inline-block;
+
+            /* 鼠标悬停样式 */
+            transition-duration: 0.4s; /* transition effect */
+            cursor: pointer;
+        }
+
+        /* 鼠标悬停时的颜色变化 */
+        .btn:hover {
+            background-color: #0a66c2;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<header class="navbar-expand-md">
+    <div class="panel-default" style="margin-bottom: 10px; display: flex; justify-content: center;">
+        <H1 class="font-weight-bold" style="flex: 1; text-align: center;">{{ today1 }}</H1>
+        <H1 class="font-weight-bold title" style="text-align: center;">轮轴班轮对选配展示(二次入库)</H1>
+        <div style="flex: 1;">
+            <ul class="pagination m-0 xs-auto" id="nav">
+                <a href="/轮轴班一次出库信息展示界面/" class="btn btn-default " role="button">一次入库</a>
+                <a href="/轮轴班二次出库信息展示界面/" class="btn btn-default " role="button">二次入库</a>
+                <a href="/轮轴班三次出库信息展示界面/" class="btn btn-default " role="button">三次入库</a>
+                <a href="/轮轴班临修信息展示界面/" class="btn btn-default " role="button">临修</a>
+                        <a href="/index1/" class="btn btn-default " role="button">返回</a>
+            </ul>
+        </div>
+    </div>
+    <div class="container">
+        <div class="column">
+            <table class="table table-bordered table-layout">
+                <thead>
+                <tr>
+                    <th>台位</th>
+                    <th>修程</th>
+                    <th>车型</th>
+                    <th>年限</th>
+                    <th>二位</th>
+                    <th class="third-column">一位</th>
+                </tr>
+                </thead>
+                {% for item in data_list|slice:":9" %}
+                    <tr class="table-row">
+                        <td class="large-font2 {% if item.data.data1.beizhu %}updated{% endif %}">{{ item.position }}</td>
+                        <td class="large-font2 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                            {% if item.data.data1.get_xiucheng_display %}
+                                {{ item.data.data1.get_xiucheng_display }}{% endif %}</td>
+                        <td class="large-font2 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                            {% if item.data.data1.chexing %}
+                                {{ item.data.data1.chexing }}{% endif %}</td>
+                        <td class="large-font1 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                            {% if item.data.data1.get_nianxian_display %}
+                                {{ item.data.data1.get_nianxian_display }}{% endif %}</td>
+                        <td class="large-font">
+                            {% if item.data.data2.lunjing2 %}{{ item.data.data2.lunjing2 }}{% endif %}</td>
+                        <td class="third-column large-font">
+                            {% if item.data.data2.lunjing1 %}{{ item.data.data2.lunjing1 }}{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="column">
+            <table class="table table-bordered table-layout">
+                <thead>
+                <tr>
+                    <th>台位</th>
+                    <th>修程</th>
+                    <th>车型</th>
+                    <th>年限</th>
+                    <th>二位</th>
+                    <th class="third-column">一位</th>
+                </tr>
+                </thead>
+                {% for item in data_list|slice:"9:18" %}
+                    <tr class="table-row">
+                        <td class="large-font2 {% if item.data.data1.beizhu %}updated{% endif %}">{{ item.position }}</td>
+                        <td class="large-font2 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                            {% if item.data.data1.get_xiucheng_display %}
+                                {{ item.data.data1.get_xiucheng_display }}{% endif %}</td>
+                        <td class="large-font2 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                            {% if item.data.data1.chexing %}
+                                {{ item.data.data1.chexing }}{% endif %}</td>
+                        <td class="large-font1 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                            {% if item.data.data1.get_nianxian_display %}
+                                {{ item.data.data1.get_nianxian_display }}{% endif %}</td>
+                        <td class="large-font">
+                            {% if item.data.data2.lunjing2 %}{{ item.data.data2.lunjing2 }}{% endif %}</td>
+                        <td class="third-column large-font">
+                            {% if item.data.data2.lunjing1 %}{{ item.data.data2.lunjing1 }}{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="column">
+            <table class="table table-bordered table-layout">
+                <thead>
+                <tr>
+                    <th>台位</th>
+                    <th>修程</th>
+                    <th>车型</th>
+                    <th>年限</th>
+                    <th>二位</th>
+                    <th>一位</th>
+                </tr>
+                </thead>
+                {% for item in data_list|slice:"18:27" %}
+                    <tr class="table-row">
+                        <td class="large-font2 {% if item.data.data1.beizhu %}updated{% endif %}">{{ item.position }}</td>
+                        <td class="large-font2 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                            {% if item.data.data1.get_xiucheng_display %}
+                                {{ item.data.data1.get_xiucheng_display }}{% endif %}</td>
+                        <td class="large-font2 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                            {% if item.data.data1.chexing %}
+                                {{ item.data.data1.chexing }}{% endif %}</td>
+                        <td class="large-font1 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                            {% if item.data.data1.get_nianxian_display %}
+                                {{ item.data.data1.get_nianxian_display }}{% endif %}</td>
+                        <td class="large-font">
+                            {% if item.data.data2.lunjing2 %}{{ item.data.data2.lunjing2 }}{% endif %}</td>
+                        <td class="large-font">
+                            {% if item.data.data2.lunjing1 %}{{ item.data.data2.lunjing1 }}{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</header>
+</body>
+</html>

@@ -1,0 +1,122 @@
+{% extends 'djgl1.html' %}
+{% load my_tags %}
+{% block content %}
+    <section>
+        <div class="page-banner bg-secondary">
+            <div class="container">
+                <div class="page-title">
+                    <h3 class="text-center text-white">{{ banzu_display }}党员积分</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="blog pt-100 pb-50 bg-light">
+        <div class="container">
+            <div class="row">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">姓名</th>
+                        <th scope="col">1月</th>
+                        <th scope="col">2月</th>
+                        <th scope="col">3月</th>
+                        <th scope="col">4月</th>
+                        <th scope="col">5月</th>
+                        <th scope="col">6月</th>
+                        <th scope="col">7月</th>
+                        <th scope="col">8月</th>
+                        <th scope="col">9月</th>
+                        <th scope="col">10月</th>
+                        <th scope="col">11月</th>
+                        <th scope="col">12月</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <th scope="col">编辑</th>
+                        <th scope="col">
+                            <a href="/djgl/dangjianguanli1/{{ banzu }}/1/edit/"
+                               style="font-size: 15px; padding: 5px 10px;"
+                               class="btn btn-success btn-xs">编辑</a>
+                        </th>
+                        <th scope="col">
+                            <a href="/djgl/dangjianguanli1/{{ banzu }}/2/edit/"
+                               style="font-size: 15px; padding: 5px 10px;"
+                               class="btn btn-success btn-xs">编辑</a>
+                        </th>
+                        <th scope="col">
+                            <a href="/djgl/dangjianguanli1/{{ banzu }}/3/edit/"
+                               style="font-size: 15px; padding: 5px 10px;"
+                               class="btn btn-success btn-xs">编辑</a>
+                        </th>
+                        <th scope="col">
+                            <a href="/djgl/dangjianguanli1/{{ banzu }}/4/edit/"
+                               style="font-size: 15px; padding: 5px 10px;"
+                               class="btn btn-success btn-xs">编辑</a>
+                        </th>
+                        <th scope="col">
+                            <a href="/djgl/dangjianguanli1/{{ banzu }}/5/edit/"
+                               style="font-size: 15px; padding: 5px 10px;"
+                               class="btn btn-success btn-xs">编辑</a>
+                        </th>
+                        <th scope="col">
+                            <a href="/djgl/dangjianguanli1/{{ banzu }}/6/edit/"
+                               style="font-size: 15px; padding: 5px 10px;"
+                               class="btn btn-success btn-xs">编辑</a>
+                        </th>
+                        <th scope="col">
+                            <a href="/djgl/dangjianguanli1/{{ banzu }}/7/edit/"
+                               style="font-size: 15px; padding: 5px 10px;"
+                               class="btn btn-success btn-xs">编辑</a>
+                        </th>
+                        <th scope="col">
+                            <a href="/djgl/dangjianguanli1/{{ banzu }}/8/edit/"
+                               style="font-size: 15px; padding: 5px 10px;"
+                               class="btn btn-success btn-xs">编辑</a>
+                        </th>
+                        <th scope="col">
+                            <a href="/djgl/dangjianguanli1/{{ banzu }}/9/edit/"
+                               style="font-size: 15px; padding: 5px 10px;"
+                               class="btn btn-success btn-xs">编辑</a>
+                        </th>
+                        <th scope="col">
+                            <a href="/djgl/dangjianguanli1/{{ banzu }}/10/edit/"
+                               style="font-size: 15px; padding: 5px 10px;"
+                               class="btn btn-success btn-xs">编辑</a>
+                        </th>
+                        <th scope="col">
+                            <a href="/djgl/dangjianguanli1/{{ banzu }}/11/edit/"
+                               style="font-size: 15px; padding: 5px 10px;"
+                               class="btn btn-success btn-xs">编辑</a>
+                        </th>
+                        <th scope="col">
+                            <a href="/djgl/dangjianguanli1/{{ banzu }}/12/edit/"
+                               style="font-size: 15px; padding: 5px 10px;"
+                               class="btn btn-success btn-xs">编辑</a>
+                        </th>
+                    </tr>
+                    {% for user in users %}
+                        <tr>
+                            <td>{{ user.name }}</td>
+                            {% for month, jifen in user.jifen.items %}
+                                <td>
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <button type="button" class="btn btn-danger" data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="
+                                                        {% for detail in user.jifen_detail|get_item:month %}{{ detail|linebreaksbr }}{% endfor %}">
+                                            {{ jifen }}
+                                        </button>
+                                    </form>
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+{% endblock %}

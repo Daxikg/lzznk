@@ -1,0 +1,310 @@
+<!-- tools_app/templates\tools_app\update_tool.html -->
+{% extends 'tools/base.html' %}
+
+{% block title %}编辑工具{% endblock %}
+
+{% block nav_page_title %}编辑工具{% endblock %}
+
+{% block nav_breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'tools:manage_tools' %}" class="text-muted">工具管理</a></li>
+<li class="breadcrumb-item text-muted active" aria-current="page">编辑工具</li>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h6 class="mb-0"><i class="fa fa-edit mr-2 text-primary"></i>编辑工具信息</h6>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- 基本信息 -->
+                    <h6 class="border-bottom pb-2 mb-3 text-primary">
+                        <i class="fa fa-info-circle mr-1"></i>基本信息
+                    </h6>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label>工具编码 <span class="text-danger">*</span></label>
+                            <input type="text" name="code" class="form-control" id="id_code" value="{{ form.code.value|default:'' }}" required>
+                        </div>
+                        <div class="form-group col">
+                            <label>工具名称 <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" id="id_name" value="{{ form.name.value|default:'' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label>规格型号 <span class="text-danger">*</span></label>
+                            <input type="text" name="specification" class="form-control" id="id_specification" value="{{ form.specification.value|default:'' }}" required>
+                        </div>
+                        <div class="form-group col">
+                            <label>厂家名称</label>
+                            <input type="text" name="manufacturer" class="form-control" id="id_manufacturer" value="{{ form.manufacturer.value|default:'' }}">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label>备注</label>
+                            <input type="text" name="remark" class="form-control" id="id_remark" value="{{ form.remark.value|default:'' }}" maxlength="200" placeholder="可选">
+                        </div>
+                    </div>
+
+                    <!-- 分类与价值 -->
+                    <h6 class="border-bottom pb-2 mb-3 mt-4 text-primary">
+                        <i class="fa fa-tags mr-1"></i>分类与价值
+                    </h6>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label>类别 <span class="text-danger">*</span></label>
+                            <select name="category" class="form-control" id="id_category" required>
+                                {% for choice in form.category.field.choices %}
+                                    {% if choice.0 %}
+                                        <option value="{{ choice.0 }}" {% if form.category.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>{{ choice.1 }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col">
+                            <label>购买日期 <span class="text-danger">*</span></label>
+                            <input type="date" name="purchase_date" class="form-control" id="id_purchase_date" value="{{ form.purchase_date.value|date:'Y-m-d'|default:'' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label>价值(元) <span class="text-danger">*</span></label>
+                            <input type="number" name="value" class="form-control" id="id_value" value="{{ form.value.value|default:'' }}" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group col">
+                            <label>工具类型</label>
+                            <select name="is_high_value" class="form-control" id="id_is_high_value">
+                                <option value="False" {% if form.is_high_value.value == False or form.is_high_value.value == 'False' %}selected{% endif %}>普通工具</option>
+                                <option value="True" {% if form.is_high_value.value == True or form.is_high_value.value == 'True' %}selected{% endif %}>高价值工具</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 状态与保养 -->
+                    <h6 class="border-bottom pb-2 mb-3 mt-4 text-primary">
+                        <i class="fa fa-cogs mr-1"></i>状态与保养
+                    </h6>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label>状态</label>
+                            <select name="status" class="form-control" id="id_status">
+                                {% for choice in form.status.field.choices %}
+                                    <option value="{{ choice.0 }}" {% if form.status.value == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col">
+                            <label>保养周期</label>
+                            <select name="maintenance_cycle" class="form-control" id="id_maintenance_cycle">
+                                <option value="">-- 不设置 --</option>
+                                {% for choice in form.maintenance_cycle.field.choices %}
+                                    {% if choice.0 %}
+                                        <option value="{{ choice.0 }}" {% if form.maintenance_cycle.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>{{ choice.1 }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label>上次保养日期</label>
+                            <input type="date" name="last_maintenance_date" class="form-control" id="id_last_maintenance_date" value="{{ form.last_maintenance_date.value|date:'Y-m-d'|default:'' }}">
+                        </div>
+                        <div class="form-group col"></div>
+                    </div>
+
+                    <!-- 附件上传 -->
+                    <h6 class="border-bottom pb-2 mb-3 mt-4 text-primary">
+                        <i class="fa fa-paperclip mr-1"></i>附件
+                    </h6>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label>工具图片</label>
+                            {% if tool.image %}
+                                <div class="mb-2">
+                                    <img src="{{ tool.image.url }}" alt="当前图片" class="img-thumbnail" style="max-height: 80px;">
+                                </div>
+                            {% endif %}
+                            <div class="custom-file">
+                                <input type="file" name="image" class="custom-file-input" id="id_image" accept="image/*">
+                                <label class="custom-file-label" for="id_image">选择图片文件</label>
+                            </div>
+                            <small class="text-muted">支持 JPG、PNG 格式</small>
+                        </div>
+                        <div class="form-group col">
+                            <label>技术文档</label>
+                            {% if tool.technical_docs %}
+                                <div class="mb-2">
+                                    <a href="{{ tool.technical_docs.url }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                        <i class="fa fa-file mr-1"></i>查看现有文档
+                                    </a>
+                                </div>
+                            {% endif %}
+                            <div class="custom-file">
+                                <input type="file" name="technical_docs" class="custom-file-input" id="id_technical_docs" accept=".pdf,.doc,.docx">
+                                <label class="custom-file-label" for="id_technical_docs">选择文档文件</label>
+                            </div>
+                            <small class="text-muted">支持 PDF、DOC、DOCX 格式</small>
+                        </div>
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger mt-3">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-check mr-1"></i>保存更改
+                            </button>
+                            <a href="{% url 'tools:manage_tools' %}" class="btn btn-outline-secondary ml-2">取消</a>
+                        </div>
+                        {% if can_manage_tools %}
+                        <div>
+                            <button type="button" class="btn btn-outline-dark" onclick="confirmScrapTool({{ tool.id }}, '{{ tool.name }}')">
+                                <i class="fa fa-trash-alt mr-1"></i>报废工具
+                            </button>
+                            <button type="button" class="btn btn-outline-danger ml-2" onclick="confirmDeleteTool({{ tool.id }}, '{{ tool.name }}')">
+                                <i class="fa fa-trash mr-1"></i>删除工具
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 删除确认模态框 -->
+<div class="modal fade" id="deleteToolModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fa fa-exclamation-triangle mr-2"></i>确认删除</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">确定要删除工具 <strong id="deleteToolName" class="text-danger"></strong> 吗？此操作不可撤销。</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <form id="deleteToolForm" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">确认删除</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 报废确认模态框 -->
+<div class="modal fade" id="scrapToolModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title"><i class="fa fa-trash-alt mr-2"></i>确认报废</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2">确定要将工具 <strong id="scrapToolName" class="text-dark"></strong> 标记为报废吗？报废后工具将无法继续使用。</p>
+                <div class="form-group mt-3">
+                    <label>报废原因 <span class="text-danger">*</span></label>
+                    <textarea name="scrap_reason" id="scrapReason" class="form-control" rows="3" placeholder="请填写报废原因..." required></textarea>
+                    <small class="text-muted">请详细说明报废原因，此信息将保存到工具备注中。</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <form id="scrapToolForm" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="scrap_reason" id="scrapReasonInput">
+                    <button type="submit" class="btn btn-dark" id="scrapSubmitBtn">确认报废</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDeleteTool(toolId, toolName) {
+    document.getElementById('deleteToolName').textContent = toolName;
+    document.getElementById('deleteToolForm').action = `{% url 'tools:delete_tool' tool_id=999 %}`.replace('999', toolId);
+    $('#deleteToolModal').modal('show');
+}
+
+function confirmScrapTool(toolId, toolName) {
+    document.getElementById('scrapToolName').textContent = toolName;
+    document.getElementById('scrapToolForm').action = `{% url 'tools:scrap_tool' tool_id=999 %}`.replace('999', toolId);
+    document.getElementById('scrapReason').value = '';
+    $('#scrapToolModal').modal('show');
+}
+
+// 报废表单提交验证
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('scrapToolForm').addEventListener('submit', function(e) {
+        const reason = document.getElementById('scrapReason').value.trim();
+        if (!reason) {
+            e.preventDefault();
+            alert('请填写报废原因！');
+            return false;
+        }
+        document.getElementById('scrapReasonInput').value = reason;
+    });
+});
+
+// 文件选择显示文件名
+document.addEventListener('DOMContentLoaded', function() {
+    $('#id_image').on('change', function() {
+        var fileName = $(this).val().split('\\').pop();
+        $(this).next('.custom-file-label').html(fileName || '选择图片文件');
+    });
+    $('#id_technical_docs').on('change', function() {
+        var fileName = $(this).val().split('\\').pop();
+        $(this).next('.custom-file-label').html(fileName || '选择文档文件');
+    });
+
+    // 设置购买日期默认值
+    const purchaseDateInput = document.getElementById('id_purchase_date');
+    if (purchaseDateInput && !purchaseDateInput.value) {
+        const today = new Date();
+        purchaseDateInput.value = today.toISOString().split('T')[0];
+    }
+
+    // 价值自动设置工具类型
+    const valueInput = document.getElementById('id_value');
+    const typeSelect = document.getElementById('id_is_high_value');
+
+    if (valueInput && typeSelect) {
+        valueInput.addEventListener('input', function() {
+            const value = parseFloat(valueInput.value);
+            if (!isNaN(value)) {
+                typeSelect.value = value >= 1000 ? 'True' : 'False';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

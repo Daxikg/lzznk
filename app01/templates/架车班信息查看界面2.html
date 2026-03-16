@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="bs-example" data-example-id="table-within-panel">
+        <div class="container">
+            <div class="panel-default">
+                {#                <div class="container mb-4">#}
+                <H1 class="font-weight-bold title">架车班数据查询与编辑(二次入库)</H1>
+                <ul class="pagination m-0 xs-auto" id="nav">
+                    <li class="page-item"><a href="/架车班信息查看界面1/"
+                                             class="page-link {% if current_url_name == 'user_list1' %}active{% endif %}"
+                                             role="button">一次入库</a>
+                    <li class="page-item"><a href="/架车班信息查看界面2/"
+                                             class="page-link {% if current_url_name == 'user_list2' %}active{% endif %}"
+                                             role="button">二次入库</a>
+                <li class="page-item"><a href="/架车班信息查看界面3/"
+                                             class="page-link {% if current_url_name == 'user_list3' %}active{% endif %}"
+                                             role="button">三次入库</a>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="panel-default">
+            <div style="margin-bottom: 10px" class="input-group">
+                <span style="margin-bottom: 10px" class="input-group-addon">今日日期 : {{ today }}</span>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th style="background-color: #8ec2ed;">台位顺序</th>
+                    <th style="background-color: #7ccecd;">货车修程</th>
+                    <th style="background-color: #7ccecd;">车型车种</th>
+                    <th style="background-color: #8fd19e;">二位钩高</th>
+                    <th style="background-color: #8fd19e;">二位旁承</th>
+                    <th style="background-color: #8fd19e;">二位垫板</th>
+                    <th style="background-color: #8fd19e;">二位轮径</th>
+                    <th style="background-color: #8ec2ed;">一位钩高</th>
+                    <th style="background-color: #8ec2ed;">一位旁承</th>
+                    <th style="background-color: #8ec2ed;">一位垫板</th>
+                    <th style="background-color: #8ec2ed;">一位轮径</th>
+                    <th style="background-color: #7ccecd;">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for position, data in positions.items %}
+                    <tr>
+                        <td style="background-color: #8ec2ed;">{{ position }}</td>
+                        <td style="background-color: #7ccecd;">{% if data.get_xiucheng_display %}{{ data.get_xiucheng_display }}{% endif %}</td>
+                        <td style="background-color: #7ccecd;">{% if data.chexing %}{{ data.chexing }}{% endif %}</td>
+                        <td style="background-color: #8fd19e;">{% if data.chegou2 %}{{ data.chegou2 }}{% endif %}</td>
+                        <td style="background-color: #8fd19e;">{% if data.pangcheng2 is not None %}{{ data.pangcheng2 }}{% endif %}</td>
+                        <td style="background-color: #8fd19e;">{% if data.dianban2 is not None %}{{ data.dianban2 }}{% endif %}</td>
+                        <td style="background-color: #8fd19e;">{% if data.lunjing2 %}{{ data.lunjing2 }}{% endif %}</td>
+                        <td style="background-color: #8ec2ed;">{% if data.chegou1 %}{{ data.chegou1 }}{% endif %}</td>
+                        <td style="background-color: #8ec2ed;">{% if data.pangcheng1 is not None %}{{ data.pangcheng1 }}{% endif %}</td>
+                        <td style="background-color: #8ec2ed;">{% if data.dianban1 is not None %}{{ data.dianban1 }}{% endif %}</td>
+                        <td style="background-color: #8ec2ed;">{% if data.lunjing1 %}{{ data.lunjing1 }}{% endif %}</td>
+                        {% if data %}
+                            <td>
+                                <a href="/架车班信息采集界面/{{ data.taiwei }}/{{ data.shunxu }}/edit/"
+                                   style="font-size: 15px; padding: 5px 10px;" class="btn btn-primary btn-xs">编辑</a>
+                                <a href="#" data-url="/架车班信息采集界面/{{ data.taiwei }}/{{ data.shunxu }}/delete/"
+                                   style="font-size: 15px; padding: 5px 10px;" class="btn btn-danger btn-xs delete-btn">删除</a>
+                            </td>
+                        {% else %}
+                            <td colspan="1"></td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        $('.delete-btn').click(function (e) {
+            e.preventDefault();
+            var deleteUrl = $(this).data('url');
+            var alertResponse = confirm("确定要删除这辆车的全部数据吗?");
+            if (alertResponse) {
+                $.ajax({
+                    url: deleteUrl,
+                    type: 'POST',
+                    success: function (result) {
+                        // 在这进行你的数据处理，例如刷新页面
+                        location.reload();
+
+                    },
+                    error: function (result) {
+                        // 处理任何错误
+                        alert('删除操作失败。');
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

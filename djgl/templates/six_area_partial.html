@@ -1,0 +1,102 @@
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col"></th>
+        <th scope="col">一季度</th>
+        <th scope="col">二季度</th>
+        <th scope="col">三季度</th>
+        <th scope="col">四季度</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% if banzu_logged_in == 13 and year == this_year %}
+        {% if role == "role1" %}
+            <!-- 这里可以保持空白或其他处理 -->
+        {% else %}
+            <tr>
+                <th scope="col">操作</th>
+                <th scope="col">
+                    <a href="/djgl/dangjianguanli0/1/edit/"
+                       style="font-size: 15px; padding: 5px 10px;"
+                       class="btn btn-danger btn-xs">编辑</a>
+                </th>
+                <th scope="col">
+                    <a href="/djgl/dangjianguanli0/2/edit/"
+                       style="font-size: 15px; padding: 5px 10px;"
+                       class="btn btn-danger btn-xs">编辑</a>
+                </th>
+                <th scope="col">
+                    <a href="/djgl/dangjianguanli0/3/edit/"
+                       style="font-size: 15px; padding: 5px 10px;"
+                       class="btn btn-danger btn-xs">编辑</a>
+                </th>
+                <th scope="col">
+                    <a href="/djgl/dangjianguanli0/4/edit/"
+                       style="font-size: 15px; padding: 5px 10px;"
+                       class="btn btn-danger btn-xs">编辑</a>
+                </th>
+            </tr>
+        {% endif %}
+    {% endif %}
+    <tr>
+        <td>红旗区</td>
+        {% for quarter, data in quarter_data.items %}
+            <td>
+                {% for info in data.hongqiqu %}
+                    {{ info }}
+                {% endfor %}
+            </td>
+        {% endfor %}
+    </tr>
+    <tr>
+        <td>达标区</td>
+        {% for quarter, data in quarter_data.items %}
+            <td>
+                {% for info in data.dabiaoqu %}
+                    {{ info }}
+                {% endfor %}
+            </td>
+        {% endfor %}
+    </tr>
+    <tr>
+        <td>警示区</td>
+        {% for quarter, data in quarter_data.items %}
+            <td>
+                {% for info in data.jingshiqu %}
+                    {{ info }}
+                {% endfor %}
+            </td>
+        {% endfor %}
+    </tr>
+    <tr>
+        <td>先锋岗</td>
+        {% for quarter, data in quarter_data.items %}
+            <td>
+                {% for info in data.xianfenggang %}
+                    {{ info }}
+                {% endfor %}
+            </td>
+        {% endfor %}
+    </tr>
+    <tr>
+        <td>达标岗</td>
+        {% for quarter, data in quarter_data.items %}
+            <td>
+                {% for info in data.dabiaogang %}
+                    {{ info }}
+                {% endfor %}
+            </td>
+        {% endfor %}
+    </tr>
+    <tr>
+        <td>警示岗</td>
+        {% for quarter, data in quarter_data.items %}
+            <td>
+                {% for info in data.jingshigang %}
+                    {{ info }}
+                {% endfor %}
+            </td>
+        {% endfor %}
+    </tr>
+    </tbody>
+</table>

@@ -1,0 +1,234 @@
+{% extends 'base6.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card" style="background-color: #e4b9b9;">
+                    <h1 class="card-title m-b-10" style="text-align: center; color: red;">{{ banzu_display }}党员信息
+                        <button id="Button" class="btn btn-danger btn-sm custom-button"
+                                onclick="window.location.href = '{% url 'djgl:add_dangyuan' banzu %}' ">
+                            添加党员
+                        </button>
+                    </h1>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">姓名</th>
+                            <th scope="col">照片</th>
+                            <th scope="col">性别</th>
+                            <th scope="col">民族</th>
+                            <th scope="col">入党时间</th>
+                            <th scope="col">职务</th>
+                            <th scope="col">出生年月日</th>
+                            <th scope="col">工作时间</th>
+                            <th scope="col">联系电话</th>
+                            <th scope="col">奖惩情况</th>
+                            <th scope="col">编辑</th>
+                        </tr>
+                        </thead>
+                        {% for user in users %}
+                            <tbody>
+                            <tr>
+                                <td><a href="{% url 'djgl:license8' user.id %}">
+                                    {{ user.name }}
+                                    {% if user.pic %}
+                                       
+                                    {% endif %}
+                                </a></td>
+                                <td>
+                                    {% if user.pic and user.pic != "" %}
+                                    <a href="/media/dangyuan/{{ user.pic }}" target="_blank">
+                                            <div class="image-container">
+                                                <img src="/media/dangyuan/{{ user.pic }}" alt="党员照片" style="width:50px;object-fit:contain">
+                                            </div>
+                                        </a>
+                                    {% else %}
+                                {% endif %}
+                                </td>
+                                <td>{% if user.get_gender_display %}{{ user.get_gender_display }}{% endif %}</td>
+                                <td>{% if user.nationality %}{{ user.nationality }}{% endif %}</td>
+                                <td>{% if user.join %}{{ user.join|date:"Y年m月d日" }}{% endif %}</td>
+                                <td>{% if user.position %}{{ user.position }}{% endif %}</td>
+                                <td>{% if user.birth %}{{ user.birth|date:"Y年m月d日" }}{% endif %}</td>
+                                <td>{% if user.time %}{{ user.time|date:"Y年m月d日" }}{% endif %}</td>
+                                <td>{% if user.number %}{{ user.number }}{% endif %}</td>
+                                <td>{% if user.jiangcheng %}{{ user.jiangcheng|linebreaksbr }}{% endif %}</td>
+                                <td>
+                                    <button class="btn btn-primary edit-btn" data-toggle="modal"
+                                            data-target="#editModal" data-logid="{{ user.id }}"
+                                            data-name="{{ user.name }}"
+                                            data-banzu="{{ user.banzu }}"
+                                            data-gender="{{ user.gender }}"
+                                            data-birth="{{ user.birth|date:"Y-m-d" }}"
+                                            data-join="{{ user.join|date:"Y-m-d" }}"
+                                            data-position="{{ user.position|default_if_none:'' }}"
+                                            data-number="{{ user.number|default_if_none:'' }}"
+                                            data-jiangcheng="{{ user.jiangcheng|default_if_none:'' }}"
+                                            data-nationality="{{ user.nationality|default_if_none:'' }}"
+                                            data-time="{{ user.time|date:"Y-m-d" }}">编辑
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="modal fade" id="editModal" tabindex="-1" role="dialog"
+                     aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">修改党员信息</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="editForm" method="POST">
+                                    <input type="hidden" id="id_logid" name="logid">
+                                    <div class="modal-body">
+                                        <table class="table">
+                                            <tbody>
+                                            <tr>
+                                                <th>姓名：{{ form.name }}</th>
+                                                <th>班组：{{ form.banzu }}</th>
+                                            </tr>
+                                            <tr>
+                                                <th>性别：{{ form.gender }}</th>
+                                                <th>民族：{{ form.nationality }}</th>
+                                            </tr>
+                                            <tr>
+                                                <th>入党时间：
+                                                    <input type="date" id="id_join" name="join"
+                                                           class="form-control"
+                                                           value="{{ form.join.value|date:"Y-m-d" }}">
+                                                </th>
+                                                <th>职务：{{ form.position }}</th>
+                                            </tr>
+                                            <tr>
+                                                <th>出生年月：
+                                                    <input type="date" id="id_birth" name="birth"
+                                                           class="form-control"
+                                                           value="{{ form.birth.value|date:"Y-m-d" }}">
+                                                </th>
+                                                <th>工作时间：
+                                                    <input type="date" id="id_time" name="time"
+                                                           class="form-control"
+                                                           value="{{ form.time.value|date:"Y-m-d" }}"></th>
+                                            </tr>
+                                            <tr>
+                                                <th>联系电话：{{ form.number }}</th>
+                                                <th>奖惩情况：{{ form.jiangcheng }}</th>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        {% csrf_token %}
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭
+                                            </button>
+                                            <button type="submit" class="btn btn-primary">保存</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'assets/libs/jquery/dist/jquery.min.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            // 缓存 Modal 选择器
+            var modalSelector = $('#editModal');
+
+            // 为模态框的 'show' 事件添加事件处理器
+            modalSelector.on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var logid = button.data('logid');
+                var name = button.data('name');
+                var banzu = button.data('banzu');
+                var gender = button.data('gender');
+                var birth = button.data('birth');
+                var join = button.data('join');
+                var position = button.data('position');
+                var number = button.data('number');
+                var jiangcheng = button.data('jiangcheng');
+                var nationality = button.data('nationality');
+                var time = button.data('time');
+
+                var modalInstance = $(this);
+                modalInstance.find('#id_logid').val(logid);
+                modalInstance.find('#id_name').val(name);
+                modalInstance.find('#id_banzu').val(banzu);
+                modalInstance.find('#id_gender').val(gender);
+                modalInstance.find('#id_birth').val(birth);
+                modalInstance.find('#id_join').val(join);
+                modalInstance.find('#id_position').val(position);
+                modalInstance.find('#id_number').val(number);
+                modalInstance.find('#id_jiangcheng').val(jiangcheng);
+                modalInstance.find('#id_nationality').val(nationality);
+                modalInstance.find('#id_time').val(time);
+            });
+            // 捕获表单提交事件
+            $('#editForm').on('submit', function (e) {
+                e.preventDefault(); // 阻止默认的表单提交
+
+                $.ajax({
+                    url: "{% url 'djgl:edit_dangyuan' %}", // replace with the url of the view that handles form submission
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    dataType: 'json'
+                })
+                    .done(function (data) {
+                        // hide the modal and reload the page
+                        $('#editModal').modal('hide');
+                        // 刷新页面
+                        location.reload();
+                        alert('保存成功！');
+                    })
+                    .fail(function () {
+                        alert('发生错误，请填写入党时间、出生年月、和工作时间。');
+                    });
+            });
+
+            // 为模态框的 'hidden' 事件添加事件处理函数
+            modalSelector.on('hidden.bs.modal', function () {
+                var modalInstance = $(this);
+
+                // 缓存 form 选择器
+                var formSelector = modalInstance.find('form');
+
+                formSelector.trigger('reset');
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#Button').on('click', function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: "{% url 'djgl:add_dangyuan' banzu %}",
+                    type: 'POST',
+                    data: {
+                        'banzu': {{ banzu_display }}
+                    }
+                })
+                    .done(function (data) {
+                        //显示弹窗，并且在一定的延迟后刷新页面
+                        alert('党员创建成功！');
+                        setTimeout(function () {
+                            location.reload();
+                        }, 500);
+                    })
+                    .fail(function () {
+                        alert('创建党员失败！');
+                    });
+            });
+        });
+    </script>
+{% endblock %}

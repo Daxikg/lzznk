@@ -1,0 +1,107 @@
+{% extends 'djgl1.html' %}
+
+{% block content %}
+    <section class="showcase ptb-50 bg-danger">
+        <div class="container">
+            <div class="page-title">
+                <h3 class="text-center text-white">{{ quarter }}季度创岗建区、四优党员、安全之星修改</h3>
+            </div>
+        </div>
+    </section>
+
+    <section class="blog pt-50 pb-50 bg-light">
+        <div class="container">
+            <div class="row">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">红旗区</th>
+                        <th scope="col">达标区</th>
+                        <th scope="col">警示区</th>
+                        <th scope="col">先锋岗</th>
+                        <th scope="col">达标岗</th>
+                        <th scope="col">警示岗</th>
+                        <th scope="col">四优党员</th>
+                        <th scope="col">安全之星</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <tr>
+                            <td>
+                                {% for user in dangyuan_list %}
+                                    <input type="checkbox" name="hongqiqu" value="{{ user.id }}"
+                                           style="width: 20px; height: 20px;"
+                                            {% if user.name in hongqiqu_selected %} checked {% endif %}>
+                                    {{ user.name }}<br>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for user in dangyuan_list %}
+                                    <input type="checkbox" name="dabiaoqu" value="{{ user.id }}"
+                                           style="width: 20px; height: 20px;"
+                                            {% if user.name in dabiaoqu_selected %} checked {% endif %}>
+                                    {{ user.name }}<br>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for user in dangyuan_list %}
+                                    <input type="checkbox" name="jingshiqu" value="{{ user.id }}"
+                                           style="width: 20px; height: 20px;"
+                                            {% if user.name in jingshiqu_selected %} checked {% endif %}>
+                                    {{ user.name }}<br>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for user in dangyuan_list %}
+                                    <input type="checkbox" name="xianfenggang" value="{{ user.id }}"
+                                           style="width: 20px; height: 20px;"
+                                            {% if user.name in xianfenggang_selected %} checked {% endif %}>
+                                    {{ user.name }}<br>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for user in dangyuan_list %}
+                                    <input type="checkbox" name="dabiaogang" value="{{ user.id }}"
+                                           style="width: 20px; height: 20px;"
+                                            {% if user.name in dabiaogang_selected %} checked {% endif %}>
+                                    {{ user.name }}<br>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for user in dangyuan_list %}
+                                    <input type="checkbox" name="jingshigang" value="{{ user.id }}"
+                                           style="width: 20px; height: 20px;"
+                                            {% if user.name in jingshigang_selected %} checked {% endif %}>
+                                    {{ user.name }}<br>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for user in dangyuan_list %}
+                                    <input type="checkbox" name="siyoudangyuan" value="{{ user.id }}"
+                                           style="width: 20px; height: 20px;"
+                                            {% if user.name in siyoudangyuan_selected %} checked {% endif %}>
+                                    {{ user.name }}<br>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for user in dangyuan_list %}
+                                    <input type="checkbox" name="anquanzhixing" value="{{ user.id }}"
+                                           style="width: 20px; height: 20px;"
+                                            {% if user.name in anquanzhixing_selected %} checked {% endif %}>
+                                    {{ user.name }}<br>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <div class="mb-3">
+                            <button type="submit" value="Save" class="btn btn-danger me-2">保存</button>
+                            <a href="/djgl/dangjianguanli0/" class="btn btn-light">返回</a>
+                        </div>
+                    </form>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+{% endblock %}

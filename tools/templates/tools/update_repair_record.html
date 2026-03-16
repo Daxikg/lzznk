@@ -1,0 +1,240 @@
+{% extends 'tools/base.html' %}
+
+{% block title %}编辑维修记录{% endblock %}
+
+{% block nav_page_title %}编辑维修记录{% endblock %}
+
+{% block nav_breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'tools:manage_tools' %}" class="text-muted">工具管理</a></li>
+<li class="breadcrumb-item"><a href="{% url 'tools:tool_repair_records' tool.id %}" class="text-muted">维修记录</a></li>
+<li class="breadcrumb-item text-muted active" aria-current="page">编辑</li>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{% url 'tools:tool_repair_records' tool.id %}" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-left mr-1"></i>返回维修记录
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title text-primary"><i class="fa fa-info-circle mr-2"></i>工具信息</h4>
+                <hr class="my-3">
+                <div class="mb-3">
+                    <small class="text-muted d-block">编码</small>
+                    <strong class="text-dark">{{ tool.code }}</strong>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted d-block">名称</small>
+                    <strong class="text-dark">{{ tool.name }}</strong>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted d-block">型号</small>
+                    <strong class="text-dark">{{ tool.specification }}</strong>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted d-block">厂家</small>
+                    <strong class="text-dark">{{ tool.manufacturer|default:'-' }}</strong>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted d-block">分类</small>
+                    <strong class="text-dark">{{ tool.category.name }}</strong>
+                </div>
+                <div class="mb-0">
+                    <small class="text-muted d-block">当前状态</small>
+                    <span class="badge badge-{% if tool.status == '正常' %}success{% elif tool.status == '故障' %}danger{% elif tool.status == '维修' %}warning{% elif tool.status == '报废' %}dark{% else %}secondary{% endif %}">
+                        {{ tool.status }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title text-primary"><i class="fa fa-edit mr-2"></i>维修记录信息</h4>
+                <hr class="my-3">
+                <form method="post" id="repairRecordForm">
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="font-weight-medium">报修人</label>
+                                <input type="text" class="form-control" value="{{ repair_record.reporter.username }}" disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="font-weight-medium">报修时间</label>
+                                <input type="text" class="form-control"
+                                       value="{{ repair_record.report_time|date:'Y-m-d H:i:s' }}" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.fault_description.id_for_label }}" class="font-weight-medium">故障描述</label>
+                        {{ form.fault_description }}
+                        {% if form.fault_description.errors %}
+                            <small class="text-danger">
+                                {% for error in form.fault_description.errors %}{{ error }}{% endfor %}
+                            </small>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.repair_status.id_for_label }}" class="font-weight-medium">维修状态</label>
+                                <select class="form-control" name="repair_status" id="repair_status"
+                                        onchange="toggleRepairFields()">
+                                    <option value="待维修" {% if repair_record.repair_status == '待维修' %}selected{% endif %}>
+                                        待维修
+                                    </option>
+                                    <option value="已完成" {% if repair_record.repair_status == '已完成' %}selected{% endif %}>
+                                        已完成
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.repair_unit.id_for_label }}" class="font-weight-medium">维修单位</label>
+                                {{ form.repair_unit }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="repairFields" style="{% if repair_record.repair_status == '待维修' %}display: none;{% endif %}">
+                        <div class="form-group">
+                            <label for="{{ form.cost.id_for_label }}" class="font-weight-medium">维修费用 (元)</label>
+                            {{ form.cost }}
+                            {% if form.cost.errors %}
+                                <small class="text-danger">
+                                    {% for error in form.cost.errors %}{{ error }}{% endfor %}
+                                </small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.resolution_notes.id_for_label }}" class="font-weight-medium">维修说明</label>
+                            {{ form.resolution_notes }}
+                            {% if form.resolution_notes.errors %}
+                                <small class="text-danger">
+                                    {% for error in form.resolution_notes.errors %}{{ error }}{% endfor %}
+                                </small>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr class="my-4 border-light">
+
+                    <div class="form-check mb-3">
+                        {{ form.liability_identified }}
+                        <label class="form-check-label font-weight-medium" for="{{ form.liability_identified.id_for_label }}">
+                            已认定责任
+                        </label>
+                    </div>
+
+                    <div id="liabilityFields" style="{% if not repair_record.liability_identified %}display: none;{% endif %}">
+                        <div class="form-group">
+                            <label for="{{ form.liability_amount.id_for_label }}" class="font-weight-medium">赔偿金额 (元)</label>
+                            {{ form.liability_amount }}
+                            {% if form.liability_amount.errors %}
+                                <small class="text-danger">
+                                    {% for error in form.liability_amount.errors %}{{ error }}{% endfor %}
+                                </small>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'tools:tool_repair_records' tool.id %}"
+                           class="btn btn-secondary">
+                            <i class="fa fa-times mr-1"></i>取消
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa fa-save mr-1"></i>保存修改
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const faultDescription = document.getElementById('{{ form.fault_description.id_for_label }}');
+        if (faultDescription) {
+            faultDescription.classList.add('form-control');
+            faultDescription.rows = 4;
+            faultDescription.readOnly = true;
+        }
+
+        const repairUnit = document.getElementById('{{ form.repair_unit.id_for_label }}');
+        if (repairUnit) {
+            repairUnit.classList.add('form-control');
+        }
+
+        const cost = document.getElementById('{{ form.cost.id_for_label }}');
+        if (cost) {
+            cost.classList.add('form-control');
+            cost.step = '0.01';
+            cost.placeholder = '0.00';
+        }
+
+        const resolutionNotes = document.getElementById('{{ form.resolution_notes.id_for_label }}');
+        if (resolutionNotes) {
+            resolutionNotes.classList.add('form-control');
+            resolutionNotes.rows = 4;
+            resolutionNotes.placeholder = '请输入维修说明，如更换的零件、处理方式等';
+        }
+
+        const liabilityIdentified = document.getElementById('{{ form.liability_identified.id_for_label }}');
+        if (liabilityIdentified) {
+            liabilityIdentified.classList.add('form-check-input');
+            liabilityIdentified.addEventListener('change', toggleLiabilityFields);
+        }
+
+        const liabilityAmount = document.getElementById('{{ form.liability_amount.id_for_label }}');
+        if (liabilityAmount) {
+            liabilityAmount.classList.add('form-control');
+            liabilityAmount.step = '0.01';
+            liabilityAmount.placeholder = '0.00';
+        }
+
+        toggleRepairFields();
+        toggleLiabilityFields();
+    });
+
+    function toggleRepairFields() {
+        const repairStatus = document.getElementById('repair_status').value;
+        const repairFields = document.getElementById('repairFields');
+
+        if (repairStatus === '已完成') {
+            repairFields.style.display = 'block';
+        } else {
+            repairFields.style.display = 'none';
+        }
+    }
+
+    function toggleLiabilityFields() {
+        const liabilityIdentified = document.getElementById('{{ form.liability_identified.id_for_label }}');
+        const liabilityFields = document.getElementById('liabilityFields');
+
+        if (liabilityIdentified && liabilityIdentified.checked) {
+            liabilityFields.style.display = 'block';
+        } else {
+            liabilityFields.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

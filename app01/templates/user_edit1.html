@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="bs-example" data-example-id="table-within-panel">
+        <div class="container">
+            <div class="panel-default">
+                <H1 class="font-weight-bold title-title">
+                    台车班{{ form.instance.get_taiwei_display }} {{ form.instance.get_shunxu_display }}
+                    出库顺序编辑</H1>
+                <form class="form-group" method="post">
+                    {% csrf_token %}
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>临时出车顺序</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>{{ form.beizhu }}<span style="color: red;">{{ form.beizhu.errors.0 }}</span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary me-2">保存</button>
+                    <a href="/台车班顺序编辑{{ form.instance.shunxu }}/" class="btn btn-light">返回</a>
+                    {{ success }}
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

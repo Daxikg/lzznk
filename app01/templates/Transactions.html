@@ -1,0 +1,896 @@
+{% extends 'base3.html' %}
+
+{% block content %}
+    {% if role == "修配管理员" %}
+        {% with xiupei_banzu=XIUPEI_BANZU %}
+            <!-- 班组列表 -->
+        {% endwith %}
+    {% elif role == "修车管理员" %}
+        {% with xiuche_banzu=XIUCHE_BANZU %}
+            <!-- 班组列表 -->
+        {% endwith %}
+    {% endif %}
+    <div class="container-fluid">
+        <!-- ============================================================== -->
+        <!-- Start Page Content -->
+        <!-- ============================================================== -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    {% if banzu == 13 %}
+                        <div class="card-body">
+                            <h3 class="panel-title">
+                                <a href="{% url 'add_transaction' %}"
+                                   class="sidebar-link waves-effect waves-dark btn btn-info">
+                                    <i class="mdi mdi-plus-circle-outline"></i>
+                                    <span class="hide-menu">添加事务通知</span>
+                                </a>
+                                <button id="Button" class="btn btn-primary custom-button"
+                                        data-toggle="modal" data-target="#addCirculateModal"
+                                ><i class="mdi mdi-plus-circle-outline"></i>
+                                    记名式文件发布
+                                </button>
+                                <a id="Button" class="btn btn-success custom-button"
+                                   href="."
+                                >
+                                    刷新
+                                </a>
+                            </h3>
+                        </div>
+                    {% else %}
+                    {% endif %}
+                    <!-- 按月份显示 -->
+                    {% for month_item in month_data %}
+                        <div class="card-body">
+                            <h1 class="card-title">{{ year }}年{{ month_item.month }}月事务通知</h1>
+                        </div>
+
+                        {% for item in month_item.items %}
+                            <div class="comment-widgets scrollable">
+                                <!-- Comment Row -->
+                                <div class="d-flex flex-row comment-row m-t-0">
+                                    <div class="p-0"><h3 class="font-medium">{{ forloop.revcounter }}.</h3></div>
+                                    <div class="comment-text w-100">
+                                        {% if item.type == 'transaction' %}
+                                            {% if item.unread %}
+                                                <h3 class="font-medium" style="color:red;">
+                                                    <i class="far fa-envelope"></i>
+                                                    {{ item.data.shiwubiaoti }}
+                                                    {% if item.attachment %}
+                                                        <i class="mdi mdi-file"></i>
+                                                    {% endif %}
+                                                </h3>
+                                            {% else %}
+                                                <h3 class="font-medium">
+                                                    {{ item.data.shiwubiaoti }}
+                                                    {% if item.attachment %}
+                                                        <i class="mdi mdi-file"></i>
+                                                    {% endif %}
+                                                </h3>
+                                            {% endif %}
+                                            <span class="m-b-15 d-block">发布人：{{ item.data.user }}</span>
+                                        {% else %}
+                                            <h3 class="font-medium"><span {% if item.unread %}
+                                                style="color:red;" {% endif %}><i class="mdi mdi-star"> </i>记名式文件传达：</span>{{ item.data.title }}（
+                                                <span style="color: red">{{ item.unread_count }}</span>/{{ item.total_reads }}）<span
+                                                        style="color: red">{{ item.data.get_status_display }}</span>
+                                                {% if item.attachment %}
+                                                    <i class="mdi mdi-file"></i>
+                                                {% endif %}
+                                            </h3>
+                                            <span class="m-b-15 d-block">发布人：{{ item.data.name }}</span>
+                                        {% endif %}
+                                        <div class="comment-footer">
+                                            <span class="text-muted float-right">{{ item.time|date:"Y-m-d H:i" }}</span>
+                                            {% if item.type == 'transaction' %}
+                                                <a href="{% url 'transaction_detail' item.data.id %}"
+                                                   class="btn btn-cyan">查看详情</a>
+                                                {% if banzu == 13 %}
+                                                    <a href="#" data-url="/transaction/delete/{{ item.data.id }}/"
+                                                       class="btn btn-danger delete-btn">删除</a>
+                                                {% endif %}
+                                            {% else %}
+                                                <a class="btn btn-cyan custom-button"
+                                                   href="/wjcy/wjcy_detail/{{ item.data.id }}">查看详情</a>
+                                                {% if banzu == 13 %}
+                                                    <button id="Button" class="btn btn-danger custom-button"
+                                                            data-circulate-id="{{ item.data.id }}"
+                                                            onclick="endCirculate(this)">结束传阅
+                                                    </button>
+                                                    <button id="Button" class="btn btn-danger custom-button"
+                                                                data-circulate-id="{{ item.data.id }}"
+                                                                onclick="handleDelete(this)"
+                                                        >
+                                                            删除
+                                                        </button>
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+                <div class="modal fade" id="addCirculateModal" tabindex="-1" role="dialog"
+                     aria-labelledby="addCirculateModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addCirculateModalLabel">发布文件传阅</h5>
+                                <button type="button" class="close" data-dismiss="modal"
+                                        aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="circulateForm" method="POST" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>传阅分类</label>
+                                                <select class="form-control" name="classification" required>
+                                                    <option value="">请选择分类</option>
+                                                    {% for value, label in classification_choices %}
+                                                        <option value="{{ value }}">{{ label }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>传阅名称</label>
+                                                <input type="text" class="form-control" name="title"
+                                                       required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>发布人</label>
+                                                <input type="text" class="form-control" name="name"
+                                                       required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>重点提示</label>
+                                                <textarea class="form-control" name="key_remindertitle"
+                                                          rows="3"></textarea>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>传阅时间</label>
+                                                <input type="datetime-local" class="form-control"
+                                                       name="create_time"
+                                                       value="{{ now }}" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>附件</label>
+                                                <div class="custom-file">
+                                                    <input type="file" class="custom-file-input"
+                                                           name="files" multiple>
+                                                    <label class="custom-file-label">选择文件(按Ctrl可选择多个文件上传)</label>
+                                                </div>
+                                                <div class="file-preview-container">
+                                                    <!-- 文件预览将在这里显示 -->
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-8">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div class="row mb-3">
+                                                        <!-- 班组选择框 -->
+                                                        <div class="col-md-6">
+                                                            <select class="form-control"
+                                                                    id="banzuSelect"
+                                                                    onchange="loadUnselectedUsers()">
+                                                                <option value="">请选择班组</option>
+                                                                {% for banzu_id, banzu_name in banzu_choices %}
+                                                                    {% if role == "修配管理员" and banzu_id in xiupei_banzu %}
+                                                                        <option value="{{ banzu_id }}">{{ banzu_name }}</option>
+                                                                    {% elif role == "修车管理员" and banzu_id in xiuche_banzu %}
+                                                                        <option value="{{ banzu_id }}">{{ banzu_name }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+
+                                                        <!-- 人员搜索框 -->
+                                                        <div class="col-md-6">
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control"
+                                                                       id="userSearch"
+                                                                       placeholder="搜索人员"
+                                                                       oninput="loadUnselectedUsers()">
+                                                                <div class="input-group-append"><span
+                                                                        class="input-group-text"><i
+                                                                        class="fas fa-search"></i></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <!-- 未选择人员列表 -->
+                                                        <div class="col-md-6">
+                                                            <div class="card">
+                                                                <div class="card-header">
+                                                                    <h5 class="card-title mb-0">
+                                                                        未选择人员</h5>
+                                                                    <div class="card-tools">
+                                                                        <div class="custom-control custom-checkbox">
+                                                                            <input type="checkbox"
+                                                                                   class="custom-control-input"
+                                                                                   id="selectAllUnselected">
+                                                                            <label class="custom-control-label"
+                                                                                   for="selectAllUnselected">全选</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="card-body"
+                                                                     id="unselectedUsers">
+                                                                    <!-- 未选择人员列表 -->
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- 已选择人员列表 -->
+                                                        <div class="col-md-6">
+                                                            <div class="card">
+                                                                <div class="card-header">
+                                                                    <h5 class="card-title mb-0">
+                                                                        已选择人员</h5>
+                                                                    <div class="card-tools">
+                                                                        <div class="custom-control custom-checkbox">
+                                                                            <input type="checkbox"
+                                                                                   class="custom-control-input"
+                                                                                   id="selectAllSelected">
+                                                                            <label class="custom-control-label"
+                                                                                   for="selectAllSelected">全选</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="card-body"
+                                                                     id="selectedUsers">
+                                                                    <!-- 已选择人员列表 -->
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row mt-3">
+                                                        <div class="col-md-12 text-center">
+                                                            <button class="btn btn-primary mr-2"
+                                                                    id="selectUsers">添加 >>
+                                                            </button>
+                                                            <button class="btn btn-secondary"
+                                                                    id="removeUsers"><< 移除
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    关闭
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="submitForm()">
+                                    发布
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 初始化加载未选择的人员
+            loadUnselectedUsers();
+
+            // 事件监听器
+            document.getElementById('banzuSelect').addEventListener('change', loadUnselectedUsers);
+            document.getElementById('userSearch').addEventListener('input', loadUnselectedUsers);
+
+            // 添加/移除人员按钮
+            document.getElementById('selectUsers').addEventListener('click', handleSelectUsers);
+            document.getElementById('removeUsers').addEventListener('click', handleRemoveUsers);
+
+            // 全选功能
+            document.getElementById('selectAllUnselected').addEventListener('change', function () {
+                const checkboxes = document.querySelectorAll('#unselectedUsers input[type="checkbox"]');
+                checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+            });
+
+            document.getElementById('selectAllSelected').addEventListener('change', function () {
+                const checkboxes = document.querySelectorAll('#selectedUsers input[type="checkbox"]');
+                checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+            });
+
+            // 文件上传预览
+            const fileInput = document.querySelector('input[type="file"]');
+            if (fileInput) {
+                fileInput.addEventListener('change', handleFileChange);
+            }
+
+            // 表单提交
+            const form = document.getElementById('circulateForm');
+            if (form) {
+                form.addEventListener('submit', handleSubmit);
+            }
+
+            // 模态框显示事件
+            const modal = document.getElementById('addCirculateModal');
+            if (modal) {
+                modal.addEventListener('show.bs.modal', function () {
+                    // 清空已选择的用户
+                    const selectedUsers = document.getElementById('selectedUsers');
+                    selectedUsers.innerHTML = '';
+
+                    // 清空 localStorage 中的记录
+                    localStorage.removeItem('selectedUsers');
+
+                    // 重置表单
+                    document.getElementById('circulateForm').reset();
+
+                    // 重置全选按钮
+                    resetSelectAllButtons();
+
+                    // 重新加载未选择的人员
+                    loadUnselectedUsers();
+                });
+            }
+        });
+
+        // 重置全选按钮状态
+        function resetSelectAllButtons() {
+            document.getElementById('selectAllUnselected').checked = false;
+            document.getElementById('selectAllSelected').checked = false;
+        }
+
+        // 加载未选择的人员
+        function loadUnselectedUsers() {
+            const banzu = document.getElementById('banzuSelect').value;
+            const search = document.getElementById('userSearch').value;
+
+            fetch(`/wjcy/get_team_users/?banzu=${banzu}&search=${search}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('unselectedUsers');
+                    container.innerHTML = '';
+
+                    // 不需要过滤已选择的用户，因为每次打开模态框都是新的状态
+                    data.users.forEach(user => {
+                        const userItem = createUserItem(user, false);
+                        container.appendChild(userItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('加载人员列表失败，请重试！');
+                });
+        }
+
+        // 创建用户项
+        function createUserItem(user, isSelected) {
+            const div = document.createElement('div');
+            div.className = 'user-item mb-2';
+            div.innerHTML = `
+        <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="user_${user.id}">
+            <label class="custom-control-label" for="user_${user.id}">
+                ${user.banzu ? `<span class="badge badge-info mr-2">${user.banzu}</span>` : ''}
+                ${user.name}
+            </label>
+        </div>
+        <input type="hidden" name="selected_users[]" value="${user.id}" ${isSelected ? '' : 'disabled'}>
+    `;
+            return div;
+        }
+
+        // 添加用户到已选择列表
+        function addUserToSelected(user) {
+            const selectedUsers = JSON.parse(localStorage.getItem('selectedUsers') || '[]');
+            selectedUsers.push(parseInt(user.querySelector('input[type="hidden"]').value));
+            localStorage.setItem('selectedUsers', JSON.stringify(selectedUsers));
+
+            // 获取用户信息并创建新项
+            const userId = parseInt(user.querySelector('input[type="hidden"]').value);
+            fetch(`/wjcy/get_user_info/${userId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    const newUser = createUserItem(data, true);
+                    document.getElementById('selectedUsers').appendChild(newUser);
+                    user.remove();
+                });
+        }
+
+        // 从已选择列表移除用户
+        function addUserToUnselected(user) {
+            const selectedUsers = JSON.parse(localStorage.getItem('selectedUsers') || '[]');
+            const userId = parseInt(user.querySelector('input[type="hidden"]').value);
+            const index = selectedUsers.indexOf(userId);
+            if (index > -1) {
+                selectedUsers.splice(index, 1);
+                localStorage.setItem('selectedUsers', JSON.stringify(selectedUsers));
+            }
+
+            // 获取用户信息并创建新项
+            fetch(`/wjcy/get_user_info/${userId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    const newUser = createUserItem(data, false);
+                    document.getElementById('unselectedUsers').appendChild(newUser);
+                    user.remove();
+                });
+        }
+
+        // 处理添加人员
+        function handleSelectUsers() {
+            const selected = document.querySelectorAll('#unselectedUsers input[type="checkbox"]:checked');
+            selected.forEach(checkbox => {
+                const user = checkbox.closest('.user-item');
+                addUserToSelected(user);
+                user.remove();
+            });
+            resetSelectAllButtons(); // 重置全选按钮
+        }
+
+        // 处理移除人员
+        function handleRemoveUsers() {
+            const selected = document.querySelectorAll('#selectedUsers input[type="checkbox"]:checked');
+
+            if (selected.length === 0) {
+                alert('请选择要移除的人员！');
+                return;
+            }
+
+            if (!confirm('确定要移除选中的人员吗？')) {
+                return;
+            }
+
+            selected.forEach(checkbox => {
+                const user = checkbox.closest('.user-item');
+                addUserToUnselected(user);
+                user.remove();
+            });
+
+            resetSelectAllButtons(); // 重置全选按钮
+        }
+
+        // 处理文件上传
+        function handleFileChange(e) {
+            const files = e.target.files;
+            const filePreviewContainer = document.querySelector('.file-preview-container');
+
+            if (!filePreviewContainer) {
+                const container = document.createElement('div');
+                container.className = 'file-preview-container';
+                e.target.closest('.form-group').appendChild(container);
+            }
+
+            // 清除之前的预览
+            filePreviewContainer.innerHTML = '';
+
+            // 创建新的预览
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+            <span>${file.name}</span>
+            <button type="button" class="btn btn-sm btn-danger remove-file">删除</button>
+        `;
+                filePreviewContainer.appendChild(fileItem);
+
+                // 添加删除按钮事件监听
+                const removeButton = fileItem.querySelector('.remove-file');
+                removeButton.addEventListener('click', (event) => {
+                    event.stopPropagation(); // 阻止事件冒泡
+                    const fileItem = event.target.closest('.file-item');
+                    const fileName = fileItem.querySelector('span').textContent;
+                    const index = Array.from(files).findIndex(f => f.name === fileName);
+                    if (index > -1) {
+                        const dt = new DataTransfer();
+                        for (let j = 0; j < files.length; j++) {
+                            if (j !== index) {
+                                dt.items.add(files[j]);
+                            }
+                        }
+                        e.target.files = dt.files;
+                        fileItem.remove();
+                    }
+                });
+            }
+
+            // 更新文件输入的值
+            const fileInput = e.target;
+            if (files.length > 0) {
+                const dt = new DataTransfer();
+                for (let i = 0; i < files.length; i++) {
+                    dt.items.add(files[i]);
+                }
+                fileInput.files = dt.files;
+            }
+        }
+
+        // 在表单提交时处理文件
+        function submitForm() {
+            const form = document.getElementById('circulateForm');
+            if (!form) return;
+
+            // 获取CSRF token
+            const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+            // 验证必填字段
+            const classification = form.querySelector('select[name="classification"]').value; // 修改这里
+            const title = form.querySelector('input[name="title"]').value.trim();
+            const name = form.querySelector('input[name="name"]').value.trim();
+            const key_remindertitle = form.querySelector('textarea[name="key_remindertitle"]').value.trim();
+            const create_time = form.querySelector('input[name="create_time"]').value.trim();
+            const selectedUsers = document.querySelectorAll('#selectedUsers input[type="hidden"]');
+
+            if (!classification || !title || !key_remindertitle || !create_time || selectedUsers.length === 0) {
+                alert('请确保所有必填字段都已填写，并选择至少一个传阅人员');
+                return;
+            }
+
+            // 创建 FormData 对象
+            const formData = new FormData();
+
+            // 添加CSRF token
+            formData.append('csrfmiddlewaretoken', csrfToken);
+
+            // 添加表单数据
+            formData.append('classification', classification);
+            formData.append('title', title);
+            formData.append('name', name);
+            formData.append('key_remindertitle', key_remindertitle);
+            formData.append('create_time', create_time);
+
+            // 添加已选择的用户
+            selectedUsers.forEach(input => {
+                formData.append('selected_users[]', input.value);
+            });
+
+            // 添加文件
+            const fileInput = form.querySelector('input[type="file"]');
+            if (fileInput && fileInput.files.length > 0) {
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append('files', fileInput.files[i]);
+                }
+            }
+
+            // 显示加载提示
+            const loading = document.createElement('div');
+            loading.className = 'loading';
+            loading.innerHTML = '<p>正在提交，请稍候...</p>';
+            form.appendChild(loading);
+
+            fetch('/wjcy/add_circulate/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // 移除加载提示
+                    loading.remove();
+
+                    if (data.status === 'success') {
+                        alert(data.message);
+                        window.location.reload();
+                    } else {
+                        alert('发布失败，请重试！');
+                    }
+                })
+                .catch(error => {
+                    // 移除加载提示
+                    loading.remove();
+                    console.error('Error:', error);
+                    alert('网络错误，请重试！');
+                });
+        }
+
+        // 结束传阅
+        function endCirculate(button) {
+            const circulateId = button.getAttribute('data-circulate-id');
+
+            if (!confirm('确定要结束这条传阅吗？')) {
+                return;
+            }
+
+            fetch(`/wjcy/end_circulate/${circulateId}/`, {  // 确保URL路径正确
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({circulate_id: circulateId})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('传阅已结束！');
+                        window.location.reload();
+                    } else {
+                        alert('结束传阅失败，请重试！');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('网络错误，请重试！');
+                });
+        }
+
+        // 删除传阅
+        function handleDelete(button) {
+            const circulateId = button.getAttribute('data-circulate-id');
+
+            if (!confirm('确定要删除这条传阅记录吗？删除后将无法恢复！')) {
+                return;
+            }
+
+            fetch(`/wjcy/delete/${circulateId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({circulate_id: circulateId})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('传阅已删除！');
+                        window.location.reload();
+                    } else {
+                        alert('删除传阅失败，请重试！');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('网络错误，请重试！');
+                });
+        }
+
+        // 移除默认的表单提交事件
+        document.getElementById('circulateForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+        });
+    </script>
+    <style>
+        /* 添加一些样式 */
+        .select-all-btn {
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .select-all-btn.selected {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        /* 方块多选框样式 */
+        .custom-control-input:checked ~ .custom-control-label::before {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .custom-control-label::before {
+            border-radius: 4px;
+        }
+
+        .file-preview-container {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 50px;
+            background-color: #fff;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            margin: 5px 0;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .file-item span {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .remove-file {
+            margin-left: 10px;
+        }
+
+        .user-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .user-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .custom-control-label {
+            cursor: pointer;
+        }
+
+        .custom-file-label {
+            cursor: pointer;
+        }
+
+        .file-preview {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #unselectedUsers, #selectedUsers {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .card {
+            margin-bottom: 10px;
+        }
+
+        /* 模态框样式 */
+        .modal-lg {
+            max-width: 90%;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-control {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        /* 标签样式 */
+        .badge {
+            padding: 5px 10px;
+            border-radius: 12px;
+        }
+
+        .badge-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        /* 响应式样式 */
+        @media (max-width: 768px) {
+            .modal-lg {
+                max-width: 100%;
+            }
+
+            .row {
+                margin-left: -5px;
+                margin-right: -5px;
+            }
+
+            .col-md-6 {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
+
+        /* 自定义样式 */
+        .custom-button {
+            margin: 5px;
+        }
+
+        /* 状态提示 */
+        .alert {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .file-preview-container {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 50px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            margin: 5px 0;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .file-item span {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .remove-file {
+            margin-left: 10px;
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+    </style>
+{% endblock %}

@@ -1,0 +1,103 @@
+<!-- tools_app/templates/tools_app/manage_tool_categories.html -->
+{% extends 'tools/base.html' %}
+
+{% block title %}管理工具类别{% endblock %}
+
+{% block nav_page_title %}工具类别管理{% endblock %}
+
+{% block nav_breadcrumb %}
+<li class="breadcrumb-item text-muted active" aria-current="page">分类管理</li>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{% url 'tools:create_tool_category' %}" class="btn btn-success">
+            <i class="fa fa-plus mr-1"></i>创建新类别
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h4 class="card-title text-primary"><i class="fa fa-folder-open mr-2"></i>工具类别列表</h4>
+        <hr class="my-3">
+        {% if categories %}
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead class="thead-light">
+                    <tr>
+                        <th>类别名称</th>
+                        <th>工具数量</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                    <tr>
+                        <td><strong>{{ category.name }}</strong></td>
+                        <td><span class="badge badge-info">{{ category.tool_set.count }}</span></td>
+                        <td>
+                            <a href="{% url 'tools:update_tool_category' category.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fa fa-edit mr-1"></i>编辑
+                            </a>
+                            {% if category.tool_set.count == 0 %}
+                            <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete({{ category.id }}, '{{ category.name }}')">
+                                <i class="fa fa-trash mr-1"></i>删除
+                            </button>
+                            {% else %}
+                            <span class="text-muted" title="该类别下有关联工具，无法删除">
+                                <i class="fa fa-lock mr-1"></i>删除
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fa fa-folder-open fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">暂无工具类别数据</h5>
+            <p class="text-muted">创建第一个类别来开始管理工具</p>
+            <a href="{% url 'tools:create_tool_category' %}" class="btn btn-success">
+                <i class="fa fa-plus mr-1"></i>创建第一个类别
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 删除确认模态框 -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fa fa-exclamation-triangle mr-2"></i>确认删除</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除工具类别 <strong id="deleteCategoryName" class="text-danger"></strong> 吗？此操作不可撤销。</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger"><i class="fa fa-trash mr-1"></i>确认删除</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(categoryId, categoryName) {
+    document.getElementById('deleteCategoryName').textContent = categoryName;
+    document.getElementById('deleteForm').action = `/tools/categories/${categoryId}/delete/`;
+    $('#deleteModal').modal('show');
+}
+</script>
+{% endblock %}

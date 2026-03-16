@@ -1,0 +1,44 @@
+{% extends 'base0.html' %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            {% for cert, cert_obj in cert_pics.items %}
+                <div class="col-md-6">
+                    <div class="card">
+                        <h1 class="card-title m-b-10" style="text-align: center;">{{ user.name }}{{ cert }}操作证</h1>
+                        {% if cert_obj and cert_obj.pic %}
+                            <p style="text-align: center;">点击照片可查看大图</p>
+                            <p>
+                                <a href="/media/users/{{ cert_obj.pic }}" target="_blank">
+                                    <div class="image-container">
+                                        <img src="/media/users/{{ cert_obj.pic }}" alt="操作证">
+                                    </div>
+                                </a>
+                            </p>
+                        {% else %}
+                            <h3 style="text-align: center; color: blue; margin-bottom: 4em;"></h3>
+                            <h3 style="text-align: center; color: blue; margin-bottom: 2em;">
+                                暂时没有特种作业操作证照片</h3>
+                            <h3 style="text-align: center; color: blue; margin-bottom: 2em;">请上传</h3>
+                            <h3 style="text-align: center; color: blue; margin-bottom: 4em;"></h3>
+                        {% endif %}
+                        <h3>上传证书: {{ cert }}</h3>
+                        <form action="/bzrz/license/{{ banzu }}/{{ id }}/" enctype='multipart/form-data' method="post">
+                            {% csrf_token %}
+                            <p>选择图片：<input type="file" name="pic{{ forloop.counter }}"></p>
+                            <p><input type="submit" value="上传操作证照片"></p>
+                        </form>
+                    </div>
+                    <div class="mb-3">
+                        <a href="/bzrz/teamlog1/{{ banzu }}/" class="btn btn-primary">返回</a>
+                    </div>
+                </div>
+                {% if forloop.counter|divisibleby:2 and not forloop.last %}
+                    </div>
+                    <div class="row">
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

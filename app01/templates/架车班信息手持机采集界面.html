@@ -1,0 +1,51 @@
+{% extends 'base1.html' %}
+{% load static %}
+
+{% block content %}
+    <header class="navbar-expand-md">
+        <div class="bs-example" data-example-id="table-within-panel">
+            <div class="container">
+                <div class="panel-default">
+                    <div class="panel-default">
+                        <H3 class="font-weight-bold title">
+                            三次入库数据录入[出车顺序
+                            {% for order in orders %}
+                                {{ order.gudao1 }}{{ order.gudao2 }}{{ order.gudao3 }}
+                            {% endfor %}]
+                        </H3>
+                        {% if messages %}
+                            <div class="messages mb-3">
+                                {% for message in messages %}
+                                    <div{% if message.tags %} class="{{ message.tags }} mb-2"{% endif %}>
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="panel-body">
+                        <form class="form-group" method="post">
+                            {% csrf_token %}
+                            {% for field in form %}
+                                <div class="form-group row">
+                                    <div style="display: flex; justify-content: flex-start; align-items: center; margin: 6px 0;">
+                                        <!-- 加大每一行的上下外边距 -->
+                                        <label for="{{ field.id_for_label }}" style="flex: 3; margin: 0;">
+                                            {{ field.label }}
+                                        </label>
+                                        <div style="flex: 8; margin: 0;">
+                                            {{ field }}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <div class="mb-3">
+                                <button type="submit" class="btn btn-primary me-2">提交</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+{% endblock %}

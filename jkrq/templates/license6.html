@@ -1,0 +1,48 @@
+{% extends 'base8.html' %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title m-b-10" style="text-align: center;">{{ log.people }}{{ log.check_date }}血压监测照片</h3>
+                        {% if log.pic and log.pic != "" %}
+                            <p style="text-align: center;">点击照片可查看大图</p>
+                            <p>
+                                <a href="/media/blood/{{ log.pic }}" target="_blank">
+                                    <div class="image-container">
+                                        <img src="/media/blood/{{ log.pic }}" alt="血压监测照片">
+                                    </div>
+                                </a>
+                            </p>
+                        {% else %}
+                            <h4 style="text-align: center; color: blue; margin-bottom: 3em;"></h4>
+                            <h4 style="text-align: center; color: blue; margin-bottom: 3em;">
+                                暂时未上传血压监测照片</h4>
+                            {% if role == '管理员' %}
+                                <h4 style="text-align: center; color: blue; margin-bottom: 5em;"></h4>
+                            {% else %}
+                                <h4 style="text-align: center; color: blue; margin-bottom: 3em;">请上传</h4>
+                            {% endif %}
+                        {% endif %}
+                        {% if role == '管理员' %}
+                        {% else %}
+                            <div class="my-2 d-flex justify-content-between align-items-center">
+                                <form action="/jkrq/license6/{{ log.id }}/" enctype='multipart/form-data'
+                                      method="post">
+                                    {% csrf_token %}
+                                    <p>选择图片：<input type="file" name="pic"></p>
+                                    <p><input type="submit" value="上传/覆盖血压监测照片">{{ succ }}</p>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <a href="/jkrq/logcheck_jkrq/{{ log1.id }}" class="btn btn-primary">返回</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

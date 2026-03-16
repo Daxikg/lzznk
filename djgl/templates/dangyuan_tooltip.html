@@ -1,0 +1,80 @@
+<div class="dangyuan-tooltip1">
+    <div class="tooltip1-header">
+        {% if dangyuan.pic %}
+            <img src="/media/dangyuan/{{ dangyuan.pic }}" alt="{{ dangyuan.name }}" class="tooltip1-avatar">
+        {% else %}
+            <div class="default-avatar"><i class="fas fa-user"></i></div>
+        {% endif %}
+        <h5>{{ dangyuan.name }} <span class="badge badge-danger">{{ dangyuan.get_banzu_display }}</span></h5>
+    </div>
+
+    <div class="tooltip1-body">
+        <div class="row">
+            <div class="col-6">
+                <p><i class="fas fa-briefcase"></i> {{ dangyuan.position|default:"暂无职务" }}</p>
+                <p><i class="fas fa-star"></i> 责任区: {{ dangyuan.zerenqu|default:"未设置" }}</p>
+            </div>
+            <div class="col-6">
+                <p><i class="fas fa-phone"></i> {{ dangyuan.number|default:"暂无电话" }}</p>
+                <p><i class="fas fa-star"></i> 责任岗: {{ dangyuan.zerengang|default:"未设置" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dangyuan-tooltip1 {
+        width: 300px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .tooltip1-header {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .tooltip1-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .default-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: #6c757d;
+    }
+
+    .tooltip1-body {
+        padding: 15px;
+    }
+
+    .tooltip1-body p {
+        margin: 8px 0;
+        font-size: 13px;
+    }
+
+    .tooltip1-body i {
+        width: 20px;
+        color: #dc3545;
+    }
+
+    .badge-danger {
+        background: #dc3545;
+        font-size: 12px;
+        vertical-align: middle;
+    }
+</style>

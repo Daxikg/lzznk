@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/favicon.png' %}">
+    <link href="{% static 'dist/css/style.min.css' %}" rel="stylesheet">
+    <title>会议</title>
+    <style>
+        /* 将背景图片加入到整个网页的背景中 */
+        body {
+            min-height: 100vh;
+            background-image: url("{% static 'img/img1.png' %}");
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="container-fluid" style="text-align: left;">
+                <a href="{% url 'meeting:meeting1' meeting.id %}" class="button">1号</a>
+                <a href="{% url 'meeting:meeting2' meeting.id %}" class="button">2号</a>
+                <a href="{% url 'meeting:meeting3' meeting.id %}" class="button">3号</a>
+                <a href="{% url 'meeting:meeting0' %}" class="button">协调会</a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="container-fluid" style="text-align: right;">
+                <a href="/meeting/history_meetings/" class="button">历史会议</a>
+                <a href="{% url 'meeting:add_meeting' %}" class="button">新增会议</a>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top: 200px;">
+        <div class="col-md-12 grid-margin stretch-card" style="margin-bottom: 50px;">
+            <div style="text-align: center;" role="alert">
+                <h1 style="font-size: 100px; color: white; letter-spacing: 0.2em;">
+                    修车车间生产组织协调会
+                </h1>
+                {#                <h1 style="color: white; letter-spacing: 0.1em; margin-top: 100px;" id="clock"></h1>#}
+                <h1 style="font-size: 50px; color: white; letter-spacing: 0.1em; margin-top: 100px;" id="clock"></h1>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'assets/libs/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+
+<script>
+    const weekDays = ["星期天", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+
+    function startClock() {
+        var now = new Date();
+        var year = now.getFullYear();
+        var month = now.getMonth() + 1;
+        var date = now.getDate();
+        var day = weekDays[now.getDay()]; // Get the day of the week
+        var h = now.getHours();
+        var m = now.getMinutes();
+        var s = now.getSeconds();
+        month = checkTime(month);
+        date = checkTime(date);
+        m = checkTime(m);
+        s = checkTime(s);
+        document.getElementById('clock').innerHTML = year + "年" + month + "月" + date + "日";
+        {#document.getElementById('clock').innerHTML = year + "年" + month + "月" + date + "日" + day + " " + h + ":" + m + ":" + s;#}
+        var t = setTimeout(startClock, 500);
+    }
+
+    function checkTime(i) {
+        if (i < 10) {
+            i = "0" + i
+        }
+        // add zero in front of numbers < 10
+        return i;
+    }
+
+    // Start the clock
+    window.onload = startClock;
+</script>
+<script>
+    $(document).ready(function () {
+        // 缓存 Modal 选择器
+        var modalSelector = $('#editModal');
+
+        // 为模态框的 'show' 事件添加事件处理器
+        modalSelector.on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var logid = button.data('logid');
+            var meeting = button.data('meeting');
+            var Contents = button.data('Contents');
+            var Contents1 = button.data('Contents1');
+            var Contents2 = button.data('Contents2');
+            var Contents3 = button.data('Contents3');
+            var Contents4 = button.data('Contents4');
+            var Contents5 = button.data('Contents5');
+            var Contents6 = button.data('Contents6');
+            var Contents7 = button.data('Contents7');
+
+            var modalInstance = $(this);
+            modalInstance.find('#id_logid').val(logid);
+            modalInstance.find('#id_meeting').val(meeting);
+            modalInstance.find('#id_Contents').text(Contents);
+            modalInstance.find('#id_Contents1').text(Contents1);
+            modalInstance.find('#id_Contents2').text(Contents2);
+            modalInstance.find('#id_Contents3').text(Contents3);
+            modalInstance.find('#id_Contents4').text(Contents4);
+            modalInstance.find('#id_Contents5').text(Contents5);
+            modalInstance.find('#id_Contents6').text(Contents6);
+            modalInstance.find('#id_Contents7').text(Contents7);
+        });
+        // 捕获表单提交事件
+        $('#editForm').on('submit', function (e) {
+            e.preventDefault(); // 阻止默认的表单提交
+
+            $.ajax({
+                url: "{% url 'meeting:edit_meeting'%}", // replace with the url of the view that handles form submission
+                type: 'POST',
+                data: $(this).serialize(),
+                dataType: 'json'
+            })
+                .done(function (data) {
+                    // hide the modal and reload the page
+                    $('#editModal').modal('hide');
+                    // 刷新页面
+                    location.reload();
+                    alert('保存成功！');
+                })
+                .fail(function () {
+                    alert('保存失败，请修改后重试！');
+                });
+        });
+
+        // 为模态框的 'hidden' 事件添加事件处理函数
+        modalSelector.on('hidden.bs.modal', function () {
+            var modalInstance = $(this);
+
+            // 缓存 form 选择器
+            var formSelector = modalInstance.find('form');
+
+            formSelector.trigger('reset');
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/favicon.png' %}">
+    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+    <title>初始库存修改</title>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="col-md-3">
+    </div>
+    <div class="col-md-6">
+        <div class="row">
+            <h1 style="letter-spacing: 0.2em; text-align: center">
+                初始库存修改
+            </h1>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">保存</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-3">
+    </div>
+</div>
+</body>
+</html>

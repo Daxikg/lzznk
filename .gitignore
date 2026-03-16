@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+.env
+venv/
+ENV/
+*.log
+django_debug.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 打包文件
+*.rar
+*.zip
+
+# 敏感配置（如果有）
+local_settings.py
+*.pem
+*.key
+
+# 数据库
+*.sqlite3
+db.sqlite3
+
+# Claude
+.claude/

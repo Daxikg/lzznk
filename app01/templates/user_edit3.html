@@ -1,0 +1,35 @@
+{% extends 'base1.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="panel-default">
+            <div class="panel-heading">
+                <h3 class="font-weight-bold title">{{ form.instance.get_taiwei_display }} {{ form.instance.get_shunxu_display }}
+                    出库数据编辑</h3>
+                <form class="form-group" method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="form-group row">
+                            <div style="display: flex; justify-content: flex-start; align-items: center; margin: 10px 0;">
+                                <!-- 加大每一行的上下外边距 -->
+                                <label for="{{ field.id_for_label }}" style="flex: 2; margin: 0;">
+                                    {{ field.label }}
+                                </label>
+                                <div style="flex: 10; margin: 0;">
+                                    {{ field }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <button type="submit" name="save_all" class="btn btn-primary me-5">修改轮径并自动计算垫板</button>
+                    <button type="submit" name="save_dianban_only" class="btn btn-primary me-5">仅自定义修改垫板
+                    </button>
+                    <a href="/index{{ shunxu_plus_2 }}/" class="btn btn-light">返回</a>
+                    {{ success }}
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

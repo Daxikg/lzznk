@@ -1,0 +1,261 @@
+{% extends 'tools/base.html' %}
+
+{% block title %}维修记录管理{% endblock %}
+
+{% block nav_page_title %}维修记录管理{% endblock %}
+
+{% block nav_breadcrumb %}
+<li class="breadcrumb-item text-muted active" aria-current="page">维修管理</li>
+{% endblock %}
+
+{% block content %}
+
+<!-- 统计卡片 -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white border-0">
+            <div class="card-body text-center">
+                <h6 class="opacity-75">全部记录</h6>
+                <h2 class="mb-0">{{ all_count }}</h2>
+                <a href="?status=" class="btn btn-sm btn-outline-light mt-2">查看全部</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-warning text-white border-0">
+            <div class="card-body text-center">
+                <h6 class="opacity-75">待维修</h6>
+                <h2 class="mb-0">{{ pending_count }}</h2>
+                <a href="?status=待维修" class="btn btn-sm btn-outline-light mt-2">查看待维修</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white border-0">
+            <div class="card-body text-center">
+                <h6 class="opacity-75">已完成</h6>
+                <h2 class="mb-0">{{ completed_count }}</h2>
+                <a href="?status=已完成" class="btn btn-sm btn-outline-light mt-2">查看已完成</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 搜索和筛选 -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h4 class="card-title text-primary"><i class="fa fa-search mr-2"></i>搜索和筛选</h4>
+        <hr class="my-3">
+        <form method="get" class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="font-weight-medium">搜索</label>
+                    <input type="text" name="search" class="form-control"
+                           placeholder="工具编码/名称/报修人/故障描述"
+                           value="{{ search_query }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="font-weight-medium">状态</label>
+                    <select name="status" class="form-control">
+                        <option value="">全部状态</option>
+                        <option value="待维修" {% if status_filter == '待维修' %}selected{% endif %}>待维修</option>
+                        <option value="已完成" {% if status_filter == '已完成' %}selected{% endif %}>已完成</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fa fa-search mr-1"></i>查询
+                </button>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <a href="{% url 'tools:manage_repair_records' %}" class="btn btn-outline-secondary w-100">
+                    <i class="fa fa-redo mr-1"></i>重置
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 维修记录列表 -->
+{% if repair_records %}
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="card-title text-primary mb-0"><i class="fa fa-wrench mr-2"></i>维修记录列表</h4>
+                <div>
+                    <span class="badge badge-info mr-2">共 {{ repair_records|length }} 条</span>
+                    {% if status_filter or search_query %}
+                        <span class="badge badge-primary">已筛选</span>
+                    {% endif %}
+                </div>
+            </div>
+            <hr class="my-3">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="thead-light">
+                    <tr>
+                        <th>序号</th>
+                        <th>工具编码</th>
+                        <th>工具名称</th>
+                        <th>报修人</th>
+                        <th>报修时间</th>
+                        <th>维修状态</th>
+                        <th>维修单位</th>
+                        <th>维修费用</th>
+                        <th>责任认定</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for record in repair_records %}
+                        <tr>
+                            <td><strong>{{ forloop.counter }}</strong></td>
+                            <td>
+                                <a href="{% url 'tools:tool_repair_records' record.tool.id %}" class="text-primary">
+                                    {{ record.tool.code }}
+                                </a>
+                            </td>
+                            <td>{{ record.tool.name }}</td>
+                            <td>{{ record.reporter.username }}</td>
+                            <td>{{ record.report_time|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                <span class="badge badge-{% if record.repair_status == '待维修' %}warning{% elif record.repair_status == '已完成' %}success{% else %}secondary{% endif %}">
+                                    {{ record.repair_status }}
+                                </span>
+                            </td>
+                            <td>{{ record.repair_unit|default:'-' }}</td>
+                            <td>
+                                {% if record.cost %}¥{{ record.cost }}{% else %}-{% endif %}
+                            </td>
+                            <td>
+                                {% if record.liability_identified %}
+                                    <span class="badge badge-danger">已认定</span>
+                                {% else %}
+                                    <span class="badge badge-secondary">未认定</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-info" data-toggle="modal"
+                                        data-target="#detailModal{{ record.id }}">
+                                    <i class="fa fa-eye mr-1"></i>查看
+                                </button>
+                                {% if can_manage_repairs and record.repair_status == '待维修' %}
+                                    <a href="{% url 'tools:update_repair_record' record.id %}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fa fa-edit mr-1"></i>编辑
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                        <!-- 详情模态框 -->
+                        <div class="modal fade" id="detailModal{{ record.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-info text-white">
+                                        <h5 class="modal-title"><i class="fa fa-wrench mr-2"></i>维修记录详情 #{{ record.id }}</h5>
+                                        <button type="button" class="close text-white" data-dismiss="modal">
+                                            <span>&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <small class="text-muted d-block">工具</small>
+                                                <a href="{% url 'tools:tool_repair_records' record.tool.id %}">
+                                                    <strong>{{ record.tool.name }} ({{ record.tool.code }})</strong>
+                                                </a>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <small class="text-muted d-block">报修人</small>
+                                                <strong>{{ record.reporter.username }}</strong>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <small class="text-muted d-block">报修时间</small>
+                                                <strong>{{ record.report_time|date:"Y-m-d H:i:s" }}</strong>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <small class="text-muted d-block">维修状态</small>
+                                                <span class="badge badge-{% if record.repair_status == '待维修' %}warning{% elif record.repair_status == '已完成' %}success{% else %}secondary{% endif %}">
+                                                    {{ record.repair_status }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="mb-3">
+                                            <small class="text-muted d-block">故障描述</small>
+                                            <p class="mt-2">{{ record.fault_description|default:'-'|linebreaks }}</p>
+                                        </div>
+                                        <hr>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <small class="text-muted d-block">维修单位</small>
+                                                <strong>{{ record.repair_unit|default:'-' }}</strong>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <small class="text-muted d-block">维修费用</small>
+                                                <strong>{% if record.cost %}¥{{ record.cost }}{% else %}-{% endif %}</strong>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <small class="text-muted d-block">维修说明</small>
+                                            <p class="mt-2">{{ record.resolution_notes|default:'-'|linebreaks }}</p>
+                                        </div>
+                                        <hr>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <small class="text-muted d-block">责任认定</small>
+                                                {% if record.liability_identified %}
+                                                    <span class="badge badge-danger">已认定</span>
+                                                {% else %}
+                                                    <span class="badge badge-secondary">未认定</span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <small class="text-muted d-block">赔偿金额</small>
+                                                <strong>{% if record.liability_amount %}¥{{ record.liability_amount }}{% else %}-{% endif %}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a href="{% url 'tools:tool_repair_records' record.tool.id %}"
+                                           class="btn btn-outline-primary">
+                                            <i class="fa fa-list mr-1"></i>查看该工具所有维修记录
+                                        </a>
+                                        {% if can_manage_repairs and record.repair_status == '待维修' %}
+                                            <a href="{% url 'tools:update_repair_record' record.id %}"
+                                               class="btn btn-primary">
+                                                <i class="fa fa-edit mr-1"></i>编辑维修记录
+                                            </a>
+                                        {% endif %}
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="fa fa-wrench fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">暂无维修记录</h4>
+            <p class="text-muted">{% if status_filter or search_query %}没有找到符合条件的维修记录{% else %}系统中还没有维修记录{% endif %}</p>
+            {% if status_filter or search_query %}
+                <a href="{% url 'tools:manage_repair_records' %}" class="btn btn-outline-primary">
+                    清除筛选条件
+                </a>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

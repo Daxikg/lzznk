@@ -1,0 +1,616 @@
+{% extends 'tools/base.html' %}
+
+{% block title %}工具管理系统仪表板{% endblock %}
+
+{% block nav_page_title %}仪表板{% endblock %}
+
+{% block nav_breadcrumb %}
+    <li class="breadcrumb-item text-muted active" aria-current="page">仪表板</li>
+{% endblock %}
+
+{% block content %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <p class="text-muted">欢迎使用修配车间工具管理系统，{{ user.username }}</p>
+        </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card text-white bg-primary border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title mb-2" style="color: white">工具总数</h6>
+                            <h2 class="mb-0">{{ total_tools }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fa fa-toolbox fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                    <a href="{% url 'tools:manage_tools' %}?tab=all" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card text-white bg-success border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title mb-2" style="color: white">可用工具</h6>
+                            <h2 class="mb-0">{{ available_tools }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fa fa-check-circle fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                    <a href="{% url 'tools:manage_tools' %}?tab=available" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card text-white bg-secondary border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title mb-2" style="color: white">在借工具</h6>
+                            <h2 class="mb-0">{{ borrowed_tools }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fa fa-exchange-alt fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                    <a href="{% url 'tools:manage_tools' %}?tab=borrowed" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card text-white bg-danger border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title mb-2" style="color: white">逾期工具</h6>
+                            <h2 class="mb-0">{{ overdue_tools }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fa fa-exclamation-triangle fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                    <a href="{% url 'tools:manage_tools' %}?tab=overdue" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card text-white bg-warning border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title mb-2" style="color: white">故障工具</h6>
+                            <h2 class="mb-0">{{ faulty_tools }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fa fa-wrench fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                    <a href="{% url 'tools:manage_tools' %}?tab=faulty" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card text-white bg-dark border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title mb-2" style="color: white">报废工具</h6>
+                            <h2 class="mb-0">{{ scrap_tools }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fa fa-trash-alt fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                    <a href="{% url 'tools:manage_tools' %}?tab=scrap" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 待审批申请 (管理员/班组长可见) -->
+    {% if pending_approvals_list %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card border-warning border-0 shadow-sm">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fa fa-exclamation-circle mr-2"></i>待审批申请
+                            ({{ pending_approvals_list|length }} 项)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th>类型</th>
+                                    <th>申请人</th>
+                                    <th>工具编码</th>
+                                    <th>工具名称</th>
+                                    <th>申请时间</th>
+                                    <th>预计归还</th>
+                                    <th>备注</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for loan in pending_approvals_list %}
+                                    <tr>
+                                        <td>
+                                            {% if loan.status == '已申请' %}
+                                                <span class="badge badge-info">申领申请</span>
+                                            {% elif loan.status == '归还申请' %}
+                                                <span class="badge badge-secondary">归还申请</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ loan.borrower.username }}</td>
+                                        <td>{{ loan.tool.code }}</td>
+                                        <td>{{ loan.tool.name }}</td>
+                                        <td>{{ loan.loan_time|date:"Y-m-d H:i" }}</td>
+                                        <td>{{ loan.expected_return_time|date:"Y-m-d H:i" }}</td>
+                                        <td>{{ loan.remarks|truncatechars:20 }}</td>
+                                        <td>
+                                            {% if loan.status == '已申请' %}
+                                                <button type="button" class="btn btn-sm btn-success"
+                                                        data-toggle="modal"
+                                                        data-target="#approvalModal"
+                                                        data-loan-id="{{ loan.id }}"
+                                                        data-loan-type="borrow"
+                                                        data-tool-code="{{ loan.tool.code }}"
+                                                        data-tool-name="{{ loan.tool.name }}"
+                                                        data-borrower="{{ loan.borrower.username }}"
+                                                        data-loan-time="{{ loan.loan_time|date:'Y-m-d H:i' }}"
+                                                        data-expected-return="{{ loan.expected_return_time|date:'Y-m-d H:i' }}"
+                                                        data-remarks="{{ loan.remarks }}">
+                                                    批准申领
+                                                </button>
+                                            {% elif loan.status == '归还申请' %}
+                                                <button type="button" class="btn btn-sm btn-success"
+                                                        data-toggle="modal"
+                                                        data-target="#approvalModal"
+                                                        data-loan-id="{{ loan.id }}"
+                                                        data-loan-type="return"
+                                                        data-tool-code="{{ loan.tool.code }}"
+                                                        data-tool-name="{{ loan.tool.name }}"
+                                                        data-borrower="{{ loan.borrower.username }}"
+                                                        data-loan-time="{{ loan.loan_time|date:'Y-m-d H:i' }}"
+                                                        data-expected-return="{{ loan.expected_return_time|date:'Y-m-d H:i' }}"
+                                                        data-actual-return="{{ loan.actual_return_time|date:'Y-m-d H:i:s' }}"
+                                                        data-remarks="{{ loan.remarks }}">
+                                                    批准归还
+                                                </button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- 本班组借用工具 -->
+    {% if team_borrowed_records %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card border-info border-0 shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fa fa-users mr-2"></i>本班组借用工具（{{ team_name }}）
+                            <span class="badge badge-light ml-2">{{ team_borrowed_count }} 件</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th>工具编码</th>
+                                    <th>工具名称</th>
+                                    <th>型号规格</th>
+                                    <th>申领人</th>
+                                    <th>申领时间</th>
+                                    <th>预计归还</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for record in team_borrowed_records %}
+                                    <tr {% if record.record_is_overdue %}class="table-danger"{% endif %}>
+                                        <td>{{ record.tool.code }}</td>
+                                        <td>{{ record.tool.name }}</td>
+                                        <td>{{ record.tool.specification }}</td>
+                                        <td>{{ record.borrowing_person }}</td>
+                                        <td>{{ record.loan_time|date:"Y-m-d H:i" }}</td>
+                                        <td>{{ record.expected_return_time|date:"Y-m-d H:i" }}</td>
+                                        <td>
+                                            {% if record.record_is_overdue %}
+                                                <span class="badge badge-danger">{{ record.display_status }}</span>
+                                            {% else %}
+                                                <span class="badge badge-success">{{ record.display_status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if record.status == '已发放' or record.status == '逾期' %}
+                                                <a href="{% url 'tools:return_tool' record.id %}"
+                                                   class="btn btn-sm {% if record.record_is_overdue %}btn-danger{% else %}btn-outline-primary{% endif %}">
+                                                    {% if record.record_is_overdue %}立即归还{% else %}归还{% endif %}
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-6 col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">工具状态分布</h4>
+                    <div id="campaign-v2" class="mt-2" style="height:283px; width:100%;"></div>
+                    <ul class="list-style-none mb-0">
+                        <li>
+                            <i class="fas fa-circle text-danger font-10 mr-2"></i>
+                            <span class="text-muted">故障工具</span>
+                            <span class="text-dark float-right font-weight-medium">{{ chart_faulty }} 个</span>
+                        </li>
+                        <li class="mt-3">
+                            <i class="fas fa-circle text-info font-10 mr-2"></i>
+                            <span class="text-muted">已借出</span>
+                            <span class="text-dark float-right font-weight-medium">{{ chart_borrowed }} 个</span>
+                        </li>
+                        <li class="mt-3">
+                            <i class="fas fa-circle text-dark font-10 mr-2"></i>
+                            <span class="text-muted">报废工具</span>
+                            <span class="text-dark float-right font-weight-medium">{{ chart_scrap }} 个</span>
+                        </li>
+                        <li class="mt-3">
+                            <i class="fas fa-circle text-success font-10 mr-2"></i>
+                            <span class="text-muted">可用工具</span>
+                            <span class="text-dark float-right font-weight-medium">{{ chart_available }} 个</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">各班组在借工具统计</h4>
+                    <div class="net-income mt-4 position-relative" style="height:294px;"></div>
+                    <ul class="list-inline text-center mt-3 mb-2">
+                        <li class="list-inline-item text-muted font-italic">
+                            共 {{ borrowed_tools }} 件工具在借中
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 审批确认模态框 -->
+    <div class="modal fade" id="approvalModal" tabindex="-1" aria-labelledby="approvalModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="approvalModalLabel">审批确认</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <h6><i class="fa fa-info-circle mr-2"></i>请确认以下申领信息：</h6>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>申请类型：</strong>
+                            <span id="modalLoanType" class="badge badge-secondary"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>申请人：</strong>
+                            <span id="modalBorrower"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>工具编码：</strong>
+                            <span id="modalToolCode"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>工具名称：</strong>
+                            <span id="modalToolName"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>申领时间：</strong>
+                            <span id="modalLoanTime"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>预计归还：</strong>
+                            <span id="modalExpectedReturn"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3" id="actualReturnRow" style="display: none;">
+                        <div class="col-md-6">
+                            <strong>实际归还：</strong>
+                            <span id="modalActualReturn"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- 占位 -->
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <strong>备注信息：</strong>
+                            <p id="modalRemarks" class="mt-1 mb-0 text-muted"></p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="alert alert-warning">
+                        <h6><i class="fa fa-exclamation-triangle mr-2"></i>操作提醒：</h6>
+                        <ul class="mb-0">
+                            <li id="approvalWarningText">确认批准此申领申请后，工具将正式发放给申请人</li>
+                            <li>此操作不可撤销，请谨慎确认</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success" id="confirmApprovalBtn">
+                        <i class="fa fa-check mr-1"></i>确认审批
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 辅助函数：从cookie获取CSRF令牌
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // 等待DOM加载完成
+        document.addEventListener('DOMContentLoaded', function () {
+            // 使用 jQuery 方式处理 Bootstrap 4 模态框事件
+            $('#approvalModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var modal = $(this);
+
+                // 获取数据属性
+                var loanId = button.data('loan-id') || '';
+                var loanType = button.data('loan-type') || '';
+                var toolCode = button.data('tool-code') || '未知';
+                var toolName = button.data('tool-name') || '未知工具';
+                var borrower = button.data('borrower') || '未知申请人';
+                var loanTime = button.data('loan-time') || '未指定';
+                var expectedReturn = button.data('expected-return') || '未指定';
+                var actualReturn = button.data('actual-return') || '未指定';
+                var remarks = button.data('remarks') || '无备注';
+
+                // 设置申请类型和对应文本
+                if (loanType === 'borrow') {
+                    modal.find('#modalLoanType').text('申领申请').removeClass().addClass('badge badge-info');
+                    modal.find('#approvalWarningText').text('确认批准此申领申请后，工具将正式发放给申请人');
+                    modal.find('#actualReturnRow').hide();
+                } else if (loanType === 'return') {
+                    modal.find('#modalLoanType').text('归还申请').removeClass().addClass('badge badge-secondary');
+                    modal.find('#approvalWarningText').text('确认批准此归还申请后，工具将正式归还并可再次申领');
+                    modal.find('#actualReturnRow').show();
+                    modal.find('#modalActualReturn').text(actualReturn);
+                }
+
+                // 填充基本信息
+                modal.find('#modalBorrower').text(borrower);
+                modal.find('#modalToolCode').text(toolCode);
+                modal.find('#modalToolName').text(toolName);
+                modal.find('#modalLoanTime').text(loanTime);
+                modal.find('#modalExpectedReturn').text(expectedReturn);
+                modal.find('#modalRemarks').text(remarks || '无备注');
+
+                // 存储 loanId 和 loanType 用于后续操作
+                modal.data('loan-id', loanId);
+                modal.data('loan-type', loanType);
+            });
+
+            // 确认审批按钮点击事件
+            $('#confirmApprovalBtn').on('click', function () {
+                var modal = $('#approvalModal');
+                var loanId = modal.data('loan-id');
+                var loanType = modal.data('loan-type');
+                var confirmBtn = $(this);
+
+                // 显示加载状态
+                confirmBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin mr-1"></i>处理中...');
+
+                // 获取CSRF令牌
+                var csrfToken = getCookie('csrftoken');
+
+                // 发送AJAX请求
+                $.ajax({
+                    url: '/tools/api/approve-loan/' + loanId + '/',
+                    type: 'POST',
+                    data: {
+                        loan_type: loanType,
+                        csrfmiddlewaretoken: csrfToken
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            alert('审批成功！' + response.message);
+                            modal.modal('hide');
+                            location.reload();
+                        } else {
+                            alert('审批失败：' + response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert('审批过程中发生错误：' + error);
+                    },
+                    complete: function () {
+                        confirmBtn.prop('disabled', false).html('<i class="fa fa-check mr-1"></i>确认审批');
+                    }
+                });
+            });
+        });
+    </script>
+
+{% endblock %}
+
+{% block extra_js %}
+    <!-- 图表初始化脚本 -->
+    <script>
+        $(function () {
+            console.log('图表初始化开始...');
+
+            // 从Django模板获取数据
+            var faultyCount = {{ chart_faulty|default:0 }};
+            var borrowedCount = {{ chart_borrowed|default:0 }};
+            var scrapCount = {{ chart_scrap|default:0 }};
+            var availableCount = {{ chart_available|default:0 }};
+
+            // 圆环图 - 工具状态分布
+            if (typeof c3 !== 'undefined') {
+                var chart1 = c3.generate({
+                    bindto: '#campaign-v2',
+                    data: {
+                        columns: [
+                            ['故障', faultyCount],
+                            ['已借出', borrowedCount],
+                            ['报废', scrapCount],
+                            ['可用', availableCount]
+                        ],
+                        type: 'donut',
+                        tooltip: {
+                            show: true,
+                            format: {
+                                value: function (value, ratio, id) {
+                                    return value + ' 个';
+                                }
+                            }
+                        }
+                    },
+                    donut: {
+                        label: {
+                            show: false
+                        },
+                        title: '工具状态',
+                        width: 18
+                    },
+                    legend: {
+                        hide: true
+                    },
+                    color: {
+                        pattern: [
+                            '#ff4f70',  // 红色 - 故障
+                            '#01caf1',  // 浅蓝色 - 已借出
+                            '#293143',  // 黑色 - 报废
+                            '#28a745'   // 绿色 - 可用
+                        ]
+                    }
+                });
+                console.log('圆环图初始化完成');
+            } else {
+                console.error('c3 库未加载');
+            }
+
+            // 柱状图 - 各班组在借工具数量
+            if (typeof Chartist !== 'undefined') {
+                var teamLabels = {{ chart_team_labels|safe|default:'[]' }};
+                var teamData = {{ chart_team_data|safe|default:'[]' }};
+
+                // 如果没有数据，显示提示
+                if (teamLabels.length === 0) {
+                    teamLabels = ['暂无数据'];
+                    teamData = [0];
+                }
+
+                var data = {
+                    labels: teamLabels,
+                    series: [teamData]
+                };
+
+                var options = {
+                    axisX: {
+                        showGrid: false,
+                        labelInterpolationFnc: function(value) {
+                            // 班组名称过长时截断
+                            if (value.length > 4) {
+                                return value.substring(0, 4) + '...';
+                            }
+                            return value;
+                        }
+                    },
+                    axisY: {
+                        onlyInteger: true,
+                        offset: 30
+                    },
+                    seriesBarDistance: 10,
+                    chartPadding: {
+                        top: 15,
+                        right: 15,
+                        bottom: 5,
+                        left: 10
+                    },
+                    width: '100%'
+                };
+
+                var responsiveOptions = [
+                    ['screen and (max-width: 640px)', {
+                        seriesBarDistance: 5,
+                        axisX: {
+                            labelInterpolationFnc: function (value) {
+                                return value[0];
+                            }
+                        }
+                    }]
+                ];
+                new Chartist.Bar('.net-income', data, options, responsiveOptions);
+                console.log('柱状图初始化完成');
+            } else {
+                console.error('Chartist 库未加载');
+            }
+        });
+    </script>
+{% endblock %}

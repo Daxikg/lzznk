@@ -1,0 +1,90 @@
+{% extends 'base8.html' %}
+{% load static %}
+{% load my_tags %}
+{% block content %}
+    <div class="container-fluid page-body-wrapper">
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <h3 class="card-title" style="text-align: center; color: blue;"><i class="mdi mdi-heart" style="color: red;"></i>
+                    风险等级降低人员
+                </h3>
+                <div id="error-message" style="color: red; display: none;"></div>
+                <div class="col-md-12 grid-margin" style="font-weight: bold; text-align: center;">
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-success">
+                                <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>姓名</th>
+                                    <th>班组</th>
+                                    <th>分类</th>
+                                    <th>{{ last_year }}年等级</th>
+                                    <th>{{ year }}年等级</th>
+                                    <th>身高（米）</th>
+                                    <th>体重（公斤）</th>
+                                    <th>体重指数（BMI）</th>
+                                    <th>查看历史记录</th>
+                                </tr>
+                                </thead>
+                                {% for item in data %}
+                                    <tbody class="table-{{ warn }}">
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ item.jkrqList1.person.name }}</td>
+                                        <td>{{ item.jkrqList1.person.get_banzu_display }}</td>
+                                        <td>{{ item.jkrqList1.person.get_people_type_display }}</td>
+                                        <td class="
+                                            {% if item.jkrqList1.person.get_people_type_display == '健康危害风险人员' %}
+                                                {% if item.jkrqList1.person.get_people_level_display == '高危' %}level-high
+                                                {% elif item.jkrqList1.person.get_people_level_display == '三类' %}level-med
+                                                {% elif item.jkrqList1.person.get_people_level_display == '二类' %}level-low
+                                                {% else %}
+                                                {% endif %}
+                                            {% else %}
+                                                {% if item.jkrqList1.person.get_people_level_display == '二类（重点）' %}level-high
+                                                {% elif item.jkrqList1.person.get_people_level_display == '三类' %}level-med
+                                                {% else %}
+                                                {% endif %}
+                                            {% endif %}">
+                                            {{ item.jkrqList1.person.get_people_level_display }}
+                                        </td>
+                                        <td class="
+                                            {% if item.jkrqList1.this_year_level == '健康危害风险人员' %}
+                                                {% if item.jkrqList1.this_year_level == '高危' %}level-high
+                                                {% elif item.jkrqList1.this_year_level == '三类' %}level-med
+                                                {% elif item.jkrqList1.this_year_level == '二类' %}level-low
+                                                {% else %}level-blue
+                                                {% endif %}
+                                            {% else %}
+                                                {% if item.jkrqList1.this_year_level == '二类（重点）' %}level-high
+                                                {% elif item.jkrqList1.this_year_level == '三类' %}level-med
+                                                {% else %}level-blue
+                                                {% endif %}
+                                            {% endif %}">
+                                            {% if item.jkrqList1.this_year_level %}
+                                                {{ item.jkrqList1.this_year_level }}
+                                            {% else %}
+                                                未在名单内
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ item.jkrqList1.person.people_height }}</td>
+                                        <td>{{ item.jkrqList1.person.people_weight }}</td>
+                                        <td>{{ item.jkrqList1.person.people_bmi }}</td>
+                                        <td>
+                                            <a class="btn btn-cyan"
+                                               href="/jkrq/logcheck_jkrq/{{ item.jkrqList1.person.id }}">
+                                                <span class="menu-title">历史记录</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

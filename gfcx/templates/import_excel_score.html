@@ -1,0 +1,30 @@
+{% extends 'gfcx_base.html' %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <h3>导入Excel数据</h3>
+                <div class="alert alert-info">
+                    <h4 style="color: red">文件导出来源>>>工资收入>>>分值确认>>>根据考核月份点击查看详情>>>点击导出</h4>
+                    <p>请确保Excel文件名为：检修车间XX班20XX年XX月积分考核分值详情.xlsx，并包含以下内容：</p>
+                    <ul>
+                        <li>姓名</li>
+                        <li>工种</li>
+                        <li>工号</li>
+                        <li>分值</li>
+                    </ul>
+                </div>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="excel_file">选择Excel文件：</label>
+                        <input type="file" class="form-control-file" id="excel_file" name="excel_file" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">导入</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

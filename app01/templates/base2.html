@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/favicon.png' %}">
+    <title>检修轮轴智能选配系统（手持机）</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="all,follow">
+    <!-- Bootstrap CSS-->
+    <style>
+        table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        html, body {
+            font-size: 12px;
+        }
+    </style>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/fontastic.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/grasp_mobile_progress_circle-1.0.0.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'vendor/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/style.default.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/jquery-ui.css' %}" rel="stylesheet"/>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+</head>
+<body>
+<!-- Side Navbar -->
+<nav class="side-navbar">
+    <div class="side-navbar-wrapper">
+        <!-- Sidebar Header    -->
+        <img src="{% static 'img/u8.png' %}" width="220" height="64" alt="Tabler"
+             class="navbar-brand-image">
+        <div class="main-menu">
+            <h6 class="sidenav-heading">轮轴班轮径修改</h6>
+            <ul id="side-main-menu" class="side-menu list-unstyled">
+                <li class="{% if current_url_name == 'index7' or current_url_name == 'index8' or current_url_name == 'index9' %}active{% endif %}">
+                    <a href="/index7/"><i class="fa fa-bar-chart"></i>轮轴班轮径修改
+                    </a>
+                </li>
+            </ul>
+            <h6 class="sidenav-heading">返回主页</h6>
+            <ul id="side-main-menu" class="side-menu list-unstyled">
+                <li><a href="/index/"><i class="icon-home"></i>返回电脑端主页</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="page">
+    <!-- navbar-->
+    <header class="header">
+        <nav class="navbar">
+            <div class="container-fluid">
+                <div class="navbar-holder d-flex align-items-center justify-content-between">
+                    <div class="navbar-header">
+                        <a id="toggle-btn" href="#" class="menu-btn">
+                            <i class="icon-bars"> </i>
+                        </a>
+                        <a href="/index7/" class="navbar-brand">
+                            <div class="brand-text d-none d-md-inline-block"><strong
+                                    class="text-primary">检修轮轴智能选配系统</strong>
+                            </div>
+                        </a>
+                    </div>
+                    <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
+                        <!-- Log out-->
+                        <a href="." class="navbar-brand">
+                            <div class="brand-text d-inline-block">
+                                <span>{{ request.session.info.role }}</span>
+                            </div>
+                        </a>
+                        <li class="nav-item"><a href="/register/" class="nav-link logout">
+                            <span class="d-none d-sm-inline-block">退出登录</span><i class="fa fa-sign-out"></i></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <!-- Counts Section -->
+    <section class="dashboard-counts section-padding">
+        {% block content %}
+
+        {% endblock %}
+    </section>
+
+    <footer class="main-footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <p>Copyright &copy; 2024.GYNCLD All rights reserved.</p>
+                </div>
+                <div class="col-sm-6 text-right">
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+<!-- JavaScript files-->
+{% block js %}
+{% endblock %}
+<script src="{% static 'vendor/popper.js/umd/popper.min.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/grasp_mobile_progress_circle-1.0.0.min.js' %}"></script>
+<script src="{% static 'vendor/jquery.cookie/jquery.cookie.js' %}"></script>
+<script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
+<script src="{% static 'vendor/jquery-validation/jquery.validate.min.js' %}"></script>
+<script src="{% static 'vendor/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js' %}"></script>
+<script src="{% static 'js/front.js' %}"></script>
+<script src="{% static 'js/jquery-ui.js' %}"></script>
+</body>
+</html>

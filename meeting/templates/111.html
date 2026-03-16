@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/favicon.png' %}">
+    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/44.2.0/ckeditor5.css" crossorigin>
+    <link rel="stylesheet"
+          href="https://cdn.ckeditor.com/ckeditor5-premium-features/44.2.0/ckeditor5-premium-features.css" crossorigin>
+    <title>测试</title>
+
+</head>
+<body>
+<div class="container">
+    <div class="row" style="margin-top: 200px;">
+        <div class="col-md-12 grid-margin stretch-card" style="margin-bottom: 200px;">
+            <div style="text-align: center;" role="alert">
+                <h1 style="font-size: 60px; color: white; letter-spacing: 0.8em;">
+                    检修生产组织协调会
+                </h1>
+                <h1 style="color: white; letter-spacing: 0.1em;" id="clock"></h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+			<div class="editor-container editor-container_classic-editor editor-container_include-word-count" id="editor-container">
+				<div class="editor-container__editor"><div id="editor"></div></div>
+				<div class="editor_container__word-count" id="editor-word-count"></div>
+			</div>
+		</div>
+</div>
+<script src="https://cdn.ckeditor.com/ckeditor5/44.2.0/ckeditor5.umd.js" crossorigin></script>
+<script src="https://cdn.ckeditor.com/ckeditor5-premium-features/44.2.0/ckeditor5-premium-features.umd.js"
+        crossorigin></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/44.2.0/translations/zh-cn.umd.js" crossorigin></script>
+<script src="https://cdn.ckeditor.com/ckeditor5-premium-features/44.2.0/translations/zh-cn.umd.js" crossorigin></script>
+<script src="{% static 'main.js' %}"></script>
+
+</body>
+
+</html>

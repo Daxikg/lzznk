@@ -1,0 +1,42 @@
+{% extends 'base1.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="panel-default">
+            <div class="panel-heading">
+                <H3 class="font-weight-bold title">
+                    架车班{{ form.instance.get_taiwei_display }} {{ form.instance.get_shunxu_display }} 数据编辑</H3>
+                <form class="form-group" method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="form-group row">
+                            <div style="display: flex; justify-content: flex-start; align-items: center; margin: 10px 0;">
+                                <!-- 加大每一行的上下外边距 -->
+                                <label for="{{ field.id_for_label }}" style="flex: 2; margin: 0;">
+                                    {{ field.label }}
+                                </label>
+                                <div style="flex: 10; margin: 0;">
+                                    {{ field }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-primary me-2">保存</button>
+                        <a href="/架车班信息手持机查看界面{{ n }}/" class="btn btn-light">返回</a>
+                    </div>
+                    <H1>
+                        {% if messages %}
+                            <ul class="messages">
+                                {% for message in messages %}
+                                    <li{% if message.tags %}
+                                        class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </H1>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

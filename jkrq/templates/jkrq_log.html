@@ -1,0 +1,189 @@
+{% extends 'base8.html' %}
+{% load static %}
+{% load my_tags %}
+{% block content %}
+    <div class="container-fluid page-body-wrapper">
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <h3 class="card-title" style="text-align: center; color: black;"><i class="mdi mdi-history"
+                                                                                    style="color: black;"></i> 历史记录
+                </h3>
+                <div class="col-md-12 grid-margin">
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered table-success">
+                                <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>姓名</th>
+                                    <th>班组</th>
+                                    <th>分类</th>
+                                    <th>等级</th>
+                                    <th>身高（米）</th>
+                                    <th>体重（公斤）</th>
+                                    <th>体重指数（BMI）</th>
+                                    <th>血压</th>
+                                    <th>血糖</th>
+                                    <th>监测日期</th>
+                                    <th>监测方式</th>
+                                </tr>
+                                </thead>
+                                {% for log in logs %}
+                                    <tbody class="table-{{ warn }}">
+                                    <tr>
+                                        <td>{{ log.id }}</td>
+                                        <td>{{ log.people.name }}</td>
+                                        <td>{{ log.people.get_banzu_display }}</td>
+                                        <td>{{ log.people.get_people_type_display }}</td>
+                                        <td class="
+                                            {% if log.people.get_people_type_display == '健康危害风险人员' %}
+                                                {% if log.people.get_people_level_display == '高危' %}level-high
+                                                {% elif log.people.get_people_level_display == '三类' %}level-med
+                                                {% elif log.people.get_people_level_display == '二类' %}level-low
+                                                {% else %}level-low
+                                                {% endif %}
+                                            {% else %}
+                                                {% if log.people.get_people_level_display == '二类（重点）' %}level-high
+                                                {% elif log.people.get_people_level_display == '三类' %}level-med
+                                                {% else %}
+                                                {% endif %}
+                                            {% endif %}">
+                                            {{ log.people.get_people_level_display }}
+                                        </td>
+                                        <td>{{ log.people.people_height }}</td>
+                                        <td>{{ log.people_weight }}</td>
+                                        <td>{{ log.people_bmi }}</td>
+                                        <td>{{ log.people_blood_high }}/{{ log.people_blood_low }}</td>
+                                        <td>
+                                            {% if log.people_blood_candy %}
+                                                {{ log.people_blood_candy }}
+                                            {% else %}
+                                                暂无记录
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if log %}
+                                                <a href="/jkrq/license7/{{ log.id }}">
+                                                    {{ log.check_date }}
+                                                    {% if log.pic %}
+                                                        <i class="mdi mdi-file-image"></i>
+                                                    {% endif %}
+                                                </a>
+                                            {% else %}
+                                                {{ null }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ log.people.get_people_check_method_display }}</td>
+                                    </tr>
+                                    </tbody>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>$(document).ready(function () {
+        $('.set-common-btn').click(function (e) {
+            e.preventDefault();
+            var href = $(this).attr('href');
+            $.getJSON(href, function (data) {
+                alert(data.message);
+                location.reload();
+            });
+        });
+    });
+
+    </script>
+    <script>
+        {% if messages %}
+            $(document).ready(function () {
+                $('.toast').toast({delay: 2000});  // 这里的 delay 是 toast 展示的时间（毫秒）
+                $('.toast').toast('show');
+            });
+        {% endif %}
+        function startTime() {
+            let today = new Date();
+            let year = today.getFullYear();
+            let month = today.getMonth() + 1;
+            let date = today.getDate();
+            let h = today.getHours();
+            let m = today.getMinutes();
+            let s = today.getSeconds();
+            let day = today.getDay();
+            let dayOfWeek = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'][day];
+            m = checkTime(m);
+            s = checkTime(s);
+            document.getElementById('timer').innerHTML = year + "年" + month + "月" + date + "日 " + dayOfWeek + " " + h + ":" + m + ":" + s;
+            let t = setTimeout(startTime, 500);
+        }
+
+        function checkTime(i) {
+            if (i < 10) {
+                i = "0" + i
+            }
+            ;  // 在低于10的时间前添加0
+            return i;
+        }
+
+        // 调用函数
+        startTime();
+    </script>
+    <script>
+        // 获取输入元素
+        var systolicInput = document.getElementById('systolic');
+        var diastolicInput = document.getElementById('diastolic');
+
+        // 为输入元素添加一个'input'事件监听器
+        systolicInput.addEventListener('input', validateInput);
+        diastolicInput.addEventListener('input', validateInput);
+
+        function validateInput(event) {
+            // 将非数字字符替换为空
+            event.target.value = event.target.value.replace(/\D/g, '');
+
+            // 获取输入值并转为整数
+            var value = parseInt(event.target.value, 10);
+
+            // 若输入值为NaN (即非数字，例如空字符串)，则将其设为最小值1
+            if (isNaN(value)) {
+                event.target.value = 1;
+            }
+            // 若输入值为小于1的数字，则将其设为最小值1
+            else if (value < 1) {
+                event.target.value = 1;
+            }
+            // 若输入值为大于999的数字，则将其设为最大值999
+            else if (value > 999) {
+                event.target.value = 999;
+            }
+        }
+    </script>
+    <script>
+        var weightInput = document.getElementById('weight');
+
+        // 为输入元素添加一个'input'事件监听器
+        weightInput.addEventListener('input', validateInput);
+
+        function validateInput(event) {
+            var value = event.target.value;
+
+            // 检查输入值是否包含不正确的字符
+            var re = new RegExp("^\\d*\\.?\\d{0,2}$");
+            if (!re.test(value)) {
+                event.target.value = '';
+                alert('请确保输入值为数字，并至多包含一位小数。');
+            }
+
+            // 检查输入值是否超出约束范围
+            var floatValue = parseFloat(value);
+            if (floatValue < 0.1 || floatValue > 999.9) {
+                event.target.value = '';
+                alert('请确保体重在 0.1 到 999.9 之间');
+            }
+        }
+    </script>
+
+{% endblock %}

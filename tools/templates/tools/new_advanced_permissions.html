@@ -1,0 +1,427 @@
+<!-- tools_app/templates/tools_app/new_advanced_permissions.html -->
+{% extends 'tools/base.html' %}
+
+{% block title %}高级权限管理{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>高级权限管理</h2>
+    <button class="btn btn-primary" onclick="initializePermissions()">
+        <i class="fas fa-sync"></i> 初始化权限结构
+    </button>
+</div>
+
+<!-- 权限类别导航 -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">权限类别</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for category in permission_categories %}
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ category.name }}</h6>
+                        <p class="card-text text-muted small">{{ category.description }}</p>
+                        <div class="d-grid">
+                            <button class="btn btn-outline-primary btn-sm" 
+                                    onclick="showCategoryPermissions({{ category.id }})">
+                                配置权限
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- 班组权限配置表 -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">班组权限配置</h5>
+    </div>
+    <div class="card-body">
+        {% if teams_data %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>车间</th>
+                        <th>班组</th>
+                        <th>成员数</th>
+                        <th>工具管理</th>
+                        <th>分类管理</th>
+                        <th>借用管理</th>
+                        <th>保养管理</th>
+                        <th>故障管理</th>
+                        <th>报废管理</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for team in teams_data %}
+                    <tr>
+                        <td>{{ team.workshop_name }}</td>
+                        <td>{{ team.team_name }}</td>
+                        <td>
+                            <span class="badge bg-info">{{ team.member_count }} 人</span>
+                        </td>
+                        <td>
+                            {% with tool_perms=team.permissions %}
+                            <div>
+                                <span class="badge bg-{% if tool_perms.1.value == 'allow' %}success{% elif tool_perms.1.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="查看全部工具: {{ tool_perms.1.value }}">全</span>
+                                <span class="badge bg-{% if tool_perms.2.value == 'allow' %}success{% elif tool_perms.2.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="查看本班组工具: {{ tool_perms.2.value }}">班</span>
+                                <span class="badge bg-{% if tool_perms.3.value == 'allow' %}success{% elif tool_perms.3.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="新建工具: {{ tool_perms.3.value }}">新</span>
+                                <span class="badge bg-{% if tool_perms.4.value == 'allow' %}success{% elif tool_perms.4.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="删除工具: {{ tool_perms.4.value }}">删</span>
+                            </div>
+                            {% endwith %}
+                        </td>
+                        <td>
+                            {% with category_perms=team.permissions %}
+                            <div>
+                                <span class="badge bg-{% if category_perms.5.value == 'allow' %}success{% elif category_perms.5.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="查看全部分类: {{ category_perms.5.value }}">全</span>
+                                <span class="badge bg-{% if category_perms.6.value == 'allow' %}success{% elif category_perms.6.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="查看本班组分类: {{ category_perms.6.value }}">班</span>
+                                <span class="badge bg-{% if category_perms.7.value == 'allow' %}success{% elif category_perms.7.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="创建分类: {{ category_perms.7.value }}">创</span>
+                                <span class="badge bg-{% if category_perms.8.value == 'allow' %}success{% elif category_perms.8.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="删除分类: {{ category_perms.8.value }}">删</span>
+                            </div>
+                            {% endwith %}
+                        </td>
+                        <td>
+                            {% with loan_perms=team.permissions %}
+                            <div>
+                                <span class="badge bg-{% if loan_perms.9.value == 'allow' %}success{% elif loan_perms.9.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="借用工具: {{ loan_perms.9.value }}">借</span>
+                                <span class="badge bg-{% if loan_perms.10.value == 'allow' %}success{% elif loan_perms.10.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="审核借用: {{ loan_perms.10.value }}">审</span>
+                                <span class="badge bg-{% if loan_perms.11.value == 'allow' %}success{% elif loan_perms.11.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="查看所有订单: {{ loan_perms.11.value }}">全</span>
+                                <span class="badge bg-{% if loan_perms.12.value == 'allow' %}success{% elif loan_perms.12.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="查看本班订单: {{ loan_perms.12.value }}">班</span>
+                            </div>
+                            {% endwith %}
+                        </td>
+                        <td>
+                            {% with maintenance_perms=team.permissions %}
+                            <div>
+                                <span class="badge bg-{% if maintenance_perms.13.value == 'allow' %}success{% elif maintenance_perms.13.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="执行保养: {{ maintenance_perms.13.value }}">执</span>
+                                <span class="badge bg-{% if maintenance_perms.14.value == 'allow' %}success{% elif maintenance_perms.14.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="查看所有记录: {{ maintenance_perms.14.value }}">全</span>
+                                <span class="badge bg-{% if maintenance_perms.15.value == 'allow' %}success{% elif maintenance_perms.15.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="查看本班记录: {{ maintenance_perms.15.value }}">班</span>
+                            </div>
+                            {% endwith %}
+                        </td>
+                        <td>
+                            {% with fault_perms=team.permissions %}
+                            <div>
+                                <span class="badge bg-{% if fault_perms.16.value == 'allow' %}success{% elif fault_perms.16.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="查看所有故障: {{ fault_perms.16.value }}">全</span>
+                                <span class="badge bg-{% if fault_perms.17.value == 'allow' %}success{% elif fault_perms.17.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="查看本班故障: {{ fault_perms.17.value }}">班</span>
+                            </div>
+                            {% endwith %}
+                        </td>
+                        <td>
+                            {% with scrap_perms=team.permissions %}
+                            <div>
+                                <span class="badge bg-{% if scrap_perms.18.value == 'allow' %}success{% elif scrap_perms.18.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="查看所有报废: {{ scrap_perms.18.value }}">全</span>
+                                <span class="badge bg-{% if scrap_perms.19.value == 'allow' %}success{% elif scrap_perms.19.value == 'deny' %}danger{% else %}secondary{% endif %}" 
+                                      title="查看本班报废: {{ scrap_perms.19.value }}">班</span>
+                            </div>
+                            {% endwith %}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" 
+                                    onclick="configureTeamDetailedPermission({{ team.workshop_id }}, {{ team.team_id }})">
+                                <i class="fas fa-edit"></i> 详细配置
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <p class="text-muted">暂无班组数据</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 详细权限配置模态框 -->
+<div class="modal fade" id="teamDetailPermissionModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">班组详细权限配置</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" id="teamDetailPermissionForm">
+                {% csrf_token %}
+                <input type="hidden" name="team_detail_permission_form" value="true">
+                <input type="hidden" name="workshop" id="detailPermissionWorkshop">
+                <input type="hidden" name="team" id="detailPermissionTeam">
+                <input type="hidden" name="permission_item_id" id="permissionItemId">
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="detailWorkshopDisplay" readonly>
+                                <label for="detailWorkshopDisplay">车间</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="detailTeamDisplay" readonly>
+                                <label for="detailTeamDisplay">班组</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="permissionItemDisplay" readonly>
+                                <label for="permissionItemDisplay">权限项目</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    <h6>权限配置</h6>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">权限值</label>
+                                <select class="form-select" name="value" id="permissionValue">
+                                    <option value="allow">允许</option>
+                                    <option value="deny">拒绝</option>
+                                    <option value="inherit">继承</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">查看范围</label>
+                                <select class="form-select" name="view_scope" id="viewScope">
+                                    <option value="all">全部</option>
+                                    <option value="own_workshop">本车间</option>
+                                    <option value="own_team">本班组</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">操作范围</label>
+                                <select class="form-select" name="action_scope" id="actionScope">
+                                    <option value="all">全部</option>
+                                    <option value="own_workshop">本车间</option>
+                                    <option value="own_team">本班组</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading">权限说明</h6>
+                        <ul class="mb-0">
+                            <li><strong>允许</strong>: 明确授予此项权限</li>
+                            <li><strong>拒绝</strong>: 明确拒绝此项权限</li>
+                            <li><strong>继承</strong>: 使用上级（车间或系统）的默认设置</li>
+                            <li><strong>查看范围</strong>: 限制用户可以查看的数据范围</li>
+                            <li><strong>操作范围</strong>: 限制用户可以操作的数据范围</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存配置</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 权限类别详情模态框 -->
+<div class="modal fade" id="categoryPermissionsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">权限类别详情配置</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="categoryPermissionsContent">
+                    <!-- 动态加载权限类别详情 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 权限说明 -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">权限说明</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6>权限层级结构</h6>
+                <ul>
+                    <li><strong>系统级</strong>: 影响整个系统的全局权限</li>
+                    <li><strong>车间级</strong>: 影响特定车间的所有班组</li>
+                    <li><strong>班组级</strong>: 影响特定班组的所有成员</li>
+                    <li><strong>个人级</strong>: 针对特定用户的个性化权限</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6>权限继承规则</h6>
+                <ul>
+                    <li>个人权限 > 班组权限 > 车间权限 > 系统权限</li>
+                    <li>设置为"继承"时，使用上级权限配置</li>
+                    <li>明确的"允许"或"拒绝"会覆盖继承的权限</li>
+                </ul>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <h6>范围限制说明</h6>
+                <ul>
+                    <li><strong>查看范围</strong>: 限制用户可以浏览的数据范围</li>
+                    <li><strong>操作范围</strong>: 限制用户可以修改的数据范围</li>
+                    <li>范围选项：全部 / 本车间 / 本班组</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 将Python字典转换为JavaScript对象
+const workshopChoices = {{ workshop_choices|safe }};
+const teamChoices = {{ team_choices|safe }};
+
+function initializePermissions() {
+    if (confirm('确定要初始化权限结构吗？这将创建默认的权限类别和项目。')) {
+        // 这里可以发送AJAX请求到后端初始化权限结构
+        alert('权限结构初始化功能正在开发中...');
+    }
+}
+
+function showCategoryPermissions(categoryId) {
+    // 加载特定类别的权限详情
+    const modal = new bootstrap.Modal(document.getElementById('categoryPermissionsModal'));
+    document.getElementById('categoryPermissionsContent').innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">加载中...</span>
+            </div>
+            <p class="mt-2">正在加载权限详情...</p>
+        </div>
+    `;
+    modal.show();
+    
+    // 这里应该发送AJAX请求获取该类别的详细权限配置
+    setTimeout(() => {
+        document.getElementById('categoryPermissionsContent').innerHTML = `
+            <div class="alert alert-info">
+                <h5>类别权限配置功能正在开发中</h5>
+                <p>这里将显示 ${categoryId} 类别的详细权限配置界面</p>
+            </div>
+        `;
+    }, 1000);
+}
+
+function configureTeamDetailedPermission(workshop, team) {
+    console.log(`Configuring detailed permission for workshop=${workshop}, team=${team}`);
+    
+    // 获取CSRF token
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    // 填充基础信息
+    document.getElementById('detailPermissionWorkshop').value = workshop;
+    document.getElementById('detailPermissionTeam').value = team;
+    document.getElementById('detailWorkshopDisplay').value = workshopChoices[workshop] || `车间${workshop}`;
+    document.getElementById('detailTeamDisplay').value = teamChoices[team] || `班组${team}`;
+    
+    // 显示权限选择界面
+    showPermissionSelection(workshop, team);
+}
+
+function showPermissionSelection(workshop, team) {
+    const content = `
+        <div class="mb-4">
+            <h6>请选择要配置的权限项目：</h6>
+            <div class="row">
+                {% for category in permission_categories %}
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">{{ category.name }}</h6>
+                        </div>
+                        <div class="card-body">
+                            {% for item in category.permissionitem_set.all %}
+                            <button class="btn btn-outline-primary btn-sm me-2 mb-2" 
+                                    onclick="selectPermissionItem(${workshop}, ${team}, {{ item.id }}, '{{ item.name }}')">
+                                {{ item.name }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    `;
+    
+    // 这里应该动态生成权限选择界面
+    const modal = new bootstrap.Modal(document.getElementById('teamDetailPermissionModal'));
+    modal.show();
+}
+
+function selectPermissionItem(workshop, team, itemId, itemName) {
+    // 设置选中的权限项目
+    document.getElementById('permissionItemId').value = itemId;
+    document.getElementById('permissionItemDisplay').value = itemName;
+    
+    // 获取该班组该项权限的当前配置
+    loadPermissionConfig(workshop, team, itemId);
+}
+
+function loadPermissionConfig(workshop, team, itemId) {
+    // 这里应该发送AJAX请求获取当前权限配置
+    // 暂时使用默认值
+    document.getElementById('permissionValue').value = 'inherit';
+    document.getElementById('viewScope').value = 'all';
+    document.getElementById('actionScope').value = 'all';
+}
+
+// 等待DOM加载完成后绑定事件监听器
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Advanced permissions page loaded');
+});
+</script>
+{% endblock %}

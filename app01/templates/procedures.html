@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/favicon.png' %}">
+    <title>设备操作规程</title>
+    <!-- Custom CSS -->
+    <link href="{% static 'assets/libs/flot/css/float-chart.css' %}" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{% static 'dist/css/style.min.css' %}" rel="stylesheet">
+</head>
+
+<body>
+<div class="container-fluid">
+    <!-- ============================================================== -->
+    <!-- Start Page Content -->
+    <!-- ============================================================== -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title m-b-20" style="text-align: center;">
+                        设备操作规程目录</h1>
+                </div>
+                <ul class="list-style-none">
+                    <li class="card-body">
+                        <a href="{% static 'text/001内燃叉车点检作业指导书.pdf' %}" class="m-b-0 p-0">
+                            <div class="d-flex no-block">
+                                <i class="fa fa-check-circle w-30px m-t-5"></i>
+                                <div>
+                                    <span class="font-bold">一、内燃叉车点检作业指导书</span>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="card-body">
+                        <a href="{% static 'text/002蓄电池平衡重式叉车点检作业指导书.pdf' %}" class="m-b-0 p-0">
+                            <div class="d-flex no-block">
+                                <i class="fa fa-check-circle w-30px m-t-5"></i>
+                                <div>
+                                    <span class="font-bold">二、蓄电池平衡重式叉车点检作业指导书</span>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="card-body">
+                        <a href="{% static 'text/003电动单梁桥式起重机（地面操作）点检作业指导书.pdf' %}"
+                           class="m-b-0 p-0">
+                            <div class="d-flex no-block">
+                                <i class="fa fa-check-circle w-30px m-t-5"></i>
+                                <div>
+                                    <span class="font-bold">三、电动单梁桥式起重机（地面操作）点检作业指导书</span>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="card-body">
+                        <a href="{% static 'text/004电动单梁桥式起重机（驾驶室操作）点检作业指导书.pdf' %}"
+                           class="m-b-0 p-0">
+                            <div class="d-flex no-block">
+                                <i class="fa fa-check-circle w-30px m-t-5"></i>
+                                <div>
+                                    <span class="font-bold">四、电动单梁桥式起重机（驾驶室操作）点检作业指导书</span>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="card-body">
+                        <a href="{% static 'text/005电动双梁桥式起重机点检作业指导书.pdf' %}" class="m-b-0 p-0">
+                            <div class="d-flex no-block">
+                                <i class="fa fa-check-circle w-30px m-t-5"></i>
+                                <div>
+                                    <span class="font-bold">五、电动双梁桥式起重机点检作业指导书</span>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="card-body">
+                        <a href="{% static 'text/006轨道车（JN5-9）点检作业指导书.pdf' %}" class="m-b-0 p-0">
+                            <div class="d-flex no-block">
+                                <i class="fa fa-check-circle w-30px m-t-5"></i>
+                                <div>
+                                    <span class="font-bold">六、轨道车（JN5-9）点检作业指导书</span>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="card-body">
+                        <a href="{% static 'text/007轨道车（GCY350）点检作业指导书.pdf' %}" class="m-b-0 p-0">
+                            <div class="d-flex no-block">
+                                <i class="fa fa-check-circle w-30px m-t-5"></i>
+                                <div>
+                                    <span class="font-bold">七、轨道车（GCY350）点检作业指导书</span>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            {#                <div class="card">#}
+            {#                                <div class="card-body">#}
+            {#                                    <h1 class="card-title m-b-20" style="text-align: center;">#}
+            {#                                        设备操作规程目录</h1>#}
+            {#                                </div>#}
+            {#                    <a href="{% static 'text/001内燃叉车点检作业指导书.pdf' %}" >#}
+            {#                        <H1 class="hide-menu">一、内燃叉车点检作业指导书</H1>#}
+            {#                    </a>#}
+            {#                    <a href="{% static 'text/002蓄电池平衡重式叉车点检作业指导书.pdf' %}" >#}
+            {#                        <H1 class="hide-menu">二、蓄电池平衡重式叉车点检作业指导书</H1>#}
+            {#                    </a>#}
+            {#                    <a href="{% static 'text/003电动单梁桥式起重机（地面操作）点检作业指导书.pdf' %}" >#}
+            {#                        <H1 class="hide-menu">三、电动单梁桥式起重机（地面操作）点检作业指导书</H1>#}
+            {#                    </a>#}
+            {#                    <a href="{% static 'text/004电动单梁桥式起重机（驾驶室操作）点检作业指导书.pdf' %}" >#}
+            {#                        <H1 class="hide-menu">四、电动单梁桥式起重机（驾驶室操作）点检作业指导书</H1>#}
+            {#                    </a>#}
+            {#                    <a href="{% static 'text/005电动双梁桥式起重机点检作业指导书.pdf' %}" >#}
+            {#                        <H1 class="hide-menu">五、电动双梁桥式起重机点检作业指导书</H1>#}
+            {#                    </a>#}
+            {#                    <a href="{% static 'text/006轨道车（JN5-9）点检作业指导书.pdf' %}" >#}
+            {#                        <H1 class="hide-menu">六、轨道车（JN5-9）点检作业指导书</H1>#}
+            {#                    </a>#}
+            {#                    <a href="{% static 'text/007轨道车（GCY350）点检作业指导书.pdf' %}" >#}
+            {#                        <H1 class="hide-menu">七、轨道车（GCY350）点检作业指导书</H1>#}
+            {#                    </a>#}
+            {#                </div>#}
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>

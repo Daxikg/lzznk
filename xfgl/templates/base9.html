@@ -1,0 +1,393 @@
+{% load static %}
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/favicon.png' %}">
+    <title>消防管理</title>
+    <!-- Custom CSS -->
+    <link href="{% static 'assets/libs/flot/css/float-chart.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.css' %}" rel="stylesheet">
+    <link href="{% static 'dist/css/style.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/libs/toastr/build/toastr.min.css' %}" rel="stylesheet">
+    <style>
+        .custom-button {
+            margin-left: 25px; /* 将这个值调整为你需要的缩进级别 */
+        }
+
+        .submenu {
+            padding-left: 3em !important;
+        }
+
+        .image-container img {
+            max-width: 100%; /* 操作证照片，默认最大宽度展示 */
+            height: auto;
+            object-fit: contain;
+        }
+    </style>
+
+</head>
+
+<body>
+<!-- ============================================================== -->
+<!-- Preloader - style you can find in spinners.css -->
+<!-- ============================================================== -->
+<div class="preloader">
+    <div class="lds-ripple">
+        <div class="lds-pos"></div>
+        <div class="lds-pos"></div>
+    </div>
+</div>
+<!-- ============================================================== -->
+<!-- Main wrapper - style you can find in pages.scss -->
+<!-- ============================================================== -->
+<div id="main-wrapper">
+    <!-- ============================================================== -->
+    <!-- Topbar header - style you can find in pages.scss -->
+    <!-- ============================================================== -->
+    <header class="topbar" data-navbarbg="skin5">
+        <nav class="navbar top-navbar navbar-expand-md navbar-dark">
+            <div class="navbar-header" data-logobg="skin5">
+                <!-- This is for the sidebar toggle which is visible on mobile only -->
+                <a class="nav-toggler waves-effect waves-light d-block d-md-none" href="javascript:void(0)"><i
+                        class="ti-menu ti-close"></i></a>
+                <!-- ============================================================== -->
+                <!-- Logo -->
+                <!-- ============================================================== -->
+                <a class="navbar-brand" href=".">
+                    <!-- Logo icon -->
+                    <b class="logo-icon p-l-10">
+                        <!--You can put here icon as well // <i class="wi wi-sunset"></i> //-->
+                        <!-- Dark Logo icon -->
+                        {% if role in admin %}
+                            <img src="{% static 'img/u8.png' %}" width="220" height="64" alt="Tabler"
+                                 class="navbar-brand-image">
+                        {% elif role in xiuche %}
+                            <img src="{% static 'img/修车车间.png' %}" width="220" height="64" alt="Tabler"
+                                 class="navbar-brand-image">
+                        {% elif role in xiupei %}
+                            <img src="{% static 'img/修配车间.png' %}" width="220" height="64" alt="Tabler"
+                                 class="navbar-brand-image">
+                        {% endif %}
+                    </b>
+                </a>
+                <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="javascript:void(0)"
+                   data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                   aria-expanded="false" aria-label="Toggle navigation"><i class="ti-more"></i></a>
+            </div>
+            <!-- ============================================================== -->
+            <!-- End Logo -->
+            <!-- ============================================================== -->
+            <div class="navbar-collapse collapse" id="navbarSupportedContent" data-navbarbg="skin5">
+                <!-- ============================================================== -->
+                <!-- toggle and nav items -->
+                <!-- ============================================================== -->
+                <ul class="navbar-nav float-left mr-auto">
+                    <li class="nav-item d-none d-md-block">
+                        <a class="nav-link sidebartoggler waves-effect waves-light" href="javascript:void(0)"
+                           data-sidebartype="mini-sidebar">
+                            <i class="mdi mdi-menu font-24"></i>
+                        </a>
+                    </li>
+                    <!-- ============================================================== -->
+                    <!-- create new -->
+                    <!-- ============================================================== -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="." id="navbarDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="d-none d-md-block">贵阳南检修信息管理平台-->>>消防管理</span>
+                        </a>
+                    </li>
+                </ul>
+                <!-- ============================================================== -->
+                <!-- Right side toggle and nav items -->
+                <!-- ============================================================== -->
+                <ul class="navbar-nav float-right">
+
+                    <!-- ============================================================== -->
+                    <!-- Comment -->
+                    <!-- ============================================================== -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href=".">
+                            <span class="d-none d-md-block">欢迎使用：{{ request.session.info.role }}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/1/">
+                            <span class="d-none d-md-block">进入信息管理平台</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-muted waves-effect waves-dark pro-pic" href=""
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img
+                                src="{% static 'assets/images/users/1.jpg' %}" alt="user" class="rounded-circle"
+                                width="31"></a>
+                        <div class="dropdown-menu dropdown-menu-right user-dd animated">
+                            <a class="dropdown-item" href="/xfgl/xfgl_login/"><i class="ti-user m-r-5 m-l-5"></i>
+                                用户登录</a>
+                            {#                            <div class="dropdown-divider"></div>#}
+                            {#                            <a class="dropdown-item" href="javascript:void(0)"><i class="ti-settings m-r-5 m-l-5"></i>#}
+                            {#                                Account Setting</a>#}
+                            {#                            <div class="dropdown-divider"></div>#}
+                            <a class="dropdown-item" href="/xfgl/register_xfgl/"><i
+                                    class="fa fa-power-off m-r-5 m-l-5"></i> 退出登录</a>
+                            {#                            <div class="dropdown-divider"></div>#}
+                            {#                            <div class="p-l-30 p-10">#}
+                            {#                                <a href="javascript:void(0)" class="btn btn-sm btn-success btn-rounded">View Profile</a>#}
+                            {#                            </div>#}
+                        </div>
+                    </li>
+                    <!-- ============================================================== -->
+                    <!-- User profile and search -->
+                    <!-- ============================================================== -->
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <aside class="left-sidebar" data-sidebarbg="skin5">
+        <div class="scroll-sidebar">
+            <nav class="sidebar-nav">
+                <ul id="sidebarnav" class="p-t-30">
+{#                    <li class="sidebar-item">#}
+{#                        <a class="sidebar-link waves-effect waves-dark sidebar-link"#}
+{#                           href="/xfgl/xfgl_index/" aria-expanded="false">#}
+{#                            <i class="mdi mdi-view-dashboard"></i>#}
+{#                            <span class="hide-menu">主页</span>#}
+{#                        </a>#}
+{#                    </li>#}
+                    <li class="sidebar-item">
+                        <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                           href="/xfgl/xfgl/" aria-expanded="false">
+                            <i class="mdi mdi-view-dashboard"></i>
+                            <span class="hide-menu">设备总览</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                           href="/xfgl/operater/" aria-expanded="false">
+                            <i class="mdi mdi-view-dashboard"></i>
+                            <span class="hide-menu">负责人列表</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </nav>
+        </div>
+    </aside>
+    <div class="page-wrapper">
+        {% block content %}
+
+        {% endblock %}
+        <footer class="footer text-center">
+            Copyright &copy; 2024.GYNCLD All rights reserved.
+        </footer>
+    </div>
+</div>
+
+{% block js %}
+{% endblock %}
+<script src="{% static 'assets/libs/jquery/dist/jquery.min.js' %}"></script>
+<!-- Bootstrap tether Core JavaScript -->
+<script src="{% static 'assets/libs/popper.js/dist/umd/popper.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js' %}"></script>
+<script src="{% static 'assets/extra-libs/sparkline/sparkline.js' %}"></script>
+<!--Wave Effects -->
+<script src="{% static 'dist/js/waves.js' %}"></script>
+<!--Menu sidebar -->
+<script src="{% static 'dist/js/sidebarmenu.js' %}"></script>
+<!--Custom JavaScript -->
+<script src="{% static 'dist/js/custom.min.js' %}"></script>
+<!--This page JavaScript -->
+<!-- <script src="dist/js/pages/dashboards/dashboard1.js"></script> -->
+<!-- Charts js Files -->
+<script src="{% static 'assets/libs/flot/excanvas.js' %}"></script>
+<script src="{% static 'assets/libs/flot/jquery.flot.js' %}"></script>
+<script src="{% static 'assets/libs/flot/jquery.flot.pie.js' %}"></script>
+<script src="{% static 'assets/libs/flot/jquery.flot.time.js' %}"></script>
+<script src="{% static 'assets/libs/flot/jquery.flot.stack.js' %}"></script>
+<script src="{% static 'assets/libs/flot/jquery.flot.crosshair.js' %}"></script>
+<script src="{% static 'assets/libs/flot.tooltip/js/jquery.flot.tooltip.min.js' %}"></script>
+<script src="{% static 'dist/js/pages/chart/chart-page-init.js' %}"></script>
+<script src="{% static 'assets/extra-libs/DataTables/datatables.min.js' %}"></script>
+<script src="{% static 'assets/libs/toastr/build/toastr.min.js' %}"></script>
+<script>
+$(function(){
+    {% for message in messages %}
+    if ("{{ message.tags }}" === "success") {
+        toastr.success("{{ message }}", '成功！');
+    }
+    else if ("{{ message.tags }}" === "info") {
+        toastr.info("{{ message }}", '提醒！');
+    }
+    else if ("{{ message.tags }}" === "warning") {
+        toastr.warning("{{ message }}", '警告！');
+    }
+    else {
+        toastr.error("{{ message }}", '失败！');
+    }
+    {% endfor %}
+});
+</script>
+<script>
+    /****************************************
+     *       Basic Table                   *
+     ****************************************/
+    $(document).ready(function () {
+        $('#zero_config1').dataTable({
+            "order": [[0, 'asc']]
+        });
+    });
+    $(document).ready(function () {
+        $('#zero_config2').dataTable({
+            "order": [[0, 'asc']]
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        // 缓存 Modal 选择器
+        var modalSelector = $('#editModal1');
+
+        // 为模态框的 'show' 事件添加事件处理器
+        modalSelector.on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var logid = button.data('logid');
+            var device = button.data('device');
+            var number = button.data('number');
+            var banzu = button.data('banzu');
+            var userId = button.data('user-id');
+            var type = button.data('type');
+            var inspect = button.data('inspect');
+            var production_time = button.data('production_time');
+            var check_item1 = button.data('check_item1');
+            var check_item2 = button.data('check_item2');
+            var check_item3 = button.data('check_item3');
+            var check_item4 = button.data('check_item4');
+            var check_item5 = button.data('check_item5');
+            var check_item6 = button.data('check_item6');
+            var check_item7 = button.data('check_item7');
+            var check_item8 = button.data('check_item8');
+            var check_item9 = button.data('check_item9');
+            var check_item10 = button.data('check_item10');
+
+            var modalInstance = $(this);
+            modalInstance.find('#id_logid').val(logid);
+            modalInstance.find('#id_device').val(device);
+            modalInstance.find('#id_number').val(number);
+            modalInstance.find('#id_banzu').val(banzu);
+            modalInstance.find('#id_user').val(userId);
+            modalInstance.find('#id_type').val(type);
+            modalInstance.find('#id_inspect').val(inspect);
+            modalInstance.find('#id_production_time').val(production_time);
+            modalInstance.find('#id_check_item1').text(check_item1);
+            modalInstance.find('#id_check_item2').text(check_item2);
+            modalInstance.find('#id_check_item3').text(check_item3);
+            modalInstance.find('#id_check_item4').text(check_item4);
+            modalInstance.find('#id_check_item5').text(check_item5);
+            modalInstance.find('#id_check_item6').text(check_item6);
+            modalInstance.find('#id_check_item7').text(check_item7);
+            modalInstance.find('#id_check_item8').text(check_item8);
+            modalInstance.find('#id_check_item9').text(check_item9);
+            modalInstance.find('#id_check_item10').text(check_item10);
+        });
+        // 捕获表单提交事件
+        $('#editForm1').on('submit', function (e) {
+            e.preventDefault(); // 阻止默认的表单提交
+
+            $.ajax({
+                url: "{% url 'xfgl:edit_xfgl'%}", // replace with the url of the view that handles form submission
+                type: 'POST',
+                data: $(this).serialize(),
+                dataType: 'json'
+            })
+                .done(function (data) {
+                    // hide the modal and reload the page
+                    $('#editModal1').modal('hide');
+                    // 刷新页面
+                    location.reload();
+                    alert('保存成功！');
+                })
+                .fail(function () {
+                    alert('保存失败，请修改后重试！');
+                });
+        });
+
+        // 为模态框的 'hidden' 事件添加事件处理函数
+        modalSelector.on('hidden.bs.modal', function () {
+            var modalInstance = $(this);
+
+            // 缓存 form 选择器
+            var formSelector = modalInstance.find('form');
+
+            formSelector.trigger('reset');
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        // 缓存 Modal 选择器
+        var modalSelector = $('#editModal2');
+
+        // 为模态框的 'show' 事件添加事件处理器
+        modalSelector.on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var logid = button.data('logid');
+            var name = button.data('name');
+            var number = button.data('number');
+            var banzu = button.data('banzu');
+            var chejian = button.data('chejian');
+
+            var modalInstance = $(this);
+            modalInstance.find('#id_logid').val(logid);
+            modalInstance.find('#id_name').val(name);
+            modalInstance.find('#id_number').val(number);
+            modalInstance.find('#id_banzu').val(banzu);
+            modalInstance.find('#id_chejian').val(chejian);
+
+        });
+        // 捕获表单提交事件
+        $('#editForm2').on('submit', function (e) {
+            e.preventDefault(); // 阻止默认的表单提交
+
+            $.ajax({
+                url: "{% url 'xfgl:edit_operater'%}", // replace with the url of the view that handles form submission
+                type: 'POST',
+                data: $(this).serialize(),
+                dataType: 'json'
+            })
+                .done(function (data) {
+                    // hide the modal and reload the page
+                    $('#editModal2').modal('hide');
+                    // 刷新页面
+                    location.reload();
+                    alert('保存成功！');
+                })
+                .fail(function () {
+                    alert('保存失败，请修改后重试！');
+                });
+        });
+
+        // 为模态框的 'hidden' 事件添加事件处理函数
+        modalSelector.on('hidden.bs.modal', function () {
+            var modalInstance = $(this);
+
+            // 缓存 form 选择器
+            var formSelector = modalInstance.find('form');
+
+            formSelector.trigger('reset');
+        });
+    });
+</script>
+</body>
+
+</html>

@@ -1,0 +1,203 @@
+.icon-blank{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/blank.gif') no-repeat center center;
+}
+.icon-add{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/edit_add.png?v=61b6bc3') no-repeat center center;
+}
+.icon-edit{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/pencil.png?v=cb752ce') no-repeat center center;
+}
+.icon-clear{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/clear.png?v=d751365') no-repeat center center;
+}
+.icon-remove{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/edit_remove.png?v=f55bca7') no-repeat center center;
+}
+.icon-save{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/filesave.png?v=dbff1b1') no-repeat center center;
+}
+.icon-cut{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/cut.png?v=6fafa59') no-repeat center center;
+}
+.icon-ok{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/ok.png?v=6c2c87b') no-repeat center center;
+}
+.icon-no{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/no.png?v=937f61a') no-repeat center center;
+}
+.icon-cancel{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/cancel.png?v=c1d3e1f') no-repeat center center;
+}
+.icon-reload{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/reload.png?v=7e733d0') no-repeat center center;
+}
+.icon-search{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/search.png?v=07f55ac') no-repeat center center;
+}
+.icon-print{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/print.png?v=b86ea8d') no-repeat center center;
+}
+.icon-help{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/help.png?v=a3f000b') no-repeat center center;
+}
+.icon-undo{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/undo.png?v=109db39') no-repeat center center;
+}
+.icon-redo{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/redo.png?v=887af69') no-repeat center center;
+}
+.icon-back{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/back.png?v=03e5661') no-repeat center center;
+}
+.icon-unback{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/unback.png?v=63455a3') no-repeat center center;
+}
+.icon-sum{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/sum.png?v=6dc7381') no-repeat center center;
+}
+.icon-tip{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/tip.png?v=c4f3fa8') no-repeat center center;
+}
+.icon-filter{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/filter.png?v=38f40b3') no-repeat center center;
+}
+.icon-man{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/man.png?v=f82e2f3') no-repeat center center;
+}
+.icon-lock{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/lock.png?v=e8c995a') no-repeat center center;
+}
+.icon-comment{
+	background:url('icons/comment.png') no-repeat center center;
+}
+.icon-comment-edit{
+	background:url('icons/comment_edit.png') no-repeat center center;
+}
+.icon-email-go{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/email_go.png?v=baaa6ac') no-repeat center center;
+}
+
+
+.icon-mini-add{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/mini_add.png?v=4163edf') no-repeat center center;
+}
+.icon-mini-edit{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/mini_edit.png?v=c7b1193') no-repeat center center;
+}
+.icon-mini-refresh{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/mini_refresh.png?v=657b83f') no-repeat center center;
+}
+.icon-large-picture{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/large_picture.png?v=d8819e8') no-repeat center center;
+}
+.icon-large-clipart{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/large_clipart.png?v=7917d3b') no-repeat center center;
+}
+.icon-large-shapes{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/large_shapes.png?v=38a2045') no-repeat center center;
+}
+.icon-large-smartart{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/large_smartart.png?v=fb2575e') no-repeat center center;
+}
+.icon-large-chart{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/large_chart.png?v=7776166') no-repeat center center;
+}
+
+
+.icon-folder{
+	background: url('/SSOP/publicRack/scripts/easyui1.4/themes/xxs/images/tree_icons.png?v=b9bff72') no-repeat -208px 0;
+}
+.icon-full{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/full.png?v=b5ca9d6') no-repeat center center;
+}
+.icon-unfull{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/unfull.png?v=1653c22') no-repeat center center;
+}
+.icon-date{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/date.png?v=c6febd0') no-repeat center center;
+}
+.icon-s-add{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_add.png?v=c8c7d7c') no-repeat center center;
+}
+.icon-s-back{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_back.png?v=e544765') no-repeat center center;
+}
+.icon-s-print{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_print.png?v=e8148af') no-repeat center center;
+}
+.icon-s-save{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_save.png?v=c620145') no-repeat center center;
+}
+.icon-s-search{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_search.png?v=7621e78') no-repeat center center;
+}
+.icon-s-search-big{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_search_big.png?v=91ccdb4') no-repeat center center;
+}
+.icon-s-see{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_see.png?v=b72049a') no-repeat center center;
+}
+.icon-s-unback{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_unback.png?v=9fd28ea') no-repeat center center;
+}
+.icon-s-xf{
+	background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_xf.png?v=5ae8ebd') no-repeat center center;
+}
+.icon-s-clear{
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/clear_red.png?v=d72fc9b') no-repeat center center;
+}
+.icon-s-del{
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_del.png?v=a184715') no-repeat center center;
+}
+.icon-s-edit{
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_edit.png?v=b9c60fc') no-repeat center center;
+}
+.icon-s-jt-tb{
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_jt_tb.png?v=81ff497') no-repeat center center;
+}
+.icon-s-jt-t{
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_jt_t.png?v=6d58767') no-repeat center center;
+}
+.icon-s-jt-tt{
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_jt_tt.png?v=0a132fa') no-repeat center center;
+}
+.icon-s-jt-b{
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_jt_b.png?v=a0ed249') no-repeat center center;
+}
+.icon-s-jt-bb{
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_jt_bb.png?v=5f47639') no-repeat center center;
+}
+.icon-s-list{
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_list.png?v=375e423') no-repeat center center;
+}
+.icon-s-reload{
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_reload.png?v=7121481') no-repeat center center;
+}
+.icon-s-to-r{
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/s_to_r.png?v=5c57c34') no-repeat center center;
+}
+/*单位树特殊图标*/
+.icon-s-tree-tlj{/*铁路局-2*/
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/tree_zt.png?v=9a49c09') no-repeat center center;
+}
+.icon-s-tree-zy{/*专业-1*/
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/tree_xt.png?v=ab06672') no-repeat center center;
+}
+.icon-s-tree-c{/*处0*/
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/tree_cs.png?v=fdbd297') no-repeat center center;
+}
+.icon-s-tree-ks{/*处科室1、局科室2、段科室4*/
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/tree_zdks.png?v=a24c0c2') no-repeat center center;
+}
+.icon-s-tree-d{/*段3*/
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/tree_zddw.png?v=0fc5000') no-repeat center center;
+}
+.icon-s-tree-cj{/*车间5*/
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/tree_cj.png?v=8ba46f5') no-repeat center center;
+}
+.icon-s-tree-gq{/*工区6、工作组7*/
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/tree_gq.png?v=7d297cc') no-repeat center center;
+}
+.icon-s-tree-fsjg{/*附属机构99*/
+    background:url('/SSOP/publicRack/scripts/easyui1.4/themes/icons/tree_fsjg.png?v=a4f35d7') no-repeat center center;
+}

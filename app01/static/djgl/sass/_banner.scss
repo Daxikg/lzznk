@@ -1,0 +1,113 @@
+/*-----------------Banner-------------*/
+.home-slider {
+    overflow: hidden;
+    .slide-item {
+        padding: 155px 0;
+        background-color: $dark;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: top center;
+        .para {
+            max-width: 700px;
+            margin: 2rem 0;
+            p {
+                color: $white;
+            }
+        }
+    }
+
+    .slide1 {
+        background-image: url('img/1.jpg');
+    }
+    .slide2 {
+        background-image: url('img/2.jpg');
+    }
+    .slide3 {
+        background-image: url('img/3.png');
+    }
+
+    .owl-nav {
+        margin-top: 0;
+        .owl-next, .owl-prev {
+            position: absolute;
+            top: 47%;
+        }
+        .owl-next {
+            right: 2%;
+            font-size: 25px !important;
+            background: transparent !important;
+            color: $white !important;
+            visibility: hidden;
+            opacity: 0;
+            transform: translate(20px,0px);
+            -webkit-transform: translate(20px,0px);
+            -moz-transform: translate(20px,0px);
+            @include transition(.3s);
+        }
+        .owl-prev{
+            left: 2%;
+            font-size: 25px !important;
+            background: transparent !important;
+            color: $white !important;
+            visibility: hidden;
+            opacity: 0;
+            transform: translate(-20px,0px);
+            -webkit-transform: translate(-20px,0px);
+            -moz-transform: translate(-20px,0px);
+            @include transition(.3s);
+        }
+    }
+    &:hover {
+        .owl-prev, .owl-next {
+            visibility: visible;
+            opacity: 1;
+            transform: translate(0px,0px);
+            -webkit-transform: translate(0px,0px);
+            -moz-transform: translate(0px,0px);
+        }
+    }
+}
+.page-banner {
+    padding: 150px 0;
+    position: relative;
+    .page-title {
+        h3 {
+            font-size: 40px;
+        }
+    }
+}
+.site-breadcrumb {    
+    text-align: center;
+    position: absolute;
+    left: 43.5%;
+    bottom: -6%;
+    z-index: 100;
+    ul {        
+        background: $white;
+        display: inline-block;
+        padding: 15px;
+        border-radius: 5px;   
+        li {
+            display: inline-block;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 15px;
+            color: $primary;
+            &::after {
+                content: '/';
+                margin: 0 5px;
+                color: $primary;
+            }
+            &:last-child::after {
+                content: '';
+                margin: 0;
+            }
+            a {
+                color: $primary;
+                &:hover {
+                    color: $primary;
+                }
+            }
+        }
+    }
+}

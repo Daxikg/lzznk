@@ -1,0 +1,466 @@
+{% extends 'base8.html' %}
+{% load static %}
+{% load my_tags %}
+{% block content %}
+    <div class="container-fluid page-body-wrapper">
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <h3 class="card-title" style="text-align: center; color: red;"><i class="fas fa-plus"
+                                                                                  style="color: red;"></i>
+                    {{ year }}年健康危害风险人员健康维护管理
+                    {% if banzu == 13 %}
+                        <button id="Button" class="btn btn-success btn-sm custom-button"
+                                data-toggle="modal" data-target="#addModal"
+                        >
+                            添加新人员
+                        </button>
+                    {% else %}
+                    {% endif %}
+                </h3>
+                <div class="col-md-12 grid-margin">
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered table-success" style="font-weight: bold; text-align: center;">
+                                <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>姓名</th>
+                                    <th>班组</th>
+                                    <th>分类</th>0
+                                    <th>等级</th>
+                                    <th>身高（米）</th>
+                                    <th>体重（公斤）</th>
+                                    <th>体重指数</th>
+                                    <th>最近一次血压</th>
+                                    <th>最近一次监测日期</th>
+                                    <th>监测方式</th>
+                                    <th>历史记录及指标检测</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                {% for item in data1 %}
+                                    <tbody class="table-{{ warn }}">
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ item.jkrqList1.name }}</td>
+                                        <td>{{ item.jkrqList1.get_banzu_display }}</td>
+                                        <td>{{ item.jkrqList1.get_people_type_display }}</td>
+                                        <td class="
+                                                {% if item.jkrqList1.get_people_level_display == '高危' %}level-high
+                                                {% elif item.jkrqList1.get_people_level_display == '三类' %}level-med
+                                                {% elif item.jkrqList1.get_people_level_display == '二类' %}level-low
+                                                {% else %}
+                                                {% endif %}">
+                                            {{ item.jkrqList1.get_people_level_display }}
+                                        </td>
+                                        <td>{{ item.jkrqList1.people_height }}</td>
+                                        <td>{{ item.jkrqList1.people_weight }}</td>
+                                        <td>{{ item.jkrqList1.people_bmi }}</td>
+                                        <td>{{ item.jkrqList1.people_blood_high }}/{{ item.jkrqList1.people_blood_low }}</td>
+                                        <td>
+                                            {% if item.last_log %}
+                                                <a href="/jkrq/license3/{{ item.last_log.id }}">
+                                                    {{ item.last_log.check_date }}
+                                                    {% if item.last_log.pic %}
+                                                        <i class="mdi mdi-file-image"></i>
+                                                    {% endif %}
+                                                </a>
+                                            {% else %}
+                                                {{ item.null }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ item.jkrqList1.get_people_check_method_display }}</td>
+                                        <td style="text-align: left;">
+                                            <a class="btn btn-cyan"
+                                               href="/jkrq/logcheck_jkrq/{{ item.jkrqList1.id }}">
+                                                <span class="menu-title">历史记录</span>
+                                            </a>
+                                            {% if item.needs_check %}
+                                                <button class="btn btn-orange" data-toggle="modal"
+                                                        data-target="#myModalnewcar-{{ item.jkrqList1.id }}"
+                                                        data-logid="{{ user.id }}"
+                                                        data-name="{{ user.name }}"
+                                                >指标监测
+                                                </button>
+                                            {% endif %}
+                                            <div class="modal fade" id="myModalnewcar-{{ item.jkrqList1.id }}"
+                                                 tabindex="-1" role="dialog"
+                                                 aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="exampleModalLabel">
+                                                                指标监测</h5>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                    aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <h3 class="card-title" style="text-align: center;">
+                                                                请在下方填入当日测量结果</h3>
+                                                            <form action="/jkrq/update_jkrq1/" class="form-group"
+                                                                  method="post"
+                                                                  target="" id="del_form">
+                                                                {% csrf_token %}
+                                                                <div class="modal-body">
+                                                                    <input type="hidden" name="pid"
+                                                                           value="{{ item.jkrqList1.id }}">
+                                                                    <div class="row">
+                                                                        <div class="col-md-12">
+                                                                            <div class="form-group row">
+                                                                                <label class="col-sm-3 col-form-label">姓名</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <input class="form-control"
+                                                                                           type="text"
+                                                                                           name="people_name"
+                                                                                           value="{{ item.jkrqList1.name }}"
+                                                                                           disabled>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-md-12">
+                                                                            <div class="form-group row">
+                                                                                <label class="col-sm-3 col-form-label"
+                                                                                       for="date_added">监测日期</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <input type="text"
+                                                                                           class="form-control subInput"
+                                                                                           name="check_date"
+                                                                                           value="{{ now }}"
+                                                                                           disabled>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-md-12">
+                                                                            <div class="form-group row">
+                                                                                <label class="col-sm-3 col-form-label"
+                                                                                       for="operator">操作人</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <input type="text"
+                                                                                           class="form-control subInput"
+                                                                                           name="operator"
+                                                                                           value="{{ request.session.info.role }}"
+                                                                                           disabled>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-md-12">
+                                                                            <div class="form-group row">
+                                                                                <label class="col-sm-3 col-form-label"
+                                                                                       for="operator">人员所属班组</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <input type="text"
+                                                                                           class="form-control subInput"
+                                                                                           name="operator"
+                                                                                           value="{{ item.jkrqList1.get_banzu_display }}"
+                                                                                           disabled>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class=" row">
+                                                                        <div class="col-md-12">
+                                                                            <div class="form-group row">
+                                                                                <label class="col-sm-3 col-form-label"
+                                                                                       for="weight"><span style="color: red">*</span>体重（公斤）</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <input
+                                                                                            class="form-control subInput"
+                                                                                            type="text" id="weight"
+                                                                                            inputmode="decimal"
+                                                                                            name="people_weight"
+                                                                                            pattern="\d+(\.\d{1,2})?"
+                                                                                            value="{{ item.jkrqList1.people_weight }}"
+                                                                                            required>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-md-12">
+                                                                            <div class="form-group row">
+                                                                                <label class="col-sm-3 col-form-label"
+                                                                                       for="systolic"><span style="color: red">*</span>收缩压</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <input type="text"
+                                                                                           inputmode="numeric"
+                                                                                           pattern="\d*"
+                                                                                           class="form-control subInput"
+                                                                                           id="systolic"
+                                                                                           name="people_blood_high"
+                                                                                           min="1" max="999" step="1"
+                                                                                           required
+                                                                                    >
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-md-12">
+                                                                            <div class="form-group row">
+                                                                                <label class="col-sm-3 col-form-label"
+                                                                                       for="diastolic"><span style="color: red">*</span>舒张压</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <input type="text"
+                                                                                           inputmode="numeric"
+                                                                                           pattern="\d*"
+                                                                                           class="form-control subInput"
+                                                                                           id="diastolic"
+                                                                                           name="people_blood_low"
+                                                                                           min="1" max="999" step="1"
+                                                                                           required
+                                                                                    >
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class=" row">
+                                                                        <div class="col-md-12">
+                                                                            <div class="form-group row">
+                                                                                <label class="col-sm-3 col-form-label"
+                                                                                       for="weight">血糖（选填）</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <input
+                                                                                            class="form-control subInput"
+                                                                                            type="text" id="blood_candy"
+                                                                                            inputmode="decimal"
+                                                                                            name="people_blood_candy"
+                                                                                            pattern="\d+(\.\d{1,2})?"
+                                                                                    >
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="submit" id="submitBtn"
+                                                                            class="btn btn-primary me-2">确认
+                                                                    </button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary edit-btn" data-toggle="modal"
+                                                    data-target="#editModal" data-logid="{{ item.jkrqList1.id }}"
+                                                    data-name="{{ item.jkrqList1.name }}"
+                                                    data-banzu="{{ item.jkrqList1.banzu }}"
+                                                    data-people_type="{{ item.jkrqList1.people_type }}"
+                                                    data-people_level="{{ item.jkrqList1.people_level }}"
+                                                    data-people_height="{{ item.jkrqList1.people_height }}"
+                                                    data-people_weight="{{ item.jkrqList1.people_weight }}"
+                                                    data-people_check_method="{{ item.jkrqList1.people_check_method|default_if_none:'' }}"
+                                            >
+                                                编辑
+                                            </button>
+
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                {% endfor %}
+                            </table>
+                        </div>
+                        <div class="modal fade" id="addModal" tabindex="-1" role="dialog"
+                             aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">新增人员</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="addForm" method="POST" action="{% url 'jkrq:add_jkrq1' %}">
+                                            <input type="hidden" id="id_logid" name="logid">
+                                            <div class="modal-body">
+                                                <table class="table">
+                                                    <tbody>
+                                                    <tr>
+                                                        <th><span style="color: red">*</span>姓名：{{ form.name }}</th>
+                                                        <th><span style="color: red">*</span>班组：{{ form.banzu }}</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th><span style="color: red">*</span>等级：{{ form.people_level }}</th>
+                                                        <th><span style="color: red">*</span>监测方式：{{ form.people_check_method }}</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th><span style="color: red">*</span>身高（米）：{{ form.people_height }}</th>
+                                                        <th><span style="color: red">*</span>体重（公斤）：{{ form.people_weight }}</th>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                {% csrf_token %}
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                            data-dismiss="modal">关闭
+                                                    </button>
+                                                    <button type="submit" class="btn btn-primary">保存</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="editModal" tabindex="-1" role="dialog"
+                             aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">修改人员信息</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="editForm" method="POST">
+                                            <input type="hidden" id="id_logid" name="logid">
+                                            <div class="modal-body">
+                                                <table class="table">
+                                                    <tbody>
+                                                    <tr>
+                                                        <th><span style="color: red">*</span>姓名：{{ form.name }}</th>
+                                                        <th><span style="color: red">*</span>班组：{{ form.banzu }}</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>
+                                                            <span style="color: red">*</span>分类：
+                                                            {% if banzu == 13 %}
+                                                                {{ form.people_type }}
+                                                            {% else %}
+                                                                {{ form.people_type|default:form.people_type }}
+                                                            {% endif %}
+                                                        </th>
+                                                        <th>
+                                                            <span style="color: red">*</span>等级：
+                                                            {% if banzu == 13 %}
+                                                                {{ form.people_level }}
+                                                            {% else %}
+                                                                {{ form.people_level.value|default:form.people_level }}
+                                                            {% endif %}
+                                                        </th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th><span style="color: red">*</span>身高（米）：{{ form.people_height }}</th>
+                                                        <th><span style="color: red">*</span>体重（公斤）：{{ form.people_weight }}</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>
+                                                            <span style="color: red">*</span>监测方式：
+                                                            {% if banzu == 13 %}
+                                                                {{ form.people_check_method }}
+                                                            {% else %}
+                                                                {{ form.people_check_method.value|default:form.people_check_method }}
+                                                            {% endif %}
+                                                        </th>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                {% csrf_token %}
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                            data-dismiss="modal">关闭
+                                                    </button>
+                                                    <button type="submit" class="btn btn-primary">保存</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="content-wrapper">
+                <h3 class="card-title" style="text-align: center; color: red;"><i class="fas fa-plus" style="color: red;"></i>
+                    {{ last_year }}年健康危害风险人员健康维护管理</h3>
+                <div class="col-md-12 grid-margin">
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered table-success" style="font-weight: bold; text-align: center;">
+                                <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>姓名</th>
+                                    <th>班组</th>
+                                    <th>分类</th>
+                                    <th>等级</th>
+                                    <th>身高（米）</th>
+                                    <th>体重（公斤）</th>
+                                    <th>体重指数</th>
+                                    <th>最近一次血压</th>
+                                    <th>最近一次监测日期</th>
+                                    <th>监测方式</th>
+                                    <th>历史记录及指标检测</th>
+                                </tr>
+                                </thead>
+                                {% for item in data2 %}
+                                    <tbody class="table-{{ warn }}">
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ item.jkrqList1.name }}</td>
+                                        <td>{{ item.jkrqList1.get_banzu_display }}</td>
+                                        <td>{{ item.jkrqList1.get_people_type_display }}</td>
+                                        <td class="
+                                            {% if item.jkrqList1.get_people_type_display == '健康危害风险人员' %}
+                                                {% if item.jkrqList1.get_people_level_display == '高危' %}level-high
+                                                {% elif item.jkrqList1.get_people_level_display == '三类' %}level-med
+                                                {% elif item.jkrqList1.get_people_level_display == '二类' %}level-low
+                                                {% else %}
+                                                {% endif %}
+                                            {% else %}
+                                                {% if item.jkrqList1.get_people_level_display == '二类（重点）' %}level-high
+                                                {% elif item.jkrqList1.get_people_level_display == '三类' %}level-med
+                                                {% else %}
+                                                {% endif %}
+                                            {% endif %}">
+                                            {{ item.jkrqList1.get_people_level_display }}
+                                        </td>
+                                        <td>{{ item.jkrqList1.people_height }}</td>
+                                        <td>{{ item.jkrqList1.people_weight }}</td>
+                                        <td>{{ item.jkrqList1.people_bmi }}</td>
+                                        <td>{{ item.jkrqList1.people_blood_high }}/{{ item.jkrqList1.people_blood_low }}</td>
+                                        <td>
+                                            {% if item.last_log %}
+                                                <a href="/jkrq/license3/{{ item.last_log.id }}">
+                                                    {{ item.last_log.check_date }}
+                                                    {% if item.last_log.pic %}
+                                                        <i class="mdi mdi-file-image"></i>
+                                                    {% endif %}
+                                                </a>
+                                            {% else %}
+                                                {{ item.null }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ item.jkrqList1.get_people_check_method_display }}</td>
+                                        <td>
+                                            <a class="btn btn-cyan"
+                                               href="/jkrq/logcheck_jkrq/{{ item.jkrqList1.id }}">
+                                                <span class="menu-title">历史记录</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

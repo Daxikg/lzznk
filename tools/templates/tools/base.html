@@ -1,0 +1,368 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}修配车间工具管理系统{% endblock %}</title>
+    <!-- Bootstrap 4 CSS -->
+    <link href="{% static 'tools/assets/libs/bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- C3 Charts CSS -->
+    <link href="{% static 'tools/assets/extra-libs/c3/c3.min.css' %}" rel="stylesheet">
+    <!-- Chartist CSS -->
+    <link href="{% static 'tools/assets/libs/chartist/dist/chartist.min.css' %}" rel="stylesheet">
+    <!-- Template Style CSS -->
+    <link href="{% static 'tools/dist/css/style.min.css' %}" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="{% static 'tools/dist/css/icons/font-awesome/css/fontawesome-all.min.css' %}" rel="stylesheet">
+    <!-- Custom Theme Styles - Blue Professional -->
+    <style>
+        /* 页面背景 */
+        body {
+            background-color: #f7fafc;
+        }
+
+        /* 顶部导航栏 - 深蓝渐变 */
+        .topbar,
+        .topbar .navbar {
+            background: linear-gradient(90deg, #1e3a5f 0%, #2c5282 100%) !important;
+        }
+
+        /* 顶部导航栏文字颜色调整 */
+        .topbar .navbar-header .logo-text .text-dark,
+        .topbar .navbar-nav .text-dark,
+        .topbar .nav-link {
+            color: #e2e8f0 !important;
+        }
+
+        .topbar .breadcrumb-item a,
+        .topbar .breadcrumb-item.active {
+            color: #a0aec0 !important;
+        }
+
+        .topbar .breadcrumb-item + .breadcrumb-item::before {
+            color: #718096;
+        }
+
+        /* 用户下拉菜单 */
+        .topbar .dropdown-menu {
+            background-color: #2d3748;
+            border-color: #4a5568;
+        }
+
+        .topbar .dropdown-item {
+            color: #e2e8f0 !important;
+        }
+
+        .topbar .dropdown-item:hover {
+            background-color: #4a5568;
+            color: #fff !important;
+        }
+
+        .topbar .dropdown-divider {
+            border-color: #4a5568;
+        }
+
+        /* 左上角Logo区域 - 与左侧边栏一致 */
+        .topbar .navbar-header {
+            background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%) !important;
+        }
+
+        /* 左上角Logo文字颜色 */
+        .topbar .navbar-header .logo-text .text-dark {
+            color: #e2e8f0 !important;
+        }
+
+        /* 左上角Logo图标 */
+        .topbar .navbar-header .logo-icon i {
+            color: #63b3ed !important;
+        }
+
+        /* 左侧边栏 - 深灰蓝渐变 */
+        .left-sidebar,
+        .scroll-sidebar {
+            background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%) !important;
+        }
+
+        /* 侧边栏链接文字 */
+        .sidebar-nav .sidebar-link {
+            color: #a0aec0 !important;
+        }
+
+        .sidebar-nav .sidebar-link:hover {
+            color: #fff !important;
+            background-color: rgba(99, 179, 237, 0.1) !important;
+        }
+
+        .sidebar-nav .sidebar-link.active {
+            color: #63b3ed !important;
+            background-color: rgba(99, 179, 237, 0.15) !important;
+        }
+
+        /* 侧边栏图标 - 亮蓝色 */
+        .sidebar-nav .sidebar-link i {
+            color: #63b3ed !important;
+        }
+
+        /* 侧边栏分隔线和标题 */
+        .sidebar-nav .nav-small-cap,
+        .sidebar-nav .list-divider {
+            border-color: #4a5568 !important;
+        }
+
+        .sidebar-nav .nav-small-cap span {
+            color: #718096 !important;
+        }
+
+        /* 页面主内容区域背景 */
+        .page-wrapper {
+            background-color: #f7fafc;
+        }
+
+        /* 卡片样式微调 */
+        .card {
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+<!-- Preloader -->
+<div class="preloader">
+    <div class="lds-ripple">
+        <div class="lds-pos"></div>
+        <div class="lds-pos"></div>
+    </div>
+</div>
+
+<!-- Main wrapper -->
+<div id="main-wrapper" data-theme="light" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+     data-sidebar-position="fixed" data-header-position="fixed" data-boxed-layout="full">
+
+    <!-- Topbar header -->
+    <header class="topbar" data-navbarbg="skin6">
+        <nav class="navbar top-navbar navbar-expand-md">
+            <div class="navbar-header" data-logobg="skin6">
+                <!-- Mobile sidebar toggle -->
+                <a class="nav-toggler waves-effect waves-light d-block d-md-none" href="javascript:void(0)"><i
+                        class="ti-menu ti-close"></i></a>
+
+                <!-- Logo -->
+                <div class="navbar-brand">
+                    <a href="{% url 'tools:user_dashboard' %}">
+                        <b class="logo-icon">
+                            <i class="fas fa-tools fa-2x text-primary"></i>
+                        </b>
+                        <span class="logo-text">
+                                <span class="text-dark font-weight-bold">工具管理系统</span>
+                            </span>
+                    </a>
+                </div>
+
+                <!-- Mobile toggle -->
+                <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="javascript:void(0)"
+                   data-toggle="collapse" data-target="#navbarSupportedContent"
+                   aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="ti-more"></i>
+                </a>
+            </div>
+
+            <!-- Navbar items -->
+            <div class="navbar-collapse collapse" id="navbarSupportedContent">
+                <!-- Left side: Page title and breadcrumb -->
+                <ul class="navbar-nav float-left mr-auto ml-3 pl-1">
+                    <li class="nav-item d-flex align-items-center">
+                        <h5 class="mb-0 font-weight-medium text-dark mr-3">
+                            {% block nav_page_title %}仪表板{% endblock %}
+                        </h5>
+                    </li>
+                    <li class="nav-item d-flex align-items-center">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb m-0 p-0" style="background: transparent; font-size: 0.85rem;">
+                                <li class="breadcrumb-item"><a href="{% url 'tools:user_dashboard' %}" class="text-muted">首页</a></li>
+                                {% block nav_breadcrumb %}{% endblock %}
+                            </ol>
+                        </nav>
+                    </li>
+                </ul>
+                <!-- Right side nav items -->
+                <ul class="navbar-nav float-right">
+                    <!-- User profile dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-user-circle fa-lg"></i>
+                            <span class="ml-2 d-none d-lg-inline-block">
+                                    <span class="text-dark">{{ user.username }}</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right user-dd animated flipInY"
+                             style="min-width: auto; padding: 0.4rem 0; font-size: 0.875rem;">
+                            <a class="dropdown-item" href="javascript:void(0)" style="padding: 0.35rem 0.8rem;">
+                                <i class="fas fa-user mr-1"></i>个人资料
+                            </a>
+                            <div class="dropdown-divider" style="margin: 0.2rem 0;"></div>
+                            <a class="dropdown-item" href="{% url 'tools:logout' %}" style="padding: 0.35rem 0.8rem;">
+                                <i class="fas fa-power-off mr-1"></i>退出登录
+                            </a>
+                        </div>
+                    </li>
+                    <!-- Page actions -->
+                    <li class="nav-item d-flex align-items-center ml-2">
+                        {% block nav_actions %}{% endblock %}
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Left Sidebar -->
+    <aside class="left-sidebar" data-sidebarbg="skin6">
+        <div class="scroll-sidebar" data-sidebarbg="skin6">
+            <nav class="sidebar-nav">
+                <ul id="sidebarnav">
+                    <li class="sidebar-item">
+                        <a class="sidebar-link sidebar-link" href="{% url 'tools:user_dashboard' %}"
+                           aria-expanded="false">
+                            <i class="fas fa-home"></i>
+                            <span class="hide-menu">主页</span>
+                        </a>
+                    </li>
+
+                    <li class="list-divider"></li>
+                    <li class="nav-small-cap"><span class="hide-menu">工具菜单</span></li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{% url 'tools:manage_tools' %}?tab=all" aria-expanded="false">
+                            <i class="fas fa-calendar"></i>
+                            <span class="hide-menu">全部工具</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{% url 'tools:manage_tools' %}?tab=available"
+                           aria-expanded="false">
+                            <i class="fas fa-check-circle"></i>
+                            <span class="hide-menu">可用工具</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{% url 'tools:manage_tools' %}?tab=borrowed"
+                           aria-expanded="false">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span class="hide-menu">领用工具</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{% url 'tools:manage_tools' %}?tab=faulty" aria-expanded="false">
+                            <i class="fas fa-wrench"></i>
+                            <span class="hide-menu">故障工具</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{% url 'tools:manage_tools' %}?tab=scrap" aria-expanded="false">
+                            <i class="fas fa-trash-alt"></i>
+                            <span class="hide-menu">报废工具</span>
+                        </a>
+                    </li>
+
+                    {% if can_manage_categories %}
+                        <li class="list-divider"></li>
+                        <li class="nav-small-cap"><span class="hide-menu">管理功能</span></li>
+
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="{% url 'tools:manage_tool_categories' %}"
+                               aria-expanded="false">
+                                <i class="fas fa-folder-open"></i>
+                                <span class="hide-menu">分类管理</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% if can_manage_repairs %}
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="{% url 'tools:manage_repair_records' %}"
+                               aria-expanded="false">
+                                <i class="fas fa-clipboard"></i>
+                                <span class="hide-menu">维修管理</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% if can_manage_permissions %}
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="{% url 'tools:simple_permissions' %}" aria-expanded="false">
+                                <i class="fas fa-key"></i>
+                                <span class="hide-menu">权限管理</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Page wrapper -->
+    <div class="page-wrapper">
+        <!-- Container fluid -->
+        <div class="container-fluid">
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Page Content -->
+            {% block content %}
+            {% endblock %}
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer text-center text-muted">
+            &copy; 2026 修配车间工具管理系统
+        </footer>
+    </div>
+</div>
+
+<!-- All Jquery -->
+<script src="{% static 'tools/assets/libs/jquery/dist/jquery.min.js' %}"></script>
+<!-- Bootstrap tether Core JavaScript -->
+<script src="{% static 'tools/assets/libs/popper.js/dist/umd/popper.min.js' %}"></script>
+<script src="{% static 'tools/assets/libs/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<!-- Feather Icons -->
+<script src="{% static 'tools/dist/js/feather.min.js' %}"></script>
+<!-- slimscrollbar scrollbar JavaScript -->
+<script src="{% static 'tools/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js' %}"></script>
+<script src="{% static 'tools/assets/extra-libs/sparkline/sparkline.js' %}"></script>
+<!-- Menu sidebar -->
+<script src="{% static 'tools/dist/js/sidebarmenu.js' %}"></script>
+<!--Custom JavaScript -->
+<script src="{% static 'tools/dist/js/custom.min.js' %}"></script>
+<!-- C3 Charts (D3 + C3) -->
+<script src="{% static 'tools/assets/extra-libs/c3/d3.min.js' %}"></script>
+<script src="{% static 'tools/assets/extra-libs/c3/c3.min.js' %}"></script>
+<!-- Chartist Charts -->
+<script src="{% static 'tools/assets/libs/chartist/dist/chartist.min.js' %}"></script>
+<script src="{% static 'tools/assets/libs/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js' %}"></script>
+
+<!-- CSRF token for AJAX -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+{% block extra_js %}{% endblock %}
+</body>
+
+</html>

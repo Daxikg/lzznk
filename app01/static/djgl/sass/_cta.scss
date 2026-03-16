@@ -1,0 +1,33 @@
+/*-----------------Call To Action-------------*/
+.cta {
+    .cta-info {
+        display: flex;
+        .cta-icon {
+            font-size: 40px;
+            margin-right: 20px;
+            i {
+                vertical-align: middle;
+            }
+        }
+    }
+    .cta-btn {
+        a {
+            margin-top: 1rem;
+        }
+    }
+    &.light-bg {
+        .cta-info {
+            .cta-icon {
+                i {
+                    vertical-align: middle;
+                    color: $white;
+                }
+            }
+            .cta-title {
+                h4, p {
+                    color: $white;
+                }
+            }
+        }
+    }
+}

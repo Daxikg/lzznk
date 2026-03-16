@@ -1,0 +1,92 @@
+{% extends 'base2.html' %}
+
+{% block content %}
+    <style>
+        .highlight1 {
+            color: #003eff !important;
+        }
+    </style>
+    <header class="navbar-expand-md">
+        <div class="bs-example" data-example-id="table-within-panel">
+            <div class="container">
+                <div class="panel-default">
+                    <H3 class="font-weight-bold title">
+                        出库数据(三次入库)[出车顺序
+                        {% for order in orders %}
+                            {{ order.gudao1 }}{{ order.gudao2 }}{{ order.gudao3 }}
+                        {% endfor %}]</H3>
+                    <ul class="pagination m-0 xs-auto" id="nav">
+                        <li class="page-item"><a href="/index7/"
+                                                 class="page-link {% if current_url_name == 'index7' %}active{% endif %}"
+                                                 role="button">一次入库</a>
+                        <li class="page-item"><a href="/index8/"
+                                                 class="page-link {% if current_url_name == 'index8' %}active{% endif %}"
+                                                 role="button">二次入库</a>
+                        <li class="page-item"><a href="/index9/"
+                                                 class="page-link {% if current_url_name == 'index9' %}active{% endif %}"
+                                                 role="button">三次入库</a>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="panel-default">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th style="background-color: #8ec2ed;">台位顺序</th>
+                        <th style="background-color: #7ccecd;">货车修程</th>
+                        <th style="background-color: #7ccecd;">车型车种</th>
+                        <th style="background-color: #7ccecd;">轮对年限</th>
+                        <th style="background-color: #8fd19e;">二位轮径</th>
+                        <th style="background-color: #8fd19e;">二位垫板</th>
+                        <th style="background-color: #8ec2ed;">一位轮径</th>
+                        <th style="background-color: #8ec2ed;">一位垫板</th>
+                        <th style="background-color: #7ccecd;">编辑</th>
+                    </tr>
+                    </thead>
+                    {% for item in data_list %}
+                        <tr>
+                            <td style="background-color: #8ec2ed;"
+                                class="{% if item.data.data1.beizhu %}updated{% endif %}">{{ item.position }}</td>
+                            <td style="background-color: #7ccecd;"
+                                class="{% if item.data.data1.chexing in highlight_list %}highlight1{% endif %}">
+                                {% if item.data.data1.get_xiucheng_display %}
+                                    {{ item.data.data1.get_xiucheng_display }}{% endif %}</td>
+                            <td style="background-color: #7ccecd;"
+                                class="{% if item.data.data1.chexing in highlight_list %}highlight1{% endif %}">
+                                {% if item.data.data1.chexing %}
+                                    {{ item.data.data1.chexing }}{% endif %}</td>
+                            <td style="background-color: #7ccecd;"
+                                class="{% if item.data.data1.chexing in highlight_list %}highlight1{% endif %}">
+                                {% if item.data.data1.get_nianxian_display %}
+                                    {{ item.data.data1.get_nianxian_display }}{% endif %}</td>
+                            <td style="background-color: #8fd19e;"
+                                class="{% if item.data.data2.is_updated %}updated{% endif %}">
+                                {% if item.data.data2.lunjing2 %}{{ item.data.data2.lunjing2 }}{% endif %}</td>
+                            <td style="background-color: #8fd19e;"
+                                class="{% if item.data.data2.dianban2 is not None and item.data.data2.dianban2 < 0 or item.data.data2.dianban2 > 40 %}highlight{% elif item.data.data2.is_updated %}updated{% endif %}">
+                                {% if item.data.data2.dianban2 is not None %}
+                                    {{ item.data.data2.dianban2 }}{% endif %}</td>
+                            <td style="background-color: #8ec2ed;"
+                                class="{% if item.data.data2.is_updated %}updated{% endif %}">
+                                {% if item.data.data1.lunjing1 %}{{ item.data.data2.lunjing1 }}{% endif %}</td>
+                            <td style="background-color: #8ec2ed;"
+                                class="{% if item.data.data2.dianban1 is not None and item.data.data2.dianban1 < 0 or item.data.data2.dianban1 > 40 %}highlight{% elif item.data.data2.is_updated %}updated{% endif %}">
+                                {% if item.data.data2.dianban1 is not None %}
+                                    {{ item.data.data2.dianban1 }}{% endif %}</td>
+                            <td>
+                                {% if item.data.data2 %}
+                                    <a href="/index/{{ item.data.data1.taiwei }}/{{ item.data.data1.shunxu }}/edit4/"
+                                       style="font-size: 15px; padding: 5px 10px;"
+                                       class="btn btn-primary btn-xs">编辑</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </header>
+
+{% endblock %}

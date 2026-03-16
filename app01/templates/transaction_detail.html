@@ -1,0 +1,90 @@
+{% extends 'base3.html' %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title m-b-0">事务详情</h1>
+                    </div>
+                    <div class="comment-widgets scrollable">
+                        <!-- Comment Row -->
+                        <div class="d-flex flex-row comment-row m-t-0">
+                            <div class="comment-text w-100" style="width: auto;">
+                                <h1 class="font-medium" style="text-align: center;">
+                                    {{ transaction.shiwubiaoti }}</h1>
+                                <span class="m-b-15 d-block" style="text-align: center;">
+                                    <span style="margin-right: 20px;">{{ transaction.todaytime }}</span>
+                                    <span style="margin-left: 20px;">发布人：{{ transaction.user }}</span>
+                                </span>
+                                <div class="comment-text w-100" style="width: auto; min-height: fit-content;">
+                                    <pre class="pre-style">{{ transaction.shiwuneirong|safe }}</pre>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            {% for attachment in attachments %}
+                                {% if attachment.file %}
+                                    {% if ".jpg" in attachment.file.url or ".jpeg" in attachment.file.url or ".png" in attachment.file.url or ".gif" in attachment.file.url %}
+                                        <p>
+                                            <a href="{{ attachment.file.url }}" target="_blank">
+                                                <div class="image-container">
+                                                    <img src="{{ attachment.file.url }}" alt="图片">
+                                                </div>
+                                            </a>
+                                        </p>
+                                        <p>点击照片可查看大图</p>
+                                    {% elif ".pdf" in attachment.file.url %}
+                                        <p>
+                                            <a href="{{ attachment.file.url }}" class="btn btn-cyan" target="_blank">打开
+                                                PDF 文件</a>
+                                        </p>
+                                    {% else %}
+                                        <p>
+                                            <a href="{{ attachment.file.url }}" class="btn btn-cyan" target="_blank">下载文件</a>
+                                        </p>
+                                    {% endif %}
+                                {% else %}
+                                    <p>没有附件.</p>
+                                {% endif %}
+                            {% endfor %}
+                            <div>
+                                <p>已读：
+                                    {% for admin in admins_read %}
+                                        {{ admin }}
+                                    {% endfor %}
+                                </p>
+                                <p style="color: red">*未读：
+                                    {% for admin in admins_not_read %}
+                                        {{ admin }}
+                                    {% endfor %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="comment-footer">
+                        {% if banzu == 13 %}
+                            <a href="{% url 'edit_transaction' transaction.id %}" class="btn btn-success">编辑</a>
+                            <a href="#" data-url="/transaction/delete/{{ transaction.id }}/"
+                               class="btn btn-danger delete-btn">删除</a>
+                        {% else %}
+                        {% endif %}
+                            <a href="{% url 'transactions' year month %}" class="btn btn-info">返回</a>
+                            <H3>
+                                {% if messages %}
+                                    <ul class="messages">
+                                        {% for message in messages %}
+                                            <li{% if message.tags %}
+                                                class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </H3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

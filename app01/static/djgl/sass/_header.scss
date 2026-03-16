@@ -1,0 +1,70 @@
+/*-----------------Header-------------*/
+.topbar {
+    padding: 5px 0;
+    .topbar-msg {
+        span {        
+            font-size: 14px;
+            display: inline-block;
+            vertical-align: middle;
+            font-family: 'Exo', sans-serif;
+            i {
+                margin-right: 7px;
+            }
+        }
+    }
+}
+.social-links {
+    text-align: right;
+    li {
+        display: inline-block;
+        margin-right: 10px;
+        &:last-child {
+            margin-right: 0;
+        }
+        a {
+            color: $white;
+            font-size: 14px;
+            &:hover {
+                color: $primary;
+            }
+        }
+    }
+}
+.logo {
+    height: 100%;
+    min-width: 165px;
+    position: relative;
+    z-index: 999;
+    clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%);
+    a {
+        font-size: 28px;
+        font-weight: 900;
+        color: $white;
+        position: absolute;
+        top: 13%;
+        left: 5%;
+        i {
+            color: $dark;
+        }
+    }
+}
+
+.header-btn {
+    text-align: right;
+    a {
+        margin: 10px 0 10px 10px;
+    }
+}
+
+.mobile-header {
+    position: relative;
+    display: none;
+    .mobile-logo {
+        width: 165px;
+        height: 52px;
+        position: absolute;
+        z-index: 9999999;
+    }
+}
+
+

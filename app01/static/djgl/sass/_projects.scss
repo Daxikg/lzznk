@@ -1,0 +1,55 @@
+/*-----------------Projects-------------*/
+.project-item {
+    position: relative;
+    overflow: hidden;
+    img {
+        width: 100%;
+    }
+    .project-info {
+        background-color: $white;
+        position: absolute;
+        bottom: 5%;
+        left: 5%;
+        width: 90%;
+        visibility: hidden;
+        padding: 10px;
+        opacity: 0;
+        @include translate(0, 75px);
+        @include transition(.5s);
+        h4 {
+            font-size: 18px;
+            text-transform: uppercase;
+            max-width: 90%;
+            @include transition(.5s);
+        }
+        a {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 40px;
+            height: 100%;
+            text-align: center;
+            background-color: $primary;
+            padding: 5px;
+            font-size: 20px;
+            color: $white;
+            &:hover {
+                background-color: $dark;
+            }
+        }
+    }
+    &:hover {
+        .project-info {            
+            @include translate(0, 0);
+            visibility: inherit;
+            opacity: 1;
+        }
+    }
+}
+.works, .projects {
+    .row {
+        .col-md-4 {
+            padding: 0;
+        }
+    }
+}

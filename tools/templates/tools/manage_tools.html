@@ -1,0 +1,971 @@
+<!-- tools_app/templates/tools_app/manage_tools.html -->
+{% extends 'tools/base.html' %}
+
+{% block title %}工具管理{% endblock %}
+
+{% block nav_page_title %}工具管理{% endblock %}
+
+{% block nav_breadcrumb %}
+<li class="breadcrumb-item text-muted active" aria-current="page">工具管理</li>
+{% endblock %}
+
+{% block nav_actions %}{% endblock %}
+
+{% block content %}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-0">
+            <div class="d-flex align-items-center px-3 py-2">
+                <ul class="nav nav-tabs border-0 mb-0" id="toolTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="all-tools-tab" data-toggle="tab" data-target="#all-tools"
+                                type="button" role="tab">
+                            <i class="fa fa-list mr-1"></i>全部工具（{{ all_tools_count }}个）
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="available-tools-tab" data-toggle="tab" data-target="#available-tools"
+                                type="button" role="tab">
+                            <i class="fa fa-check-circle mr-1 text-success"></i>可用工具（{{ available_tools_count }}个）
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="borrowed-tools-tab" data-toggle="tab" data-target="#borrowed-tools"
+                                type="button" role="tab">
+                            <i class="fa fa-exchange-alt mr-1 text-info"></i>已领用工具（{{ borrowed_tools_count }}个）
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="faulty-tools-tab" data-toggle="tab" data-target="#faulty-tools"
+                                type="button" role="tab">
+                            <i class="fa fa-wrench mr-1 text-warning"></i>故障工具（{{ faulty_tools_count }}个）
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="scrapped-tools-tab" data-toggle="tab" data-target="#scrapped-tools"
+                                type="button" role="tab">
+                            <i class="fa fa-trash mr-1 text-dark"></i>报废工具（{{ scrapped_tools_count }}个）
+                        </button>
+                    </li>
+                </ul>
+                {% if can_manage_tools %}
+                    <a href="{% url 'tools:create_tool' %}" class="btn btn-primary btn-sm ml-auto">
+                        <i class="fa fa-plus mr-1"></i>添加工具
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="toolTabsContent">
+        <!-- 全部工具 -->
+        <div class="tab-pane fade show active" id="all-tools" role="tabpanel" aria-labelledby="all-tools-tab">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>编号</th>
+                                    <th>名称</th>
+                                    <th>型号</th>
+                                    <th>分类</th>
+                                    <th>状态</th>
+                                    <th>申领记录</th>
+                                    <th>故障记录</th>
+                                    <th>保养记录</th>
+                                    <th>保养周期</th>
+                                    <th>下次保养</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for tool in all_tools %}
+                                <tr>
+                                    <td>{{ tool.id }}</td>
+                                    <td>{{ tool.name }}</td>
+                                    <td>{{ tool.specification }}</td>
+                                    <td>{{ tool.category.name }}</td>
+                                    <td>
+                                        <span class="badge badge-{% if tool.is_overdue %}danger{% elif tool.current_status == '申领审批中' %}warning{% elif tool.current_status == '归还审批中' %}info{% elif tool.status == '正常' %}success{% elif tool.status == '故障' %}warning{% elif tool.status == '维修' %}info{% elif tool.status == '报废' %}dark{% else %}secondary{% endif %}">
+                                            {{ tool.current_status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'tools:tool_loan_history' tool.id %}"
+                                           class="btn btn-sm btn-outline-primary">查看记录</a>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'tools:tool_repair_records' tool.id %}"
+                                           class="btn btn-sm btn-outline-danger">故障记录</a>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'tools:tool_maintenance_records' tool.id %}"
+                                           class="btn btn-sm btn-outline-success">保养记录</a>
+                                    </td>
+                                    <td>
+                                        {% for value, label in tool.MAINTENANCE_CYCLE_CHOICES %}
+                                            {% if value == tool.maintenance_cycle %}
+                                                {{ label }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% if tool.next_maintenance_date %}
+                                            <span class="badge badge-{{ tool.maintenance_status_color }}">
+                                                {{ tool.next_maintenance_date|date:"Y-m-d" }}
+                                                {% if tool.days_until_next_maintenance is not None %}
+                                                    {% if tool.days_until_next_maintenance < 0 %}
+                                                        (已超{% widthratio tool.days_until_next_maintenance -1 1 %}天)
+                                                    {% else %}
+                                                        (剩{{ tool.days_until_next_maintenance }}天)
+                                                    {% endif %}
+                                                {% endif %}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">未设置</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-secondary"
+                                                onclick="showToolDetailModal({{ tool.id }})">
+                                            <i class="fa fa-eye"></i> 详情
+                                        </button>
+                                        {% if tool.is_available_for_loan %}
+                                            <a href="{% url 'tools:loan_tool' tool.id %}"
+                                               class="btn btn-sm btn-primary">申领</a>
+                                        {% else %}
+                                            <button class="btn btn-sm btn-outline-secondary" disabled>不可申领</button>
+                                        {% endif %}
+                                        {% if tool.status != '故障' and tool.status != '报废' %}
+                                            <button class="btn btn-sm btn-warning"
+                                                    onclick="showFaultReportModal({{ tool.id }}, '{{ tool.name|escapejs }}')">
+                                                故障报修
+                                            </button>
+                                        {% endif %}
+                                        {% if can_manage_tools %}
+                                            <a href="{% url 'tools:update_tool' tool.id %}"
+                                               class="btn btn-sm btn-outline-primary">编辑</a>
+                                            <button class="btn btn-sm btn-outline-info"
+                                                    onclick="showMaintenanceModal({{ tool.id }}, '{{ tool.name|escapejs }}')">
+                                                保养
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 可用工具 -->
+        <div class="tab-pane fade" id="available-tools" role="tabpanel" aria-labelledby="available-tools-tab">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>编号</th>
+                        <th>名称</th>
+                        <th>型号</th>
+                        <th>分类</th>
+                        <th>状态</th>
+                        <th>申领记录</th>
+                        <th>故障记录</th>
+                        <th>保养记录</th>
+                        <th>保养周期</th>
+                        <th>下次保养</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for tool in available_tools %}
+                        <tr>
+                            <td>{{ tool.id }}</td>
+                            <td>{{ tool.name }}</td>
+                            <td>{{ tool.specification }}</td>
+                            <td>{{ tool.category.name }}</td>
+                            <td><span class="badge badge-{% if tool.is_overdue %}danger{% elif tool.current_status == '申领审批中' %}warning{% elif tool.current_status == '归还审批中' %}info{% elif tool.status == '正常' %}success{% elif tool.status == '故障' %}warning{% elif tool.status == '维修' %}info{% elif tool.status == '报废' %}dark{% else %}secondary{% endif %}">
+                                {{ tool.current_status }}
+                            </span></td>
+                            <td>
+                                <a href="{% url 'tools:tool_loan_history' tool.id %}"
+                                   class="btn btn-sm btn-outline-primary">查看记录</a>
+                            </td>
+                            <td>
+                                <a href="{% url 'tools:tool_repair_records' tool.id %}"
+                                   class="btn btn-sm btn-outline-danger">故障记录</a>
+                            </td>
+                            <td>
+                                <a href="{% url 'tools:tool_maintenance_records' tool.id %}"
+                                   class="btn btn-sm btn-outline-success">保养记录</a>
+                            </td>
+                            <td>
+                                {% for value, label in tool.MAINTENANCE_CYCLE_CHOICES %}
+                                    {% if value == tool.maintenance_cycle %}
+                                        {{ label }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% if tool.next_maintenance_date %}
+                                    <span class="badge badge-{{ tool.maintenance_status_color }}">
+                                        {{ tool.next_maintenance_date|date:"Y-m-d" }}
+                                        {% if tool.days_until_next_maintenance is not None %}
+                                            {% if tool.days_until_next_maintenance < 0 %}
+                                                (已超{% widthratio tool.days_until_next_maintenance -1 1 %}天)
+                                            {% else %}
+                                                (剩{{ tool.days_until_next_maintenance }}天)
+                                            {% endif %}
+                                        {% endif %}
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-secondary">未设置</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary"
+                                        onclick="showToolDetailModal({{ tool.id }})">
+                                    <i class="fa fa-eye"></i> 详情
+                                </button>
+                                {% if tool.is_available_for_loan %}
+                                    <a href="{% url 'tools:loan_tool' tool.id %}"
+                                       class="btn btn-sm btn-primary">申领</a>
+                                {% else %}
+                                    <button class="btn btn-sm btn-outline-secondary" disabled>不可申领</button>
+                                {% endif %}
+                                {% if tool.status != '故障' and tool.status != '报废' %}
+                                    <button class="btn btn-sm btn-warning"
+                                            onclick="showFaultReportModal({{ tool.id }}, '{{ tool.name|escapejs }}')">
+                                        故障报修
+                                    </button>
+                                {% endif %}
+                                {% if can_manage_tools %}
+                                    <a href="{% url 'tools:update_tool' tool.id %}"
+                                       class="btn btn-sm btn-outline-primary">编辑</a>
+                                    <button class="btn btn-sm btn-outline-info"
+                                            onclick="showMaintenanceModal({{ tool.id }}, '{{ tool.name|escapejs }}')">
+                                        保养
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 已领用工具 -->
+        <div class="tab-pane fade" id="borrowed-tools" role="tabpanel" aria-labelledby="borrowed-tools-tab">
+            <div class="table-responsive">
+                <table class="table table-centered table-nowrap mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>编号</th>
+                        <th>工具名称</th>
+                        <th>申领人</th>
+                        <th>申领班组</th>
+                        <th>申领时间</th>
+                        <th>预计归还时间</th>
+                        <th>状态</th>
+                        <th>申领记录</th>
+                        <th>保养记录</th>
+                        <th>下次保养</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% if borrowed_records %}
+                        {% for record in borrowed_records %}
+                            <tr>
+                                <td>{{ record.tool.id }}</td>
+                                <td>{{ record.tool.name }}</td>
+                                <td>{{ record.borrowing_person }}</td>
+                                <td>{{ record.borrowing_team }}</td>
+                                <td>{{ record.loan_time|date:"Y-m-d H:i" }}</td>
+                                <td>{{ record.expected_return_time|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    <span class="badge badge-{% if record.display_status == '借出待批准' %}warning{% elif record.display_status == '归还待批准' %}info{% elif record.is_overdue %}danger{% else %}success{% endif %}">
+                                        {{ record.display_status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'tools:tool_loan_history' record.tool.id %}"
+                                       class="btn btn-sm btn-outline-primary">查看记录</a>
+                                </td>
+                                <td>
+                                    <a href="{% url 'tools:tool_maintenance_records' record.tool.id %}"
+                                       class="btn btn-sm btn-outline-success">保养记录</a>
+                                </td>
+                                <td>
+                                    {% if record.tool.next_maintenance_date %}
+                                        <span class="badge badge-{{ record.tool.maintenance_status_color }}">
+                                            {{ record.tool.next_maintenance_date|date:"Y-m-d" }}
+                                            {% if record.tool.days_until_next_maintenance is not None %}
+                                                {% if record.tool.days_until_next_maintenance < 0 %}
+                                                    (已超{% widthratio record.tool.days_until_next_maintenance -1 1 %}天)
+                                                {% else %}
+                                                    (剩{{ record.tool.days_until_next_maintenance }}天)
+                                                {% endif %}
+                                            {% endif %}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-secondary">未设置</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary"
+                                            onclick="showToolDetailModal({{ record.tool.id }})">
+                                        <i class="fa fa-eye"></i> 详情
+                                    </button>
+                                    {% if record.can_return %}
+                                        <a href="{% url 'tools:return_tool' record.id %}"
+                                           class="btn btn-sm btn-success">
+                                            <i class="fa fa-undo mr-1"></i>归还
+                                        </a>
+                                    {% endif %}
+                                    {% if can_manage_tools %}
+                                        <a href="{% url 'tools:update_tool' record.tool.id %}"
+                                           class="btn btn-sm btn-outline-primary">编辑</a>
+                                        <button class="btn btn-sm btn-outline-info"
+                                                onclick="showMaintenanceModal({{ record.tool.id }}, '{{ record.tool.name|escapejs }}')">
+                                            保养
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="13" class="text-center py-5">
+                                <i class="fa fa-tools fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">暂无借出的工具</h5>
+                                <p class="text-muted">目前没有工具处于借出状态</p>
+                            </td>
+                        </tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 故障工具 -->
+        <div class="tab-pane fade" id="faulty-tools" role="tabpanel" aria-labelledby="faulty-tools-tab">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>编号</th>
+                        <th>名称</th>
+                        <th>型号</th>
+                        <th>分类</th>
+                        <th>状态</th>
+                        <th>申领记录</th>
+                        <th>故障记录</th>
+                        <th>保养记录</th>
+                        <th>保养周期</th>
+                        <th>下次保养</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for tool in faulty_tools %}
+                        <tr>
+                            <td>{{ tool.id }}</td>
+                            <td>{{ tool.name }}</td>
+                            <td>{{ tool.specification }}</td>
+                            <td>{{ tool.category.name }}</td>
+                            <td><span class="badge badge-{% if tool.is_overdue %}danger{% elif tool.current_status == '申领审批中' %}warning{% elif tool.current_status == '归还审批中' %}info{% elif tool.status == '正常' %}success{% elif tool.status == '故障' %}warning{% elif tool.status == '维修' %}info{% elif tool.status == '报废' %}dark{% else %}secondary{% endif %}">
+                                {{ tool.current_status }}
+                            </span></td>
+                            <td>
+                                <a href="{% url 'tools:tool_loan_history' tool.id %}"
+                                   class="btn btn-sm btn-outline-primary">查看记录</a>
+                            </td>
+                            <td>
+                                <a href="{% url 'tools:tool_repair_records' tool.id %}"
+                                   class="btn btn-sm btn-outline-danger">故障记录</a>
+                            </td>
+                            <td>
+                                <a href="{% url 'tools:tool_maintenance_records' tool.id %}"
+                                   class="btn btn-sm btn-outline-success">保养记录</a>
+                            </td>
+                            <td>
+                                {% for value, label in tool.MAINTENANCE_CYCLE_CHOICES %}
+                                    {% if value == tool.maintenance_cycle %}
+                                        {{ label }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% if tool.next_maintenance_date %}
+                                    <span class="badge badge-{{ tool.maintenance_status_color }}">
+                                        {{ tool.next_maintenance_date|date:"Y-m-d" }}
+                                        {% if tool.days_until_next_maintenance is not None %}
+                                            {% if tool.days_until_next_maintenance < 0 %}
+                                                (已超{% widthratio tool.days_until_next_maintenance -1 1 %}天)
+                                            {% else %}
+                                                (剩{{ tool.days_until_next_maintenance }}天)
+                                            {% endif %}
+                                        {% endif %}
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-secondary">未设置</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary"
+                                        onclick="showToolDetailModal({{ tool.id }})">
+                                    <i class="fa fa-eye"></i> 详情
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" disabled>不可申领</button>
+                                {% if can_manage_tools %}
+                                    <a href="{% url 'tools:update_tool' tool.id %}"
+                                       class="btn btn-sm btn-outline-primary">编辑</a>
+                                    <button class="btn btn-sm btn-outline-info"
+                                            onclick="showMaintenanceModal({{ tool.id }}, '{{ tool.name|escapejs }}')">
+                                        保养
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 报废工具 -->
+        <div class="tab-pane fade" id="scrapped-tools" role="tabpanel" aria-labelledby="scrapped-tools-tab">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>编号</th>
+                        <th>名称</th>
+                        <th>型号</th>
+                        <th>分类</th>
+                        <th>状态</th>
+                        <th>申领记录</th>
+                        <th>故障记录</th>
+                        <th>保养记录</th>
+                        <th>保养周期</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for tool in scrapped_tools %}
+                        <tr>
+                            <td>{{ tool.id }}</td>
+                            <td>{{ tool.name }}</td>
+                            <td>{{ tool.specification }}</td>
+                            <td>{{ tool.category.name }}</td>
+                            <td><span class="badge badge-{% if tool.is_overdue %}danger{% elif tool.current_status == '申领审批中' %}warning{% elif tool.current_status == '归还审批中' %}info{% elif tool.status == '正常' %}success{% elif tool.status == '故障' %}warning{% elif tool.status == '维修' %}info{% elif tool.status == '报废' %}dark{% else %}secondary{% endif %}">
+                                {{ tool.current_status }}
+                            </span></td>
+                            <td>
+                                <a href="{% url 'tools:tool_loan_history' tool.id %}"
+                                   class="btn btn-sm btn-outline-primary">查看记录</a>
+                            </td>
+                            <td>
+                                <a href="{% url 'tools:tool_repair_records' tool.id %}"
+                                   class="btn btn-sm btn-outline-danger">故障记录</a>
+                            </td>
+                            <td>
+                                <a href="{% url 'tools:tool_maintenance_records' tool.id %}"
+                                   class="btn btn-sm btn-outline-success">保养记录</a>
+                            </td>
+                            <td>
+                                {% for value, label in tool.MAINTENANCE_CYCLE_CHOICES %}
+                                    {% if value == tool.maintenance_cycle %}
+                                        {{ label }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary"
+                                        onclick="showToolDetailModal({{ tool.id }})">
+                                    <i class="fa fa-eye"></i> 详情
+                                </button>
+                                {% if can_manage_tools %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 工具详情模态框 -->
+    <div class="modal fade" id="toolDetailModal" tabindex="-1" role="dialog" aria-labelledby="toolDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="toolDetailModalLabel">工具详情</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="toolDetailContent">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">加载中...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 根据URL参数切换tab
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取URL参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+
+            // URL参数到tab ID的映射
+            const tabMapping = {
+                'all': 'all-tools',
+                'available': 'available-tools',
+                'borrowed': 'borrowed-tools',
+                'overdue': 'borrowed-tools',  // 逾期工具指向已领用工具tab
+                'faulty': 'faulty-tools',
+                'scrap': 'scrapped-tools'
+            };
+
+            if (tabParam && tabMapping[tabParam]) {
+                const targetTabId = tabMapping[tabParam];
+                const targetTab = document.getElementById(targetTabId + '-tab');
+                if (targetTab) {
+                    // 使用jQuery方式切换tab
+                    $(targetTab).tab('show');
+                }
+            }
+        });
+
+        // 显示工具详情模态框
+        function showToolDetailModal(toolId) {
+            const contentDiv = document.getElementById('toolDetailContent');
+
+            // 显示加载状态
+            contentDiv.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">加载中...</span>
+                    </div>
+                </div>
+            `;
+
+            // 显示模态框
+            $('#toolDetailModal').modal('show');
+
+            // 发送AJAX请求获取工具详情
+            fetch(`/tools/api/tool-detail/${toolId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const tool = data.tool;
+                        contentDiv.innerHTML = `
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-muted" style="width: 120px;"><strong>工具编码：</strong></td>
+                                                <td>${tool.code || '-'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted"><strong>名称：</strong></td>
+                                                <td>${tool.name || '-'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted"><strong>型号规格：</strong></td>
+                                                <td>${tool.specification || '-'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted"><strong>分类：</strong></td>
+                                                <td>${tool.category_name || '-'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted"><strong>厂家：</strong></td>
+                                                <td>${tool.manufacturer || '-'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted"><strong>价值：</strong></td>
+                                                <td>¥${tool.value || '0'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted"><strong>工具类型：</strong></td>
+                                                <td>${tool.is_high_value ? '<span class="badge badge-warning">高价值工具</span>' : '<span class="badge badge-secondary">普通工具</span>'}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-muted" style="width: 120px;"><strong>购买日期：</strong></td>
+                                                <td>${tool.purchase_date || '-'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted"><strong>状态：</strong></td>
+                                                <td><span class="badge badge-${getStatusBadgeClass(tool.current_status)}">${tool.current_status || '-'}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted"><strong>保养周期：</strong></td>
+                                                <td>${tool.maintenance_cycle_label || '-'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted"><strong>上次保养：</strong></td>
+                                                <td>${tool.last_maintenance_date || '-'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted"><strong>下次保养：</strong></td>
+                                                <td>${tool.next_maintenance_date || '-'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted"><strong>备注：</strong></td>
+                                                <td>${tool.remark || '-'}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <p class="text-muted mb-2"><strong>工具图片：</strong></p>
+                                    ${tool.image ? `
+                                        <img src="${tool.image}" alt="工具图片" class="img-fluid" style="max-height: 200px; border-radius: 8px; border: 1px solid #dee2e6;">
+                                    ` : `
+                                        <div class="text-center p-4" style="background: #f8f9fa; border-radius: 8px; border: 1px dashed #dee2e6;">
+                                            <i class="fa fa-image fa-2x text-muted mb-2"></i>
+                                            <p class="text-muted mb-0">暂无图片</p>
+                                        </div>
+                                    `}
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="text-muted mb-2"><strong>技术文档：</strong></p>
+                                    ${tool.technical_docs ? `
+                                        <div class="d-flex align-items-center p-3" style="background: #f8f9fa; border-radius: 8px;">
+                                            <i class="fa ${getFileIcon(tool.technical_docs_name)} fa-2x text-primary mr-3"></i>
+                                            <div class="flex-grow-1">
+                                                <p class="mb-1 font-weight-bold">${tool.technical_docs_name}</p>
+                                                <a href="${tool.technical_docs}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fa fa-external-link-alt mr-1"></i>查看文档
+                                                </a>
+                                            </div>
+                                        </div>
+                                    ` : `
+                                        <div class="text-center p-4" style="background: #f8f9fa; border-radius: 8px; border: 1px dashed #dee2e6;">
+                                            <i class="fa fa-file fa-2x text-muted mb-2"></i>
+                                            <p class="text-muted mb-0">暂无技术文档</p>
+                                        </div>
+                                    `}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        contentDiv.innerHTML = `
+                            <div class="alert alert-danger" role="alert">
+                                ${data.message || '获取工具详情失败'}
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    contentDiv.innerHTML = `
+                        <div class="alert alert-danger" role="alert">
+                            网络错误，请稍后重试
+                        </div>
+                    `;
+                });
+        }
+
+        // 获取状态对应的badge样式
+        function getStatusBadgeClass(status) {
+            const statusMap = {
+                '正常': 'success',
+                '故障': 'warning',
+                '维修': 'info',
+                '报废': 'dark',
+                '申领审批中': 'warning',
+                '归还审批中': 'info',
+                '逾期': 'danger'
+            };
+            return statusMap[status] || 'secondary';
+        }
+
+        // 根据文件扩展名获取图标
+        function getFileIcon(filename) {
+            if (!filename) return 'fa-file';
+            const ext = filename.split('.').pop().toLowerCase();
+            const iconMap = {
+                'pdf': 'fa-file-pdf text-danger',
+                'doc': 'fa-file-word text-primary',
+                'docx': 'fa-file-word text-primary'
+            };
+            return iconMap[ext] || 'fa-file';
+        }
+
+        function confirmDeleteTool(toolId, toolName) {
+            document.getElementById('deleteToolName').textContent = toolName;
+            document.getElementById('deleteToolForm').action = `{% url 'tools:delete_tool' tool_id=999 %}`.replace('999', toolId);
+            $('#deleteToolModal').modal('show');
+        }
+
+        function showFaultReportModal(toolId, toolName) {
+            // 发送AJAX请求获取模态框内容
+            $.ajax({
+                url: `/tools/tools/${toolId}/report-fault/`,
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // 将模态框HTML插入到页面中
+                        $('body').append(response.html);
+
+                        // 显示模态框
+                        $('#faultReportModal').modal('show');
+
+                        // 初始化班组和人员选择逻辑
+                        const teamSelect = document.getElementById('id_team');
+                        const personSelect = document.getElementById('id_reporter_name');
+                        const personIdInput = document.getElementById('id_reporter_id');
+
+                        // 加载指定班组的人员列表
+                        function loadTeamUsers(teamName) {
+                            if (!teamName) {
+                                personSelect.innerHTML = '<option value="">请先选择报修班组</option>';
+                                personIdInput.value = '';
+                                return;
+                            }
+
+                            console.log('加载班组人员:', teamName, '班组 ID:', getTeamId(teamName));
+
+                            // 显示加载状态
+                            personSelect.innerHTML = '<option value="">加载中...</option>';
+
+                            // 发送 AJAX请求获取班组人员
+                            fetch(`/tools/api/team-users/${getTeamId(teamName)}/`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    console.log('返回数据:', data);
+                                    if (data.success) {
+                                        // 清空现有选项
+                                        personSelect.innerHTML = '<option value="">请选择报修人</option>';
+
+                                        // 添加人员选项
+                                        data.users.forEach(user => {
+                                            const option = document.createElement('option');
+                                            option.value = user.name;
+                                            option.textContent = `${user.name} (${user.skill || '未设置工种'})`;
+                                            option.dataset.userId = user.id;
+                                            personSelect.appendChild(option);
+                                        });
+                                    } else {
+                                        personSelect.innerHTML = '<option value="">加载失败：' + data.message + '</option>';
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    personSelect.innerHTML = '<option value="">加载失败</option>';
+                                });
+                        }
+
+                        // 页面加载完成后，检查是否有默认选中的班组
+                        setTimeout(function () {
+                            const defaultSelectedTeam = teamSelect.value;
+                            console.log('默认班组值:', defaultSelectedTeam);
+                            if (defaultSelectedTeam) {
+                                const selectedOption = teamSelect.options[teamSelect.selectedIndex];
+                                const teamName = selectedOption ? selectedOption.text : defaultSelectedTeam;
+                                console.log('默认班组名称:', teamName);
+                                loadTeamUsers(teamName);
+                            }
+                        }, 100);
+
+                        // 当班组选择改变时，加载对应人员
+                        teamSelect.addEventListener('change', function () {
+                            const selectedTeamValue = this.value;
+                            const selectedOption = this.options[this.selectedIndex];
+                            const teamName = selectedOption ? selectedOption.text : selectedTeamValue;
+                            console.log('班组选择变化 - 值:', selectedTeamValue, '名称:', teamName);
+                            loadTeamUsers(teamName);
+                        });
+
+                        // 当人员选择改变时，设置隐藏的ID字段
+                        personSelect.addEventListener('change', function () {
+                            const selectedOption = this.options[this.selectedIndex];
+                            if (selectedOption && selectedOption.dataset.userId) {
+                                personIdInput.value = selectedOption.dataset.userId;
+                            } else {
+                                personIdInput.value = '';
+                            }
+                        });
+
+                        // 根据班组名称获取班组 ID 的辅助函数
+                        function getTeamId(teamName) {
+                            console.log('getTeamId 输入:', teamName);
+
+                            const teamMapping = {
+                                '架车班': 1,
+                                '轮轴班': 2,
+                                '台车班': 3,
+                                '内制动班': 4,
+                                '外制动班': 5,
+                                '车钩班': 6,
+                                '探伤班': 7,
+                                '调车组': 8,
+                                '车体班': 9,
+                                '预修班': 10,
+                                '信息班': 12,
+                                '修配综合班': 15,
+                                '修车综合班': 16,
+                                '修配领导': 17,
+                                '修车领导': 18
+                            };
+
+                            const result = teamMapping[teamName] || 0;
+                            console.log('getTeamId 输出:', result);
+                            return result;
+                        }
+
+                        // 处理表单提交
+                        $('#faultReportForm').on('submit', function (e) {
+                            e.preventDefault();
+
+                            // 验证必填字段
+                            if (!teamSelect.value) {
+                                alert('请选择报修班组');
+                                return;
+                            }
+                            if (!personSelect.value) {
+                                alert('请选择报修人');
+                                return;
+                            }
+                            if (!personIdInput.value) {
+                                alert('请选择有效的报修人');
+                                return;
+                            }
+
+                            $.ajax({
+                                url: `/tools/tools/${toolId}/report-fault/`,
+                                method: 'POST',
+                                data: $(this).serialize(),
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                success: function (response) {
+                                    if (response.success) {
+                                        $('#faultReportModal').modal('hide');
+                                        alert(response.message);
+                                        location.reload();
+                                    } else {
+                                        let errorMessage = '报修失败: ' + response.message;
+                                        if (response.errors) {
+                                            errorMessage += '\n\n详细错误信息:';
+                                            for (let field in response.errors) {
+                                                errorMessage += '\n' + field + ': ' + response.errors[field].join(', ');
+                                            }
+                                        }
+                                        alert(errorMessage);
+                                    }
+                                },
+                                error: function () {
+                                    alert('网络错误，请稍后重试');
+                                }
+                            });
+                        });
+
+                        // 模态框关闭后清理DOM
+                        $('#faultReportModal').on('hidden.bs.modal', function () {
+                            $(this).remove();
+                        });
+                    } else {
+                        alert('获取报修表单失败: ' + response.message);
+                    }
+                },
+                error: function () {
+                    alert('网络错误，请稍后重试');
+                }
+            });
+        }
+
+        function showMaintenanceModal(toolId, toolName) {
+            // 发送AJAX请求获取模态框内容
+            $.ajax({
+                url: '/tools/tools/' + toolId + '/maintenance/create/',
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // 将模态框HTML插入到页面中
+                        $('body').append(response.html);
+
+                        // 显示模态框
+                        $('#maintenanceModal').modal('show');
+
+                        // 处理表单提交
+                        $('#maintenanceForm').on('submit', function (e) {
+                            e.preventDefault();
+
+                            $.ajax({
+                                url: '/tools/tools/' + toolId + '/maintenance/create/',
+                                method: 'POST',
+                                data: new FormData(this),
+                                processData: false,
+                                contentType: false,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                success: function (response) {
+                                    if (response.success) {
+                                        $('#maintenanceModal').modal('hide');
+                                        alert(response.message);
+                                        location.reload();
+                                    } else {
+                                        let errorMessage = '保存失败: ' + response.message;
+                                        if (response.errors) {
+                                            errorMessage += '\n\n详细错误信息:';
+                                            for (let field in response.errors) {
+                                                errorMessage += '\n' + field + ': ' + response.errors[field].join(', ');
+                                            }
+                                        }
+                                        alert(errorMessage);
+                                    }
+                                },
+                                error: function () {
+                                    alert('网络错误，请稍后重试');
+                                }
+                            });
+                        });
+
+                        // 模态框关闭后清理DOM
+                        $('#maintenanceModal').on('hidden.bs.modal', function () {
+                            $(this).remove();
+                        });
+                    } else {
+                        alert('获取保养表单失败: ' + response.message);
+                    }
+                },
+                error: function () {
+                    alert('网络错误，请稍后重试');
+                }
+            });
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,60 @@
+<div class="row">
+    <div class="col-6">
+    <div class="card-body" style="background-color: #dc3545;">
+                        <h1 class="card-title" style="text-align: center; color: white;">
+                            四优党员</h1>
+                    </div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" style="width: 20%;"></th>
+                <th scope="col" style="width: 20%;">一季度</th>
+                <th scope="col" style="width: 20%;">二季度</th>
+                <th scope="col" style="width: 20%;">三季度</th>
+                <th scope="col" style="width: 20%;">四季度</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>四优党员</td>
+                {% for quarter, data in quarter_data.items %}
+                    <td>
+                        {% for info in data.siyoudangyuan %}
+                            {{ info|linebreaksbr }}
+                        {% endfor %}
+                    </td>
+                {% endfor %}
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-6">
+    <div class="card-body" style="background-color: #dc3545;">
+                        <h1 class="card-title" style="text-align: center; color: white;">
+                            安全之星</h1>
+                    </div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" style="width: 20%;"></th>
+                <th scope="col" style="width: 20%;">一季度</th>
+                <th scope="col" style="width: 20%;">二季度</th>
+                <th scope="col" style="width: 20%;">三季度</th>
+                <th scope="col" style="width: 20%;">四季度</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>安全之星</td>
+                {% for quarter, data in quarter_data.items %}
+                    <td>
+                        {% for info in data.anquanzhixing %}
+                            {{ info|linebreaksbr }}
+                        {% endfor %}
+                    </td>
+                {% endfor %}
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,238 @@
+{% load static %}
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/favicon.png' %}">
+    <title>安全通知</title>
+    <link href="{% static 'assets/libs/flot/css/float-chart.css' %}" rel="stylesheet">
+    <link href="{% static 'dist/css/style.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/libs/toastr/build/toastr.min.css' %}" rel="stylesheet">
+    {#    <link rel="stylesheet" href="{% static 'style.css' %}">#}
+    {#    <link rel="stylesheet" href="{% static 'ckeditor5/build/ckeditor5.css' %}">#}
+
+    <style>
+        .image-container img {
+            max-width: 500px;
+            max-height: 500px;
+            width: auto;
+            height: auto;
+        }
+
+        .pre-style {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+            height: auto; /* 确保高度自适应 */
+            min-height: auto; /* 移除固定最小高度 */
+            overflow: visible; /* 防止出现滚动条 */
+            display: block; /* 确保块级元素特性 */
+        }
+
+        /* 确保父容器没有高度限制 */
+        .comment-text {
+            width: 100%;
+            min-height: fit-content; /* 根据内容调整最小高度 */
+            overflow: visible; /* 允许内容扩展 */
+        }
+
+        .submenu {
+            padding-left: 2em !important;
+        }
+    </style>
+</head>
+
+<body>
+<div class="preloader">
+    <div class="lds-ripple">
+        <div class="lds-pos"></div>
+        <div class="lds-pos"></div>
+    </div>
+</div>
+<div id="main-wrapper">
+    <header class="topbar" data-navbarbg="skin5">
+        <nav class="navbar top-navbar navbar-expand-md navbar-dark">
+            <div class="navbar-header" data-logobg="skin5">
+                <!-- This is for the sidebar toggle which is visible on mobile only -->
+                <a class="nav-toggler waves-effect waves-light d-block d-md-none" href="javascript:void(0)"><i
+                        class="ti-menu ti-close"></i></a>
+                <a class="navbar-brand" href=".">
+                    <!-- Logo icon -->
+                    <b class="logo-icon p-l-10">
+                        <!--You can put here icon as well // <i class="wi wi-sunset"></i> //-->
+                        <!-- Dark Logo icon -->
+                        {% if role in admin %}
+                            <img src="{% static 'img/u8.png' %}" width="220" height="64" alt="Tabler"
+                                 class="navbar-brand-image">
+                        {% elif role in xiuche %}
+                            <img src="{% static 'img/修车车间.png' %}" width="220" height="64" alt="Tabler"
+                                 class="navbar-brand-image">
+                        {% elif role in xiupei %}
+                            <img src="{% static 'img/修配车间.png' %}" width="220" height="64" alt="Tabler"
+                                 class="navbar-brand-image">
+                        {% endif %}
+                    </b>
+                </a>
+                <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="javascript:void(0)"
+                   data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                   aria-expanded="false" aria-label="Toggle navigation"><i class="ti-more"></i></a>
+            </div>
+            <div class="navbar-collapse collapse" id="navbarSupportedContent" data-navbarbg="skin5">
+                <ul class="navbar-nav float-left mr-auto">
+                    <li class="nav-item d-none d-md-block">
+                        <a class="nav-link sidebartoggler waves-effect waves-light" href="javascript:void(0)"
+                           data-sidebartype="mini-sidebar">
+                            <i class="mdi mdi-menu font-24"></i>
+                        </a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="." id="navbarDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="d-none d-md-block">贵阳南检修信息管理平台-->>>安全通知</span>
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav float-right">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href=".">
+                            <span class="d-none d-md-block">欢迎使用：{{ request.session.info.role }}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/1/">
+                            <span class="d-none d-md-block">进入信息管理平台</span>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-muted waves-effect waves-dark pro-pic" href=""
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img
+                                src="{% static 'assets/images/users/1.jpg' %}" alt="user" class="rounded-circle"
+                                width="31"></a>
+                        <div class="dropdown-menu dropdown-menu-right user-dd animated">
+                            <a class="dropdown-item" href="/login1/"><i class="ti-user m-r-5 m-l-5"></i> 用户登录</a>
+                            <a class="dropdown-item" href="/register1/"><i
+                                    class="fa fa-power-off m-r-5 m-l-5"></i> 退出登录</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <aside class="left-sidebar" data-sidebarbg="skin5">
+        <div class="scroll-sidebar">
+            <nav class="sidebar-nav">
+                <ul id="sidebarnav" class="p-t-30">
+                    <li class="sidebar-item">
+                        <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                           href="{% url 'aqts:anquantianshu_list' %}?fenlei=劳动安全" aria-expanded="false">
+                            <i class="mdi mdi-view-dashboard"></i>
+                            <span class="hide-menu">劳动安全</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                           href="{% url 'aqts:anquantianshu_list' %}?fenlei=行车安全" aria-expanded="false">
+                            <i class="mdi mdi-view-dashboard"></i>
+                            <span class="hide-menu">行车安全</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                           href="{% url 'aqts:anquantianshu_list' %}?fenlei=车辆故障" aria-expanded="false">
+                            <i class="mdi mdi-view-dashboard"></i>
+                            <span class="hide-menu">车辆故障</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+    <div class="page-wrapper">
+        {% block content %}
+
+        {% endblock %}
+        <footer class="footer text-center">
+            Copyright &copy; 2024.GYNCLD All rights reserved.
+        </footer>
+    </div>
+</div>
+
+{% block js %}
+{% endblock %}
+<script src="{% static 'assets/libs/jquery/dist/jquery.min.js' %}"></script>
+<!-- Bootstrap tether Core JavaScript -->
+<script src="{% static 'assets/libs/popper.js/dist/umd/popper.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js' %}"></script>
+<script src="{% static 'assets/extra-libs/sparkline/sparkline.js' %}"></script>
+<!--Wave Effects -->
+<script src="{% static 'dist/js/waves.js' %}"></script>
+<!--Menu sidebar -->
+<script src="{% static 'dist/js/sidebarmenu.js' %}"></script>
+<!--Custom JavaScript -->
+<script src="{% static 'dist/js/custom.min.js' %}"></script>
+<!--This page JavaScript -->
+<!-- <script src="dist/js/pages/dashboards/dashboard1.js"></script> -->
+<!-- Charts js Files -->
+<script src="{% static 'assets/libs/flot/excanvas.js' %}"></script>
+<script src="{% static 'assets/libs/flot/jquery.flot.js' %}"></script>
+<script src="{% static 'assets/libs/flot/jquery.flot.pie.js' %}"></script>
+<script src="{% static 'assets/libs/flot/jquery.flot.time.js' %}"></script>
+<script src="{% static 'assets/libs/flot/jquery.flot.stack.js' %}"></script>
+<script src="{% static 'assets/libs/flot/jquery.flot.crosshair.js' %}"></script>
+<script src="{% static 'assets/libs/flot.tooltip/js/jquery.flot.tooltip.min.js' %}"></script>
+<script src="{% static 'dist/js/pages/chart/chart-page-init.js' %}"></script>
+{#<script src="{% static 'js/ckeditor.js' %}"></script>#}
+<script src="{% static 'ckeditor/ckeditor.js' %}"></script>
+<script src="{% static 'assets/libs/toastr/build/toastr.min.js' %}"></script>
+<script>
+    $(function () {
+        {% for message in messages %}
+            if ("{{ message.tags }}" === "success") {
+                toastr.success("{{ message }}", '成功！');
+            } else if ("{{ message.tags }}" === "info") {
+                toastr.info("{{ message }}", '提醒！');
+            } else if ("{{ message.tags }}" === "warning") {
+                toastr.warning("{{ message }}", '警告！');
+            } else {
+                toastr.error("{{ message }}", '失败！');
+            }
+        {% endfor %}
+    });
+</script>
+<script>
+    // 编辑按钮点击后填充模态框
+    $('#editModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var id = button.data('id');  // 你编辑按钮已用 data-id
+        $('#edit-id').val(id);
+        $('#edit-anquanfenlei').val(button.data('anquanfenlei'));
+        $('#edit-anquanbiaoti').val(button.data('anquanbiaoti'));
+        $('#edit-user').val(button.data('user'));
+        $('#edit-anquanneirong').val(button.data('anquanneirong'));
+        // 动态设置 action
+        $('#editForm').attr('action', '/aqts/anquantianshu/edit/' + id + '/');
+    });
+
+    // 新增和编辑都通过AJAX提交，可选（建议页面刷新，简化逻辑）
+
+    // 新建提交
+    $('#addForm').submit(function (e) {
+        // 附件仅允许上传一个（type="file"不加multiple即可）
+        // 后端建议校验
+    });
+
+    // 编辑提交
+    $('#editForm').submit(function (e) {
+        // 附件仅允许上传一个
+        // 后端建议校验
+    });
+</script>
+</body>
+</html>

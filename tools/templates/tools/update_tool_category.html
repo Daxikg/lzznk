@@ -1,0 +1,61 @@
+<!-- tools_app/templates/tools_app/update_tool_category.html -->
+{% extends 'tools/base.html' %}
+
+{% block title %}编辑工具类别{% endblock %}
+
+{% block nav_page_title %}编辑工具类别{% endblock %}
+
+{% block nav_breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'tools:manage_tool_categories' %}" class="text-muted">分类管理</a></li>
+<li class="breadcrumb-item text-muted active" aria-current="page">编辑类别</li>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title text-primary"><i class="fa fa-edit mr-2"></i>编辑工具类别</h4>
+                <hr class="my-3">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="{{ form.name.id_for_label }}" class="font-weight-medium">类别名称 <span class="text-danger">*</span></label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <small class="text-danger">{{ form.name.errors }}</small>
+                        {% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa fa-check mr-1"></i>保存更改
+                        </button>
+                        <a href="{% url 'tools:manage_tool_categories' %}" class="btn btn-secondary ml-2">取消</a>
+                    </div>
+                </form>
+
+                {% if category.tool_set.count > 0 %}
+                <div class="mt-4 p-3 bg-light rounded">
+                    <h6 class="font-weight-bold"><i class="fa fa-tools mr-1 text-primary"></i>关联工具 ({{ category.tool_set.count }}个)</h6>
+                    <ul class="list-unstyled mb-0">
+                        {% for tool in category.tool_set.all|slice:":5" %}
+                        <li><strong>{{ tool.code }}</strong> - {{ tool.name }}</li>
+                        {% endfor %}
+                        {% if category.tool_set.count > 5 %}
+                        <li class="text-muted">... 还有 {{ category.tool_set.count|add:"-5" }} 个工具</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

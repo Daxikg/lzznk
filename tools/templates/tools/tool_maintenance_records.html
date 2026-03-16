@@ -1,0 +1,270 @@
+{% extends 'tools/base.html' %}
+
+{% block title %}保养记录 - {{ tool.name }}{% endblock %}
+
+{% block nav_page_title %}保养记录 - {{ tool.name }}{% endblock %}
+
+{% block nav_breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'tools:manage_tools' %}" class="text-muted">工具管理</a></li>
+<li class="breadcrumb-item text-muted active" aria-current="page">保养记录</li>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{% url 'tools:manage_tools' %}" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-left mr-1"></i>返回工具管理
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h4 class="card-title text-primary"><i class="fa fa-info-circle mr-2"></i>工具信息</h4>
+        <hr class="my-3">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <small class="text-muted d-block">编码</small>
+                <strong class="text-dark">{{ tool.code }}</strong>
+            </div>
+            <div class="col-md-3 mb-3">
+                <small class="text-muted d-block">名称</small>
+                <strong class="text-dark">{{ tool.name }}</strong>
+            </div>
+            <div class="col-md-3 mb-3">
+                <small class="text-muted d-block">型号</small>
+                <strong class="text-dark">{{ tool.specification }}</strong>
+            </div>
+            <div class="col-md-3 mb-3">
+                <small class="text-muted d-block">厂家</small>
+                <strong class="text-dark">{{ tool.manufacturer|default:'-' }}</strong>
+            </div>
+            <div class="col-md-3 mb-3">
+                <small class="text-muted d-block">分类</small>
+                <strong class="text-dark">{{ tool.category.name }}</strong>
+            </div>
+            <div class="col-md-3 mb-3">
+                <small class="text-muted d-block">当前状态</small>
+                <span class="badge badge-{% if tool.status == '正常' %}success{% elif tool.status == '故障' %}danger{% elif tool.status == '维修' %}warning{% elif tool.status == '报废' %}dark{% else %}secondary{% endif %}">
+                    {{ tool.status }}
+                </span>
+            </div>
+            <div class="col-md-3 mb-3">
+                <small class="text-muted d-block">价值</small>
+                <strong class="text-dark">¥{{ tool.value }}</strong>
+            </div>
+            <div class="col-md-3 mb-3">
+                <small class="text-muted d-block">上次保养</small>
+                <strong class="text-dark">{{ tool.last_maintenance_date|date:"Y-m-d"|default:"未设置" }}</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if maintenance_records %}
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="card-title text-primary mb-0"><i class="fa fa-cogs mr-2"></i>保养记录列表</h4>
+                <div>
+                    <span class="badge badge-success mr-2">共 {{ maintenance_records|length }} 条</span>
+                    {% if can_perform_maintenance %}
+                        <button class="btn btn-success btn-sm"
+                                onclick="showMaintenanceModal({{ tool.id }}, '{{ tool.name|escapejs }}')">
+                            <i class="fa fa-plus mr-1"></i>新增保养
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+            <hr class="my-3">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="thead-light">
+                    <tr>
+                        <th>序号</th>
+                        <th>保养人</th>
+                        <th>保养日期</th>
+                        <th>保养类型</th>
+                        <th>保养内容</th>
+                        <th>保养结果</th>
+                        <th>相关图片</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for record in maintenance_records %}
+                        <tr>
+                            <td><strong>{{ forloop.counter }}</strong></td>
+                            <td>{{ record.maintainer.username }}</td>
+                            <td>{{ record.date|date:"Y-m-d" }}</td>
+                            <td>
+                                <span class="badge badge-{% if record.maintenance_type == '日常' %}info{% elif record.maintenance_type == '定期' %}success{% elif record.maintenance_type == '校准' %}warning{% else %}secondary{% endif %}">
+                                    {{ record.maintenance_type }}
+                                </span>
+                            </td>
+                            <td>{{ record.content|truncatechars:30 }}</td>
+                            <td>{{ record.result|truncatechars:30 }}</td>
+                            <td>
+                                {% if record.images.count > 0 %}
+                                    <span class="badge badge-primary">{{ record.images.count }} 张</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-info" data-toggle="modal"
+                                        data-target="#detailModal{{ record.id }}">
+                                    <i class="fa fa-eye mr-1"></i>查看
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- 详情模态框 -->
+                        <div class="modal fade" id="detailModal{{ record.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-success text-white">
+                                        <h5 class="modal-title"><i class="fa fa-cogs mr-2"></i>保养记录详情 #{{ record.id }}</h5>
+                                        <button type="button" class="close text-white" data-dismiss="modal">
+                                            <span>&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <small class="text-muted d-block">工具</small>
+                                                <strong>{{ tool.name }} ({{ tool.code }})</strong>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <small class="text-muted d-block">保养人</small>
+                                                <strong>{{ record.maintainer.username }}</strong>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <small class="text-muted d-block">保养日期</small>
+                                                <strong>{{ record.date|date:"Y-m-d" }}</strong>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <small class="text-muted d-block">保养类型</small>
+                                                <span class="badge badge-{% if record.maintenance_type == '日常' %}info{% elif record.maintenance_type == '定期' %}success{% elif record.maintenance_type == '校准' %}warning{% else %}secondary{% endif %}">
+                                                    {{ record.maintenance_type }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="mb-3">
+                                            <small class="text-muted d-block">保养内容</small>
+                                            <p class="mt-2">{{ record.content|linebreaks }}</p>
+                                        </div>
+                                        <hr>
+                                        <div class="mb-3">
+                                            <small class="text-muted d-block">保养结果</small>
+                                            <p class="mt-2">{{ record.result|linebreaks }}</p>
+                                        </div>
+                                        {% if record.images.exists %}
+                                            <hr>
+                                            <div class="mb-3">
+                                                <small class="text-muted d-block mb-2">相关图片</small>
+                                                <div class="row">
+                                                    {% for image in record.images.all %}
+                                                        <div class="col-md-4 mb-2">
+                                                            <a href="{{ image.image.url }}" target="_blank">
+                                                                <img src="{{ image.image.url }}" class="img-fluid rounded" alt="保养图片">
+                                                            </a>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="fa fa-cogs fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">暂无保养记录</h4>
+            <p class="text-muted">该工具还没有保养记录</p>
+            {% if can_perform_maintenance %}
+                <button class="btn btn-success"
+                        onclick="showMaintenanceModal({{ tool.id }}, '{{ tool.name|escapejs }}')">
+                    <i class="fa fa-plus mr-1"></i>新增保养
+                </button>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+
+<script>
+    function showMaintenanceModal(toolId, toolName) {
+        $.ajax({
+            url: '/tools/tools/' + toolId + '/maintenance/create/',
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function (response) {
+                if (response.success) {
+                    $('body').append(response.html);
+
+                    $('#maintenanceModal').modal('show');
+
+                    $('#maintenanceForm').on('submit', function (e) {
+                        e.preventDefault();
+
+                        $.ajax({
+                            url: '/tools/tools/' + toolId + '/maintenance/create/',
+                            method: 'POST',
+                            data: new FormData(this),
+                            processData: false,
+                            contentType: false,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    $('#maintenanceModal').modal('hide');
+                                    alert(response.message);
+                                    location.reload();
+                                } else {
+                                    let errorMessage = '保存失败: ' + response.message;
+                                    if (response.errors) {
+                                        errorMessage += '\n\n详细错误信息:';
+                                        for (let field in response.errors) {
+                                            errorMessage += '\n' + field + ': ' + response.errors[field].join(', ');
+                                        }
+                                    }
+                                    alert(errorMessage);
+                                }
+                            },
+                            error: function () {
+                                alert('网络错误，请稍后重试');
+                            }
+                        });
+                    });
+
+                    $('#maintenanceModal').on('hidden.bs.modal', function () {
+                        $(this).remove();
+                    });
+                } else {
+                    alert('获取保养表单失败: ' + response.message);
+                }
+            },
+            error: function () {
+                alert('网络错误，请稍后重试');
+            }
+        });
+    }
+</script>
+{% endblock %}

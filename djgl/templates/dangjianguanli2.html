@@ -1,0 +1,92 @@
+{% extends 'djgl1.html' %}
+{% load my_tags %}
+{% block content %}
+    <section>
+        <div class="page-banner bg-secondary">
+            <div class="container">
+                <div class="page-title">
+                    <h3 class="text-center text-white">{{ banzu_display }}创岗建区</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="blog pt-100 pb-50 bg-light">
+        <div class="container">
+            <div class="row">
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col" style="text-align: center; vertical-align: middle;">姓名</th>
+                        <th scope="col" style="text-align: center; vertical-align: middle;">1月</th>
+                        <th scope="col" style="text-align: center; vertical-align: middle;">2月</th>
+                        <th scope="col" style="text-align: center; vertical-align: middle;">3月</th>
+                        <th scope="col" style="text-align: center; vertical-align: middle;">4月</th>
+                        <th scope="col" style="text-align: center; vertical-align: middle;">5月</th>
+                        <th scope="col" style="text-align: center; vertical-align: middle;">6月</th>
+                        <th scope="col" style="text-align: center; vertical-align: middle;">7月</th>
+                        <th scope="col" style="text-align: center; vertical-align: middle;">8月</th>
+                        <th scope="col" style="text-align: center; vertical-align: middle;">9月</th>
+                        <th scope="col" style="text-align: center; vertical-align: middle;">10月</th>
+                        <th scope="col" style="text-align: center; vertical-align: middle;">11月</th>
+                        <th scope="col" style="text-align: center; vertical-align: middle;">12月</th>
+                    </tr>
+                    </thead>
+                    {% for user, data in user_data.items %}
+                        <tbody>
+                        <tr>
+                            <td style="width: 7%; text-align: center; vertical-align: middle;">{{ user.name }}</td>
+                            {% months_range as month_range %}
+                            {% for month in month_range %}
+                                <td>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-danger dropdown-toggle"
+                                                data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false">
+                                            {% with zg_list=data.zerengang|get_item:month %}
+                                                {% if zg_list %}
+                                                    {{ zg_list|join:", " }}
+                                                {% else %}
+                                                    暂无
+                                                {% endif %}
+                                            {% endwith %}
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="#">暂无（小于80分）</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="#">先锋岗（98-100分）</a>
+                                            <a class="dropdown-item" href="#">达标岗（90-97分）</a>
+                                            <a class="dropdown-item" href="#">警示岗（80-89分）</a>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-info dropdown-toggle"
+                                                data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false">
+                                            {% with zq_list=data.zerenqu|get_item:month %}
+                                                {% if zq_list %}
+                                                    {{ zq_list|join:", " }}
+                                                {% else %}
+                                                    暂无
+                                                {% endif %}
+                                            {% endwith %}
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="#">暂无（小于80分）</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="#">红旗区（98-100分）</a>
+                                            <a class="dropdown-item" href="#">达标区（90-97分）</a>
+                                            <a class="dropdown-item" href="#">警示区（80-89分）</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        </tbody>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </section>
+{% endblock %}

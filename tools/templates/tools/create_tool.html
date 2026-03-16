@@ -1,0 +1,207 @@
+<!-- tools_app/templates\tools_app\create_tool.html -->
+{% extends 'tools/base.html' %}
+
+{% block title %}创建工具{% endblock %}
+
+{% block nav_page_title %}创建工具{% endblock %}
+
+{% block nav_breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'tools:manage_tools' %}" class="text-muted">工具管理</a></li>
+<li class="breadcrumb-item text-muted active" aria-current="page">创建工具</li>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h6 class="mb-0"><i class="fa fa-plus mr-2 text-primary"></i>创建新工具</h6>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- 基本信息 -->
+                    <h6 class="border-bottom pb-2 mb-3 text-primary">
+                        <i class="fa fa-info-circle mr-1"></i>基本信息
+                    </h6>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label>工具编码 <span class="text-danger">*</span></label>
+                            <input type="text" name="code" class="form-control" id="id_code" value="{{ form.code.value|default:'' }}" required placeholder="如：GJ-001">
+                        </div>
+                        <div class="form-group col">
+                            <label>工具名称 <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" id="id_name" value="{{ form.name.value|default:'' }}" required placeholder="如：扳手">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label>规格型号 <span class="text-danger">*</span></label>
+                            <input type="text" name="specification" class="form-control" id="id_specification" value="{{ form.specification.value|default:'' }}" required placeholder="如：M10-200">
+                        </div>
+                        <div class="form-group col">
+                            <label>厂家名称</label>
+                            <input type="text" name="manufacturer" class="form-control" id="id_manufacturer" value="{{ form.manufacturer.value|default:'' }}" placeholder="可选">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label>备注</label>
+                            <input type="text" name="remark" class="form-control" id="id_remark" value="{{ form.remark.value|default:'' }}" maxlength="200" placeholder="可选">
+                        </div>
+                    </div>
+
+                    <!-- 分类与价值 -->
+                    <h6 class="border-bottom pb-2 mb-3 mt-4 text-primary">
+                        <i class="fa fa-tags mr-1"></i>分类与价值
+                    </h6>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label>类别 <span class="text-danger">*</span></label>
+                            <select name="category" class="form-control" id="id_category" required>
+                                <option value="">-- 请选择 --</option>
+                                {% for choice in form.category.field.choices %}
+                                    {% if choice.0 %}
+                                        <option value="{{ choice.0 }}" {% if form.category.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>{{ choice.1 }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col">
+                            <label>购买日期 <span class="text-danger">*</span></label>
+                            <input type="date" name="purchase_date" class="form-control" id="id_purchase_date" value="{{ form.purchase_date.value|date:'Y-m-d'|default:'' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label>价值(元) <span class="text-danger">*</span></label>
+                            <input type="number" name="value" class="form-control" id="id_value" value="{{ form.value.value|default:'' }}" step="0.01" min="0" required placeholder="0.00">
+                        </div>
+                        <div class="form-group col">
+                            <label>工具类型</label>
+                            <select name="is_high_value" class="form-control" id="id_is_high_value">
+                                <option value="False" selected>普通工具</option>
+                                <option value="True">高价值工具</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 状态与保养 -->
+                    <h6 class="border-bottom pb-2 mb-3 mt-4 text-primary">
+                        <i class="fa fa-cogs mr-1"></i>状态与保养
+                    </h6>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label>状态</label>
+                            <select name="status" class="form-control" id="id_status">
+                                {% for choice in form.status.field.choices %}
+                                    <option value="{{ choice.0 }}" {% if form.status.value == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col">
+                            <label>保养周期</label>
+                            <select name="maintenance_cycle" class="form-control" id="id_maintenance_cycle">
+                                <option value="">-- 不设置 --</option>
+                                {% for choice in form.maintenance_cycle.field.choices %}
+                                    {% if choice.0 %}
+                                        <option value="{{ choice.0 }}" {% if form.maintenance_cycle.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>{{ choice.1 }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label>上次保养日期</label>
+                            <input type="date" name="last_maintenance_date" class="form-control" id="id_last_maintenance_date" value="{{ form.last_maintenance_date.value|date:'Y-m-d'|default:'' }}">
+                        </div>
+                        <div class="form-group col"></div>
+                    </div>
+
+                    <!-- 附件上传 -->
+                    <h6 class="border-bottom pb-2 mb-3 mt-4 text-primary">
+                        <i class="fa fa-paperclip mr-1"></i>附件
+                    </h6>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label>工具图片</label>
+                            <div class="custom-file">
+                                <input type="file" name="image" class="custom-file-input" id="id_image" accept="image/*">
+                                <label class="custom-file-label" for="id_image">选择图片文件</label>
+                            </div>
+                            <small class="text-muted">支持 JPG、PNG 格式</small>
+                        </div>
+                        <div class="form-group col">
+                            <label>技术文档</label>
+                            <div class="custom-file">
+                                <input type="file" name="technical_docs" class="custom-file-input" id="id_technical_docs" accept=".pdf,.doc,.docx">
+                                <label class="custom-file-label" for="id_technical_docs">选择文档文件</label>
+                            </div>
+                            <small class="text-muted">支持 PDF、DOC、DOCX 格式</small>
+                        </div>
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger mt-3">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+                    <hr class="my-4">
+                    <div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-check mr-1"></i>创建工具
+                        </button>
+                        <a href="{% url 'tools:manage_tools' %}" class="btn btn-outline-secondary ml-2">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 文件选择显示文件名
+    $('#id_image').on('change', function() {
+        var fileName = $(this).val().split('\\').pop();
+        $(this).next('.custom-file-label').html(fileName || '选择图片文件');
+    });
+    $('#id_technical_docs').on('change', function() {
+        var fileName = $(this).val().split('\\').pop();
+        $(this).next('.custom-file-label').html(fileName || '选择文档文件');
+    });
+
+    // 设置购买日期默认值
+    const purchaseDateInput = document.getElementById('id_purchase_date');
+    if (purchaseDateInput && !purchaseDateInput.value) {
+        const today = new Date();
+        purchaseDateInput.value = today.toISOString().split('T')[0];
+    }
+
+    // 价值自动设置工具类型
+    const valueInput = document.getElementById('id_value');
+    const typeSelect = document.getElementById('id_is_high_value');
+
+    if (valueInput && typeSelect) {
+        valueInput.addEventListener('input', function() {
+            const value = parseFloat(valueInput.value);
+            if (!isNaN(value)) {
+                typeSelect.value = value >= 1000 ? 'True' : 'False';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

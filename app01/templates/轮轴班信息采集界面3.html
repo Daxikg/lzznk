@@ -1,0 +1,164 @@
+﻿{% extends 'base.html' %}
+{% load my_tags %}
+{% block content %}
+    <div class="bs-example" data-example-id="table-within-panel">
+        <div class="container">
+            <div class="panel-default">
+                <div class="panel-default">
+                    {#                <div class="container mb-4">#}
+                    <H1 class="font-weight-bold title">
+                        轮轴班数据录入(9道一次入库)[出车顺序
+                        {% for order in orders %}
+                            {{ order.gudao1 }}{{ order.gudao2 }}{{ order.gudao3 }}
+                        {% endfor %}]
+                    </H1>
+                    <H1>
+                        {% if messages %}
+                            <ul class="messages">
+                                {% for message in messages %}
+                                    <li{% if message.tags %}
+                                        class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </H1>
+                    <ul class="pagination m-0 xs-auto mb-1" id="nav">
+                        <li class="page-item"><a href="/轮轴班信息采集界面1/"
+                                                 class="page-link {% if current_url_name == 'user_add7' or current_url_name == 'user_add8' or current_url_name == 'user_add9' %}active{% endif %}"
+                                                 role="button">一次入库</a></li>
+                        <li class="page-item"><a href="/轮轴班信息采集界面4/"
+                                                 class="page-link {% if current_url_name == 'user_add10' or current_url_name == 'user_add11' or current_url_name == 'user_add12' %}active{% endif %}"
+                                                 role="button">二次入库</a></li>
+                    <li class="page-item"><a href="/轮轴班信息采集界面8/"
+                                                 class="page-link {% if current_url_name == 'user_add15' %}active{% endif %}"
+                                                 role="button">三次入库</a></li>
+                        <li class="page-item"><a href="/轮轴班信息采集界面7/"
+                                                 class="page-link {% if current_url_name == 'user_add13'%}active{% endif %}"
+                                                 role="button">临修</a></li>
+                    </ul>
+                    <ul class="pagination m-0 xs-auto mb-1" id="nav">
+                        <li class="page-item"><a href="/轮轴班信息采集界面1/"
+                                                 class="page-link {% if current_url_name == 'user_add7' %}active{% endif %}"
+                                                 role="button">7道</a>
+                        <li class="page-item"><a href="/轮轴班信息采集界面2/"
+                                                 class="page-link {% if current_url_name == 'user_add8' %}active{% endif %}"
+                                                 role="button">8道</a>
+                        <li class="page-item"><a href="/轮轴班信息采集界面3/"
+                                                 class="page-link {% if current_url_name == 'user_add9' %}active{% endif %}"
+                                                 role="button">9道</a>
+                    </ul>
+                </div>
+                <div style="margin-bottom: 10px" class="input-group">
+                    <span style="margin-bottom: 10px" class="input-group-addon">今日日期 : {{ today }}</span>
+                </div>
+                <div class="panel-body">
+                    <form method="post" action="{% url 'user_add9' %}" novalidate>
+                        {% csrf_token %}
+                        <div class="card">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-bordered">
+                                    {{ formset.management_form }}
+                                    <thead>
+                                    <tr>
+                                        <th style="background-color: #8ec2ed;">台位顺序</th>
+                                        <th style="background-color: #8ec2ed;">车号</th>
+                                        <th style="background-color: #7ccecd;">货车修程</th>
+                                        <th style="background-color: #7ccecd;">车种车型</th>
+                                        <th style="background-color: #8fd19e;">轮对年限</th>
+                                        <th style="background-color: #8fd19e;">临时出车顺序</th>
+                                    </tr>
+                                    </thead>
+                                    {% for position, form in zipped_data %}
+                                        <tbody>
+                                        <tr>
+                                            {{ form.id }}
+                                            <td style="background-color: #8ec2ed;">{{ position }}</td>
+                                            <td>{{ car_numbers|index:forloop.counter0 }}</td>
+                                            <td>{{ form.xiucheng }}</td>
+                                            <td>{{ form.chexing }}</td>
+                                            <td>{{ form.nianxian }}</td>
+                                            <td>{{ form.beizhu }}</td>
+                                        </tr>
+                                        </tbody>
+                                    {% endfor %}
+                                </table>
+                                <div style="margin-bottom: 10px" class="clearfix">
+                                    <button type="submit" class="btn btn-primary me-5">提交</button>
+                                    <button type="button" class="btn btn-warning mx-3" id="fetchDataBtn">填入数据
+                                    </button>
+                                    <a href="." class="btn btn-light ms-5">刷新页面</a>
+                                    {{ error }}
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var car_r_types = {{ car_r_types|safe }};
+        var car_types = {{ car_types|safe }};
+        var car_numbers = {{ car_numbers|safe }};
+
+        // 几个分组
+        const type_1 = [
+            'P65', 'PB', 'C62AK', 'G17DK', 'G17K', 'G17T', 'G70H', 'G70K', 'G75K', 'GL70', 'GQ70', 'GQ70A',
+            'GW70', 'NX17BH', 'NX17K', 'NX17T', 'K13NK', 'W6S'
+        ];
+        const type_15 = [
+            'P62K', 'P62NK', 'P63k', 'P64AK', 'P64GK', 'P64K', 'C62BK', 'C64H', 'C64K', 'X6BK', 'JSQ5', 'NX17KF', 'NX17BK'
+        ];
+        const type_2 = [
+            'P70', 'C70', 'C70E', 'C70EH', 'C70H', 'NX70', 'NX70A', 'NX70AF', 'NX70H', 'X6K', 'X70', 'KZ70', 'JSQ6'
+        ];
+        // C64AK单独判断，不在type_16里
+        document.getElementById("fetchDataBtn").onclick = function () {
+            for (let i = 0; i < car_r_types.length; i++) {
+                // 修程自动填充
+                let xiucheng = document.querySelector('[name="form-' + i + '-xiucheng"]');
+                if (xiucheng) xiucheng.value = car_r_types[i] || '';
+
+                // 车种车型自动填充，车型为“无”则不填
+                let chexing = document.querySelector('[name="form-' + i + '-chexing"]');
+                if (chexing) {
+                    if (car_types[i] && car_types[i] !== "无") {
+                        chexing.value = car_types[i];
+                    } else {
+                        chexing.value = ""; // 保持为空
+                    }
+                }
+
+                // 轮对年限自动填充
+                let nianxian_select = document.querySelector('[name="form-' + i + '-nianxian"]');
+                let chexing_val = car_types[i];
+                let car_number_val = car_numbers[i] || "";
+                let year_str = '';
+
+                if (chexing_val === 'C64AK') {
+                    let prefix = car_number_val.substr(0, 2);
+                    if (prefix === "14" || prefix === "44") {
+                        year_str = "1";
+                    } else {
+                        year_str = "1.5";
+                    }
+                } else if (type_1.includes(chexing_val)) {
+                    year_str = "1";
+                } else if (type_15.includes(chexing_val)) {
+                    year_str = "1.5";
+                } else if (type_2.includes(chexing_val)) {
+                    year_str = "2";
+                }
+
+                if (nianxian_select && year_str) {
+                    for (let opt of nianxian_select.options) {
+                        if (opt.text === year_str) {
+                            nianxian_select.value = opt.value;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+{% endblock %}

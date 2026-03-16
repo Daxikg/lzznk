@@ -1,0 +1,228 @@
+<!-- tools/templates/tools/loan_tool.html -->
+{% extends 'tools/base.html' %}
+
+{% block title %}申领工具{% endblock %}
+
+{% block nav_page_title %}申领工具{% endblock %}
+
+{% block nav_breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'tools:manage_tools' %}" class="text-muted">工具管理</a></li>
+<li class="breadcrumb-item text-muted active" aria-current="page">申领工具</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 左侧工具信息卡片 -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h6 class="mb-0"><i class="fa fa-info-circle mr-2 text-primary"></i>工具信息</h6>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm table-borderless mb-0">
+                    <tbody>
+                        <tr>
+                            <td class="text-muted px-0" style="width: 80px;">工具编号</td>
+                            <td class="px-0"><strong>{{ tool.code }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted px-0">工具名称</td>
+                            <td class="px-0"><strong>{{ tool.name }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted px-0">规格型号</td>
+                            <td class="px-0"><strong>{{ tool.specification }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted px-0">当前状态</td>
+                            <td class="px-0"><span class="badge badge-success">{{ tool.status }}</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            {% if has_approval_permission %}
+                <div class="alert alert-success mb-0 py-2">
+                    <i class="fa fa-check-circle mr-1"></i> 您有审批权限，申领申请将直接通过
+                </div>
+            {% else %}
+                <div class="alert alert-info mb-0 py-2">
+                    <i class="fa fa-info-circle mr-1"></i> 您需要等待审批
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 右侧表单卡片 -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h6 class="mb-0"><i class="fa fa-file-alt mr-2 text-primary"></i>申领申请信息</h6>
+            </div>
+            <div class="card-body">
+                <form method="post" id="loanForm">
+                    {% csrf_token %}
+
+                    <!-- 第一行：申领班组和申领人 -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="id_borrowing_team">申领班组 <span class="text-danger">*</span></label>
+                            <select name="borrowing_team" id="id_borrowing_team" class="form-control" required>
+                                <option value="">请选择申领班组</option>
+                                {% for value, display in form.fields.borrowing_team.widget.choices %}
+                                    {% if value %}
+                                        <option value="{{ display }}" {% if form.borrowing_team.value == display %}selected{% endif %}>{{ display }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="id_borrowing_person">申领人 <span class="text-danger">*</span></label>
+                            <select name="borrowing_person" id="id_borrowing_person" class="form-control" required>
+                                <option value="">请选择申领人</option>
+                            </select>
+                            <input type="hidden" name="borrowing_person_id" id="id_borrowing_person_id">
+                        </div>
+                    </div>
+
+                    <!-- 第二行：申领时间和预计归还时间 -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="id_loan_datetime">申领时间</label>
+                            <input type="datetime-local" name="loan_datetime" id="id_loan_datetime" class="form-control">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="id_expected_return_time">预计归还时间 <span class="text-danger">*</span></label>
+                            <input type="datetime-local" name="expected_return_time" id="id_expected_return_time" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <!-- 第三行：备注 -->
+                    <div class="form-group">
+                        <label for="id_remarks">备注</label>
+                        <textarea name="remarks" id="id_remarks" class="form-control" rows="2" placeholder="可选，填写备注信息"></textarea>
+                    </div>
+
+                    <!-- 提交按钮 -->
+                    <div class="form-group mb-0 mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-check mr-1"></i>提交申请
+                        </button>
+                        <a href="{% url 'tools:manage_tools' %}" class="btn btn-outline-secondary ml-2">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const teamSelect = document.getElementById('id_borrowing_team');
+    const personSelect = document.getElementById('id_borrowing_person');
+    const personIdInput = document.getElementById('id_borrowing_person_id');
+
+    function setDateTimeDefaults() {
+        const loanDateTimeInput = document.getElementById('id_loan_datetime');
+        const expectedReturnTimeInput = document.getElementById('id_expected_return_time');
+
+        if (loanDateTimeInput && !loanDateTimeInput.value) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            loanDateTimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        if (expectedReturnTimeInput && !expectedReturnTimeInput.value) {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const year = tomorrow.getFullYear();
+            const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+            const day = String(tomorrow.getDate()).padStart(2, '0');
+            const hours = String(tomorrow.getHours()).padStart(2, '0');
+            const minutes = String(tomorrow.getMinutes()).padStart(2, '0');
+            expectedReturnTimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+    }
+
+    setTimeout(setDateTimeDefaults, 100);
+
+    function loadTeamUsers(teamName) {
+        if (!teamName) {
+            personSelect.innerHTML = '<option value="">请先选择申领班组</option>';
+            personIdInput.value = '';
+            return;
+        }
+
+        personSelect.innerHTML = '<option value="">加载中...</option>';
+
+        fetch(`/tools/api/team-users/${getTeamId(teamName)}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    personSelect.innerHTML = '<option value="">请选择申领人</option>';
+
+                    data.users.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user.name;
+                        option.textContent = `${user.name} (${user.skill || '未设置工种'})`;
+                        option.dataset.userId = user.id;
+                        personSelect.appendChild(option);
+                    });
+                } else {
+                    personSelect.innerHTML = '<option value="">加载失败</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                personSelect.innerHTML = '<option value="">加载失败</option>';
+            });
+    }
+
+    setTimeout(function() {
+        const defaultSelectedTeam = teamSelect.value;
+        if (defaultSelectedTeam) {
+            loadTeamUsers(defaultSelectedTeam);
+        }
+    }, 100);
+
+    teamSelect.addEventListener('change', function() {
+        const selectedTeam = this.value;
+        loadTeamUsers(selectedTeam);
+    });
+
+    personSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption && selectedOption.dataset.userId) {
+            personIdInput.value = selectedOption.dataset.userId;
+        } else {
+            personIdInput.value = '';
+        }
+    });
+
+    function getTeamId(teamName) {
+        const teamMapping = {
+            '架车班': 1,
+            '轮轴班': 2,
+            '台车班': 3,
+            '内制动班': 4,
+            '外制动班': 5,
+            '车钩班': 6,
+            '探伤班': 7,
+            '调车组': 8,
+            '车体班': 9,
+            '预修班': 10,
+            '信息班': 12,
+        };
+        return teamMapping[teamName] || 0;
+    }
+});
+</script>
+{% endblock %}

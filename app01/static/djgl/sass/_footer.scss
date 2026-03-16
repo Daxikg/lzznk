@@ -1,0 +1,83 @@
+/*-----------------Footer-------------*/
+footer {    
+    &.dark-bg, &.secondary-bg, &.primary-bg {
+        .widget {            
+            .widget-title {
+                color: $white;
+            }
+            p {
+                color: $darkwhite;
+            }
+            .logo {
+                a {
+                    color: $white;
+                    i {
+                        color: $primary;
+                    }
+                }
+            }
+            .about-text {
+                p {
+                    margin-bottom: .5rem;
+                    color: $darkwhite;
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+                }
+            }
+            .links{
+                ul {
+                    li {
+                        a {
+                            color: $darkwhite;
+                            &:hover {
+                                color: $primary;
+                            }
+                        }
+                    }
+                }
+            }
+            .contacts {
+                .contact-info {
+                    h6 {
+                        color: $primary;
+                    }
+                    span {
+                        color: $darkwhite;
+                    }
+                }
+            }
+            .subscribe-form {
+                form {
+                    .form-control {                      
+                        border-color: transparent;
+                    }
+                }
+            }
+            
+        }
+        .footer-credit {
+            p {
+                color: $white;
+                a {
+                    font-weight: bold;
+                    font-size: 14px;
+                    color: $primary;
+                    &:hover {
+                        color: darken($primary, 10);
+                    }
+                }
+            }
+        }       
+        
+    }
+    .footer-credit {
+        p {
+            a {
+                font-weight: bold;
+                font-size: 14px;
+            }
+        }
+    }
+    
+}

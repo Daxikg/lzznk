@@ -1,0 +1,375 @@
+<!-- tools_app/templates/tools_app/simple_permissions.html -->
+{% extends 'tools/base.html' %}
+
+{% block title %}权限管理{% endblock %}
+
+{% block nav_page_title %}权限管理{% endblock %}
+
+{% block nav_breadcrumb %}
+<li class="breadcrumb-item text-muted active" aria-current="page">权限管理</li>
+{% endblock %}
+
+{% block content %}
+    {% csrf_token %}
+
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title text-primary"><i class="fa fa-key mr-2"></i>班组权限配置</h4>
+            <hr class="my-3">
+            {% if teams_data %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead class="thead-light">
+                        <tr>
+                            <th>车间</th>
+                            <th>班组</th>
+                            <th>权限配置</th>
+                            <th class="text-center">工具管理</th>
+                            <th class="text-center">分类管理</th>
+                            <th class="text-center">申领审批</th>
+                            <th class="text-center">归还审批</th>
+                            <th class="text-center">执行保养</th>
+                            <th class="text-center">维修管理</th>
+                            <th class="text-center">查看记录</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for team in teams_data %}
+                            <tr>
+                                <td><strong>{{ team.workshop_name }}</strong></td>
+                                <td>{{ team.team_name }}</td>
+                                <td>
+                                    {% if team.has_permission_config %}
+                                        <span class="badge badge-success">已配置</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">未配置</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if team.permission_config and team.permission_config.can_manage_tools %}
+                                        <span class="badge badge-success"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-secondary"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if team.permission_config and team.permission_config.can_manage_categories %}
+                                        <span class="badge badge-success"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-secondary"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if team.permission_config and team.permission_config.can_approve_loans %}
+                                        <span class="badge badge-success"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-secondary"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if team.permission_config and team.permission_config.can_approve_returns %}
+                                        <span class="badge badge-success"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-secondary"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if team.permission_config and team.permission_config.can_perform_maintenance %}
+                                        <span class="badge badge-success"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-secondary"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if team.permission_config and team.permission_config.can_manage_repairs %}
+                                        <span class="badge badge-success"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-secondary"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if team.permission_config and team.permission_config.can_view_records %}
+                                        <span class="badge badge-success"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-secondary"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary"
+                                            onclick="configureTeamPermission({{ team.workshop_id }}, {{ team.team_id }})">
+                                        <i class="fa fa-edit mr-1"></i>配置权限
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fa fa-users fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">暂无班组数据</h5>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 班组权限配置模态框 -->
+    <div class="modal fade" id="teamPermissionModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fa fa-key mr-2"></i>班组权限配置</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <form method="post" id="teamPermissionForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="simple_permissions_form" value="true">
+                    <input type="hidden" name="workshop" id="permissionWorkshop">
+                    <input type="hidden" name="team" id="permissionTeam">
+                    <div class="modal-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-medium">车间</label>
+                                    <input type="text" class="form-control" id="workshopDisplay" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-medium">班组</label>
+                                    <input type="text" class="form-control" id="teamDisplay" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-medium">班组长用户名</label>
+                            <input type="text" name="team_leader" class="form-control"
+                                   placeholder="输入班组长用户名" id="teamLeaderInput">
+                            <small class="form-text text-muted">指定该班组的班组长（可选）</small>
+                        </div>
+
+                        <hr class="my-4 border-light">
+                        <h6 class="text-muted text-uppercase small font-weight-bold mb-3">
+                            <i class="fa fa-cog mr-1"></i>功能权限设置
+                        </h6>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3 p-3 border rounded">
+                                    <input class="form-check-input" type="checkbox"
+                                           name="can_manage_tools" id="can_manage_tools">
+                                    <label class="form-check-label" for="can_manage_tools">
+                                        <strong>工具管理权限</strong>
+                                        <small class="text-muted d-block">允许创建、修改、删除工具</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-3 p-3 border rounded">
+                                    <input class="form-check-input" type="checkbox"
+                                           name="can_manage_categories" id="can_manage_categories">
+                                    <label class="form-check-label" for="can_manage_categories">
+                                        <strong>分类管理权限</strong>
+                                        <small class="text-muted d-block">允许新建分类、编辑分类和删除分类</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3 p-3 border rounded">
+                                    <input class="form-check-input" type="checkbox"
+                                           name="can_approve_loans" id="can_approve_loans">
+                                    <label class="form-check-label" for="can_approve_loans">
+                                        <strong>申领审批权限</strong>
+                                        <small class="text-muted d-block">允许审批工具申领申请</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-3 p-3 border rounded">
+                                    <input class="form-check-input" type="checkbox"
+                                           name="can_approve_returns" id="can_approve_returns">
+                                    <label class="form-check-label" for="can_approve_returns">
+                                        <strong>归还审批权限</strong>
+                                        <small class="text-muted d-block">允许审批工具归还申请</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3 p-3 border rounded">
+                                    <input class="form-check-input" type="checkbox"
+                                           name="can_perform_maintenance" id="can_perform_maintenance">
+                                    <label class="form-check-label" for="can_perform_maintenance">
+                                        <strong>执行保养权限</strong>
+                                        <small class="text-muted d-block">允许执行工具保养操作</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-3 p-3 border rounded">
+                                    <input class="form-check-input" type="checkbox"
+                                           name="can_manage_repairs" id="can_manage_repairs">
+                                    <label class="form-check-label" for="can_manage_repairs">
+                                        <strong>维修管理权限</strong>
+                                        <small class="text-muted d-block">允许管理工具维修记录</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-3 p-3 border rounded">
+                            <input class="form-check-input" type="checkbox"
+                                   name="can_view_records" id="can_view_records">
+                            <label class="form-check-label" for="can_view_records">
+                                <strong>查看记录权限</strong>
+                                <small class="text-muted d-block">允许查看各种系统记录</small>
+                            </label>
+                        </div>
+
+                        <div class="alert alert-info border-0">
+                            <h6 class="alert-heading font-weight-bold"><i class="fa fa-info-circle mr-1"></i>权限说明</h6>
+                            <ul class="mb-0">
+                                <li>勾选相应权限后，该班组用户将获得对应功能的完整操作权限</li>
+                                <li>权限控制将直接影响导航菜单和功能按钮的显示</li>
+                                <li>未勾选的权限，对应功能将对用户隐藏</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-success"><i class="fa fa-check mr-1"></i>保存配置</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 权限说明 -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h4 class="card-title text-primary"><i class="fa fa-info-circle mr-2"></i>权限说明</h4>
+            <hr class="my-3">
+            <div class="row">
+                <div class="col-md-3">
+                    <h6 class="font-weight-bold text-primary"><i class="fa fa-wrench mr-1"></i>工具管理权限</h6>
+                    <ul>
+                        <li>创建新工具</li>
+                        <li>编辑工具信息</li>
+                        <li>删除工具</li>
+                        <li>查看工具列表</li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="font-weight-bold text-primary"><i class="fa fa-folder-open mr-1"></i>分类管理权限</h6>
+                    <ul>
+                        <li>创建新分类</li>
+                        <li>编辑分类信息</li>
+                        <li>删除分类</li>
+                        <li>管理分类结构</li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="font-weight-bold text-primary"><i class="fa fa-check-circle mr-1"></i>申领/归还审批</h6>
+                    <ul>
+                        <li>审批申领申请</li>
+                        <li>审批归还申请</li>
+                        <li>管理申领记录</li>
+                        <li>处理逾期情况</li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="font-weight-bold text-primary"><i class="fa fa-cogs mr-1"></i>保养/维修管理</h6>
+                    <ul>
+                        <li>执行工具保养</li>
+                        <li>查看保养记录</li>
+                        <li>管理维修记录</li>
+                        <li>处理故障报修</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const workshopChoices = {{ workshop_choices|safe }};
+        const teamChoices = {{ team_choices|safe }};
+
+        function configureTeamPermission(workshop, team) {
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch(`/tools/api/team-permission/${workshop}/${team}/`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin'
+            })
+                .then(response => {
+                    if (response.redirected && response.url.includes('login')) {
+                        throw new Error('请先登录系统');
+                    }
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const perm = data.permission;
+
+                        document.getElementById('permissionWorkshop').value = perm.workshop;
+                        document.getElementById('permissionTeam').value = perm.team;
+                        document.getElementById('workshopDisplay').value = workshopChoices[perm.workshop] || `车间${perm.workshop}`;
+                        document.getElementById('teamDisplay').value = teamChoices[perm.team] || `班组${perm.team}`;
+                        document.getElementById('teamLeaderInput').value = perm.team_leader_username || '';
+
+                        document.getElementById('can_manage_tools').checked = perm.can_manage_tools;
+                        document.getElementById('can_manage_categories').checked = perm.can_manage_categories;
+                        document.getElementById('can_approve_loans').checked = perm.can_approve_loans;
+                        document.getElementById('can_approve_returns').checked = perm.can_approve_returns;
+                        document.getElementById('can_perform_maintenance').checked = perm.can_perform_maintenance;
+                        document.getElementById('can_manage_repairs').checked = perm.can_manage_repairs;
+                        document.getElementById('can_view_records').checked = perm.can_view_records;
+
+                        $('#teamPermissionModal').modal('show');
+                    } else {
+                        document.getElementById('permissionWorkshop').value = workshop;
+                        document.getElementById('permissionTeam').value = team;
+                        document.getElementById('workshopDisplay').value = workshopChoices[workshop] || `车间${workshop}`;
+                        document.getElementById('teamDisplay').value = teamChoices[team] || `班组${team}`;
+                        document.getElementById('teamLeaderInput').value = '';
+
+                        document.getElementById('can_manage_tools').checked = false;
+                        document.getElementById('can_manage_categories').checked = false;
+                        document.getElementById('can_approve_loans').checked = false;
+                        document.getElementById('can_approve_returns').checked = false;
+                        document.getElementById('can_perform_maintenance').checked = false;
+                        document.getElementById('can_manage_repairs').checked = false;
+                        document.getElementById('can_view_records').checked = false;
+
+                        $('#teamPermissionModal').modal('show');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (error.message.includes('请先登录')) {
+                        alert('请先登录系统后再进行操作');
+                        window.location.href = '/tools/login_tools/';
+                    } else {
+                        alert('获取权限配置时发生错误: ' + error.message);
+                    }
+                });
+        }
+    </script>
+{% endblock %}

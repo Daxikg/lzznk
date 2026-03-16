@@ -1,0 +1,48 @@
+{% extends 'djgl1.html' %}
+{% load my_tags %}
+{% block content %}
+    <section class="showcase ptb-50 bg-danger">
+        <div class="container">
+            <div class="page-title">
+                <h3 class="text-center text-white">{{ quarter }}季度{{ banzu_display }}党员创岗建区修改</h3>
+            </div>
+        </div>
+    </section>
+
+    <section class="blog pt-50 pb-50 bg-light">
+        <div class="container">
+            <div class="row">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col" class="col-lg-2">姓名</th>
+                        <th scope="col" class="col-lg-5">责任岗</th>
+                        <th scope="col" class="col-lg-5">责任区</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ formset.management_form }}
+                        {% for user, form in user_and_forms %}
+                            <tr>
+                                <td>{{ user.name }}</td>
+                                <td>
+                                    {{ form.zerengang }}
+                                </td>
+                                <td>
+                                    {{ form.zerenqu }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        <div class="mb-3">
+                            <button type="submit" value="Save" class="btn btn-danger me-2">保存</button>
+                            <a href="/djgl/dangjianguanli/{{ banzu }}/" class="btn btn-light">返回</a>
+                        </div>
+                    </form>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+{% endblock %}

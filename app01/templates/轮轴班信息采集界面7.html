@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="bs-example" data-example-id="table-within-panel">
+        <div class="container">
+            <div class="panel-default">
+                <div class="panel-default">
+                    {#                <div class="container mb-4">#}
+                    <H1 class="font-weight-bold title">
+                        轮轴班临修数据录入[出车顺序
+                        {% for order in orders %}
+                            {{ order.gudao1 }}{{ order.gudao2 }}{{ order.gudao3 }}
+                        {% endfor %}]
+                    </H1>
+                    <H1>
+                        {% if messages %}
+                            <ul class="messages">
+                                {% for message in messages %}
+                                    <li{% if message.tags %}
+                                        class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </H1>
+                    <ul class="pagination m-0 xs-auto mb-1" id="nav">
+                        <li class="page-item"><a href="/轮轴班信息采集界面1/"
+                                                 class="page-link {% if current_url_name == 'user_add7' or current_url_name == 'user_add8' or current_url_name == 'user_add9' %}active{% endif %}"
+                                                 role="button">一次入库</a></li>
+                        <li class="page-item"><a href="/轮轴班信息采集界面4/"
+                                                 class="page-link {% if current_url_name == 'user_add10' or current_url_name == 'user_add11' or current_url_name == 'user_add12' %}active{% endif %}"
+                                                 role="button">二次入库</a></li>
+                    <li class="page-item"><a href="/轮轴班信息采集界面8/"
+                                                 class="page-link {% if current_url_name == 'user_add15' %}active{% endif %}"
+                                                 role="button">三次入库</a></li>
+                        <li class="page-item"><a href="/轮轴班信息采集界面7/"
+                                                 class="page-link {% if current_url_name == 'user_add13'%}active{% endif %}"
+                                                 role="button">临修</a></li>
+                    </ul>
+                </div>
+                <div style="margin-bottom: 10px" class="input-group">
+                    <span style="margin-bottom: 10px" class="input-group-addon">今日日期 : {{ today }}</span>
+                </div>
+                <div class="panel-body">
+                    <form class="form-group" method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="form-group row">
+                                <div style="display: flex; justify-content: flex-start; align-items: center; margin: 10px 0;">
+                                    <!-- 加大每一行的上下外边距 -->
+                                    <label for="{{ field.id_for_label }}" style="flex: 1; margin: 0;">
+                                        {{ field.label }}
+                                    </label>
+                                    <div style="flex: 10; margin: 0;">
+                                        {{ field }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div class="mb-3">
+                            <button type="submit" class="btn btn-primary me-5">提交</button>
+                            <a href="." class="btn btn-light ms-5">刷新页面</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

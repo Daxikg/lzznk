@@ -1,0 +1,130 @@
+{% extends 'base9.html' %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="card">
+                <div class="card-body">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            本班组负责人共{{ operater_count }}名。
+                            <button id="Button" class="btn btn-success custom-button"
+                                    data-toggle="modal" data-target="#addModal"
+                            >
+                                添加新负责人
+                            </button>
+                        </h3>
+                    </div>
+                    <div class="modal fade" id="addModal" tabindex="-1" role="dialog"
+                         aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">新增负责人</h5>
+                                    <button type="button" class="close" data-dismiss="modal"
+                                            aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="addForm" method="POST" action="{% url 'xfgl:add_operater' %}">
+                                        <input type="hidden" id="id_logid" name="logid">
+                                        <div class="modal-body">
+                                            <table class="table">
+                                                <tbody>
+                                                <tr>
+                                                    <th><span style="color: red">*</span>姓名：{{ form.name }}</th>
+                                                    <th>电话：{{ form.phone }}</th>
+                                                </tr>
+                                                <tr>
+                                                    <th>班组：{{ form.banzu }}</th>
+                                                    <th>车间：{{ form.chejian }}</th>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                            {% csrf_token %}
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                        data-dismiss="modal">关闭
+                                                </button>
+                                                <button type="submit" class="btn btn-primary">保存</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        {% for user in operater %}
+                            <div class="col-md-2 grid-margin grid-margin-md-0 stretch-card">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <span>序号：{{ forloop.counter }}
+                                        <button id="Button" class="btn btn-info btn-sm edit-button"
+                                                data-toggle="modal" data-target="#editModal2"
+                                                data-logid="{{ user.id }}"
+                                                data-name="{{ user.name }}"
+                                                data-phone="{{ user.phone }}"
+                                                data-banzu="{{ user.banzu }}"
+                                                data-chejian="{{ user.chejian }}"
+                                        >
+                                            编辑
+                                        </button></span><br>
+                                        <span>负责人：{{ user.name }}</span><br>
+                                        <span>电话：{{ user.number }}</span><br>
+                                        <span>班组：{{ user.get_banzu_display }}</span><br>
+                                        <span>车间：{{ user.get_chejian_display }}</span><br>
+                                        <span>分管设备：{{ user.user_equipments.count }}台</span><br>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="modal fade" id="editModal2" tabindex="-1" role="dialog"
+                         aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">修改负责人信息</h5>
+                                    <button type="button" class="close" data-dismiss="modal"
+                                            aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="editForm2" method="POST">
+                                        <input type="hidden" id="id_logid" name="logid">
+                                        <div class="modal-body">
+                                            <table class="table">
+                                                <tbody>
+                                                <tr>
+                                                    <th><span style="color: red">*</span>姓名：{{ form.name }}</th>
+                                                    <th>电话：{{ form.phone }}</th>
+                                                </tr>
+                                                <tr>
+                                                    <th>班组：{{ form.banzu }}</th>
+                                                    <th>车间：{{ form.chejian }}</th>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                            {% csrf_token %}
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                        data-dismiss="modal">关闭
+                                                </button>
+                                                <button type="submit" class="btn btn-primary">保存
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

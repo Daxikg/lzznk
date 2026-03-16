@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+	<meta http-equiv="Cache" content="no-cache">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Expires" content="0">
+    <title>成都局集团公司管理信息系统</title>
+    <meta name="description" content="">
+
+    <script type="text/javascript" src="/SSOP/publicRack/scripts/all-easyui.js?v=cbe6e35"></script>
+    <link rel="shortcut icon" href="/SSOP/publicRack/img/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/SSOP/publicRack/css/index2.0.css?v=7500826">
+    <link rel="stylesheet" type="text/css" href="http://10.192.34.50:8001/SOSE/source/font/iconfont.css">
+
+    <!--消息-->
+    <!--<script src="scripts/mqttws31.js"></script>-->
+    <!--<script src="scripts/messageEmail.js"></script>-->
+
+    <style>
+        /*蜂窝风格辅助线*/
+        .linesX{position: absolute;left:-1200px;width: 1700px;height:1px;background: red;}
+        .linesY{position: absolute;top:-1000px;width: 1px;height:2000px;background: red;}
+    </style>
+</head>
+<body id="app">
+    <div id="layerCon">
+        <!--布局 show-page-->
+        <div id="layer" class=" ">
+            <!--蜂窝容器 -->
+            <div class="main-con">
+                <div class="main-info" alt="左侧信息" style="display: inherit;">
+                    <div class="logo-info">
+                        <img src="/SSOP/publicRack/img/index/main_logo_bg.png?v=1d8ba3d">
+                    </div>
+                    <div class="product-notice">
+                        <div class="product-info" alt="生产信息区域">
+                            <div class="group-title">运输生产</div>
+                            <div class="product-panel" style="padding-left:1.6rem;">
+                                <div class="pn-text-yellow" style="text-align: center;">安全生产天数</div>
+                                <div class="panel-box small">
+                                      <img class="icon" src="/SSOP/publicRack/img/index/main_pn_safe.png?v=6b6a573"/>
+                                    <!-- <div class="pn-text-blue" style="text-align: right;padding: 1.2rem 1rem;">全局实现无责任一般A类事故</div>
+                                    <div class="safe-day-con"><label id="safeDay1">-</label></div> -->
+                                    <div class="pn-text-blue" style="text-align: center;padding:1rem 1rem 3rem 1rem;">全局实现安全生产</div>
+                                    <div class="safe-day-con" style="text-align: center;"><label id="safeDay2" style="font-size:3rem;">-</label></div>
+                                </div>
+                            </div>
+                            <div class="product-panel" style="padding-right:1.6rem;">
+                                <div class="pn-text-yellow" style="text-align: center;">运输生产指标</div>
+                                <div class="panel-box small">
+                                    <table class="product-table" cellpadding="0" cellspacing="0">
+                                        <tr><th class="pn-text-blue v1">运输指标</th><th class="pn-text-blue v2">日完成</th><th class="pn-text-blue v3">年累计</th></tr>
+                                        <tr><td>运输收入<i>万元</i></td><td id="sczb_DAY_YSSR">-</td><td id="sczb_YEAR_YSSR">-</td></tr>
+                                        <tr><td>换算周转量<i>亿吨公里</i></td><td id="sczb_DAY_HSZZ">-</td><td id="sczb_YEAR_HSZZ">-</td></tr>
+                                        <tr><td>货物发送量<i>万吨</i></td><td id="sczb_DAY_HWFS">-</td><td id="sczb_YEAR_HWFS">-</td></tr>
+                                        <tr><td>旅客发送量<i>万人</i></td><td id="sczb_DAY_LKFS">-</td><td id="sczb_YEAR_LKFS">-</td></tr>
+                                        <tr><td>装车数量<i>车</i></td><td id="sczb_DAY_ZC">-</td><td id="sczb_DAYD_ZC">-</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notice-info" alt="公告信息区域">
+                            <div class="group-title">公告</div>
+                            <div class="notice-important">
+                                <div class="panel-box big">
+                                    <img class="icon" src="/SSOP/publicRack/img/index/main_pn_imp-notice.png?v=c168c7a"/>
+                                    <div class="pn-text-yellow">重要公告</div>
+                                    <p class="notice-one-text" id="noticeZYGG" noid="-1" onclick="quikBtnClick(9999,this)"></p>
+                                </div>
+                            </div>
+                            <div class="notice-bottom">
+                                <div class="bottom-group">
+                                    <div class="pn-text-yellow more-link" style="cursor: pointer;" noid="" onclick="quikBtnClick(9999,this)">成都局集团公司</div>
+                                </div>
+                                <ul id="noticeJJGG"> </ul>
+                            </div>
+                            <div class="notice-bottom">
+                                <div class="bottom-group">
+                                    <div class="pn-text-yellow more-link" style="cursor: pointer;" id="noticeZDGG_title" noid="zd" onclick="quikBtnClick(9999,this)"> </div>
+                                </div>
+                                <ul id="noticeZDGG"> </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="copy-info" alt="版权信息区域">
+                        <!--<img onclick="quikBtnClick('党')" alt="党" title="党" src="img/index/main_copy_dang.png"/>-->
+                        <!--<img onclick="quikBtnClick('政')" alt="政" title="政" src="img/index/main_copy_zheng.png"/>-->
+                        <!--<img onclick="quikBtnClick('工')" alt="工" title="工" src="img/index/main_copy_gong.png"/>-->
+                        <!--<img onclick="quikBtnClick('团')" alt="团" title="团" src="img/index/main_copy_tuan.png"/>-->
+                        <img onclick="quikBtnClick('系统工具箱')" alt="系统工具箱" title="系统工具箱" src="/SSOP/publicRack/img/index/main_copy_tool.png?v=3dd28d5"/>
+                        <img style="margin-left:24px" onclick="quikBtnClick('常用系统维护电话')" alt="常用系统维护电话" title="常用系统维护电话" src="/SSOP/publicRack/img/index/main_tel.png?v=3303e07"/>
+                    </div>
+                </div>
+                <div id="btnCon" class="center-point" alt="蜂窝按钮区域"></div>
+                <div class="main-tools" alt="用户信息">
+                    <div id="myPage_indexPrivate" class="other-link" style="display:none;" onclick="window.location.href='indexPrivate.html';">我的首页</div>
+                    <div id="myPage_indexPrivate3" class="other-link" style="display:none;" onclick="window.location.href='indexPrivate3.0.html';">我的首页</div>
+                    <div id="myPage_index3" class="other-link" style="display:none;" onclick="window.location.href='index3.0.html';">首页</div>
+                    <div class="user-info" alt="角色区域" onclick="changeSideBarView(true);">
+                        <img src="/SSOP/publicRack/img/logo/info_user.png?v=0d68287">
+                        <label id="curUserInfoText">-[-]</label>
+                    </div>
+                </div>
+                <ul id="userRoleList" class="user-role-list"></ul>
+            </div>
+            <!--主页容器 无顶部菜单：no-nav   北京纪委样式：bjjw-->
+            <div class="page-con ">
+                <div class="page-top">
+                    <div class="log"><i class="icon iconfont icon-luhui" style="font-size:28px;"></i><label>成都局集团公司管理信息系统</label></div>
+                    <div class="tools">
+                        <span onclick="trunToFengWoContener()"><i class="icon iconfont icon-shouye">&nbsp;</i><label>返回</label></span>
+                        <i class="line-h"> </i>
+                        <span onclick="openMailAndToDoListWin(1);"><i id="myEmailIcon" class="icon iconfont icon-youjian1">&nbsp;</i><label>办公电邮(<a id="myEmailCount">0</a>)</label></span>
+                        <i class="line-h"> </i>
+                        <span onclick="openMailAndToDoListWin(2);"><i class="icon iconfont icon-diannao1">&nbsp;</i><label>待办工作</label></span>
+                        <i class="line-h"> </i>
+                        <span><i class="icon iconfont icon-manager3">&nbsp;</i><label id="curUserInfoText2">人员(单位)</label></span>
+                        <i class="line-h"> </i>
+                        <span onclick="goBackLogin();"><i class="icon iconfont icon-xinxi1">&nbsp;</i><label>注销</label></span>
+                    </div>
+                </div>
+                <!--顶部菜单栏-->
+                <div class="page-nav">
+                    <ul id="topNav" class="nav"> 
+						<!-- <li>菜单一</li><li>菜单一</li><li>菜单一</li><li>菜单一</li> -->
+					</ul>
+                    <div id="btnMore" class="btn-more down" onclick="navMoreClick();"> </div>
+                </div>
+                <ul id="moreNav" class="nav nav-more"> </ul>
+                <!--页面-->
+                <div class="page-view animate">
+                    <div id="pageViewSidebar" class="page-view-sidebar animate"> </div>
+                    <div class="page-view-split animate" onclick="changePageViewSidebar();"> </div>
+                    <div class="page-view-main animate">
+                        <iframe id="mainFrame" style="width:100%;height:100%;border:0;"> </iframe>
+                    </div>
+                </div>
+            </div>
+            <!--边栏-->
+            <div id="sideBar" class="side-bar">
+                <div class="safe-exit" onclick="goBackLogin();">安全退出</div>
+                <div class="user-photo">
+                    <img id="sideBarUserPhoto" alt="用户头像" src="/SSOP/publicRack/img/user/photo_2.png?v=b82626e"/>
+                    <div id="sideBarUserName">用户名称</div>
+                    <div id="sideBarUnitName">单位名称</div>
+                </div>
+                <div id="quikInfo" class="quik-info">
+                    <div class="quik-btns-con">
+                        <a class="quik-btn" onclick="quikBtnClick('修改登录帐号')">修改登录帐号</a>
+                        <a class="quik-btn" onclick="quikBtnClick('修改密码')">修改密码</a>
+                        <a class="quik-btn" onclick="quikBtnClick('修改移动办公二次验证密码')" id="btnUpdAppPsw" style="font-size:14px;letter-spacing: 0;">修改移动办公二次验证密码</a>
+                        <a class="quik-btn" onclick="quikBtnClick('我的密保')">我的密保</a>
+                        <a class="quik-btn" onclick="quikBtnClick('我的体检报告')">我的体检报告</a>
+                        <a class="quik-btn" onclick="quikBtnClick('发票信息')">发票信息</a>
+                        <a class="quik-btn" onclick="quikBtnClick('修改个人信息')">修改个人信息</a>
+                        <a class="quik-btn" onclick="quikBtnClick('铁总授权管理')">铁总授权管理</a>
+                        <a class="quik-btn" onclick="quikBtnClick('本单位管理员')">本单位管理员</a>
+                        <a class="quik-btn" onclick="quikBtnClick('背景图更换')">背景图更换</a>
+                        <a class="quik-btn" onclick="quikBtnClick('一卡通帐户明细')">一卡通帐户明细</a>
+                    </div>
+                    <div class="quik-edit">
+                        <div class="quik-edit-tit">
+                            <a class="quik-eidt-tit-back" onclick="$('#quikInfo').removeClass('edit')">〈</a>
+                            <label>快捷修改标题</label>
+                        </div>
+                        <div id="quikEditBody" class="quik-edit-body">
+                            <div class="quik-edit-item-con" for="修改登录帐号">
+                                <div class="quik-edit-item"><label>登录帐号：</label><input id="quikEdit_11" class="txt"/></div>
+                                <!-- <div class="quik-edit-item"><label>联系电话：</label><input id="quikEdit_12" class="txt"/></div> -->
+                            </div>
+                            <div class="quik-edit-item-con" for="修改密码">
+                                <div class="quik-edit-item"><label>新密码：</label><input id="quikEdit_21" type="password" class="txt"/></div>
+                                <div class="quik-edit-item"><label>确认密码：</label><input id="quikEdit_22" type="password" class="txt"/></div>
+                            </div>
+                            <div class="quik-edit-item-con" for="本单位管理员">
+                                <table id="unitManagers" class="solid-table" cellspacing="1" cellpadding="1" style="width: 100%;"> </table>
+                            </div>
+                            <div class="quik-edit-item-con" for="背景图更换">
+                                <ul id="sysBackgroundImgs" class="quik-sys-bg-list"> </ul>
+                            </div>
+                            <div id="quikBtnsCon" class="quik-edit-item">
+                                <div id="quikEditErrorInfo" class="quik-edit-error-info"> </div>
+                                <label>&nbsp;</label>
+                                <a class="btn btn-save" onclick="quikEditSave();">保存</a>
+                                <a class="btn btn-cancel" onclick="quikEditCancel();">取消</a>
+                                <div id="tip_changePass" class="quikTips">
+                                	<h4 style="padding:0;margin:0;">根据成铁办科信〔2020〕33 号文件有关要求，用户密码应符合“大（小）写字母+数字+特殊字符”且不少于 8 位。</h4>
+                                	<div>提示1：必须有大写、数字、特殊字符、长度大于8位</div>
+                                	<div>提示2：特殊字符：-_~!@#$%^&*</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="side-bar-cover" onclick="changeSideBarView(false);"> </div>
+        </div>
+    </div>
+	
+	<div id="ddIPWin" class="easyui-dialog" title="帐号安全-设置主备用IP" style="width:400px;height:300px;padding:10px;"
+	     data-options="iconCls:'',resizable:false,modal:true,closed:true,closable:false,buttons:'#tb_ddIPWin'">
+	    <h2 style="padding:0;margin:0;">按照集团公司网络安全要求，请对常用IP地址及手机号进行注册登记。</h2>
+	    <div style="padding:10px 0;margin-top:10px;font-size:14px;border-top:1px solid silver;">
+	        <div style="margin-top:10px;">
+	            <label>主<span style="display:inline-block;width:14px;">&nbsp;</span>IP：</label>
+	            <input id="IP_11" onkeyup="checkIPInput(this,'IP_12');" type="text" class="txt" style="width:50px;text-align: center;" maxlength="3"/>.
+	            <input id="IP_12" onkeyup="checkIPInput(this,'IP_13');" type="text" class="txt" style="width:50px;text-align: center;" maxlength="3"/>.
+	            <input id="IP_13" onkeyup="checkIPInput(this,'IP_14');" type="text" class="txt" style="width:50px;text-align: center;" maxlength="3"/>.
+	            <input id="IP_14" onkeyup="checkIPInput(this,'IP_21');" type="text" class="txt" style="width:50px;text-align: center;" maxlength="3"/>
+				<label>(必填)</label>
+	        </div>
+	        <div style="margin-top:10px;">
+	            <label>备用IP：</label>
+	            <input id="IP_21" onkeyup="checkIPInput(this,'IP_22');" type="text" class="txt" style="width:50px;text-align: center;" maxlength="3"/>.
+	            <input id="IP_22" onkeyup="checkIPInput(this,'IP_23');" type="text" class="txt" style="width:50px;text-align: center;" maxlength="3"/>.
+	            <input id="IP_23" onkeyup="checkIPInput(this,'IP_24');" type="text" class="txt" style="width:50px;text-align: center;" maxlength="3"/>.
+	            <input id="IP_24" onkeyup="checkIPInput(this,'IP_phone');" type="text" class="txt" style="width:50px;text-align: center;" maxlength="3"/>
+				<label>(可选)</label>
+	        </div>
+	        <div style="margin-top:10px;">
+	            <label>手<span style="display:inline-block;width:14px;">&nbsp;</span>机：</label>
+	            <input id="IP_phone" type="text" class="txt" style="width:160px;" onkeyup="checkIPInput(this,'');" maxlength="11"/>
+				<label>(必填)</label>
+	        </div>
+	    </div>
+	    <p class="tip-error" id="IPError"> </p>
+	    <div id="tb_ddIPWin">
+	        <a class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="saveIPPhone();">保存</a>
+	    </div>
+	</div>
+	
+    <div id="ddPassWordWin" class="easyui-dialog" title="帐号安全-设置密码" style="width:420px;height:340px;padding:10px;"
+		 data-options="iconCls:'',resizable:false,modal:true,closed:true,closable:false,buttons:'#tb_ddPassWordWin'">
+		<h2 style="padding:0;margin:0;">根据成铁办科信〔2020〕33 号有关要求，用户密码应符合“大（小）写字母+数字+特殊字符”且不少于 8 位，请修改您的密码。</h2>
+		<div style="padding:10px 0;margin-top:10px;font-size:14px;border-top:1px solid silver;">
+			<h4 style="padding:0;margin:0;">提示：必须有大写、数字、特殊字符、长度大于8位，特殊字符范围：-_~!@#$%^&*</h4>
+			<div style="margin-top:10px;">
+				<label>新设密码：</label>
+				<input id="newPassWord" type="password" class="txt" style="width:160px;" onkeyup="checkPassWord('new');" maxlength="16"/>
+				<label id="error1" style="color:red;"></label>
+			</div>
+			<div style="font-size:12px;">密码必须包含:
+				<a id="passR1" style="color:red;">大写字母</a>、
+				<a id="passR2" style="color:red;">数字</a>、
+				<a id="passR3" style="color:red;">特殊字符</a>、
+				<a id="passR4" style="color:red;">长度大于8位</a>!
+			</div>
+			<div style="margin-top:10px;">
+				<label>重复密码：</label>
+				<input id="aginPassWord" type="password" class="txt" style="width:160px;" onkeyup="checkPassWord('agin');" maxlength="16"/>
+				<label id="error2" style="color:red;"> </label>
+			</div>
+		</div>
+		<p class="tip-error" id="newPassWordError"> </p>
+		<div id="tb_ddPassWordWin">
+			<a class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="saveStrongPassWord();">修改</a>
+		</div>
+	</div>
+	
+    <div id="ddQuestionWin" class="easyui-dialog" title="帐号安全-密保问题" style="width:420px;height:300px;padding:10px;"
+         data-options="iconCls:'',resizable:false,modal:true,closed:true,closable:false,buttons:'#tb_ddQuestionWin'">
+        <h2 id="questionTit" style="padding:0;margin:0;">您未设置密保问题，请设置。</h2>
+        <div style="padding:10px 0;margin-top:10px;font-size:14px;border-top:1px solid silver;">
+            <div style="margin-top:10px;">问题：
+                <select id="question" class="txt" style="width:330px;">
+                    <option value="您父亲的姓名是？">您父亲的姓名是？</option>
+                    <option value="您的工号是？">您的工号是？</option>
+                    <option value="您父亲的生日是？">您父亲的生日是？</option>
+                    <option value="您母亲的姓名是？">您母亲的姓名是？</option>
+                    <option value="您母亲的生日是？">您父亲的生日是？</option>
+                    <option value="您配偶的姓名是？">您配偶的姓名是？</option>
+                    <option value="您配偶的生日是？">您配偶的生日是？</option>
+                </select>
+            </div>
+            <div style="margin-top:10px;">答案：
+                <input id="answer" type="text" class="txt" style="width:330px;" placeholder="请输入答案"/>
+            </div>
+        </div>
+        <p class="tip-error" id="newQuestionError"> </p>
+        <div id="tb_ddQuestionWin">
+            <a class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="saveQuestion();">保存</a>
+            <span id="questionBtnNo" style="display:none;">
+					<a class="easyui-linkbutton" data-options="iconCls:'icon-s-clear'" onclick="$('#ddQuestionWin').dialog('close');">取消</a>
+				</span>
+        </div>
+    </div>
+
+
+    <div id="ddAuthWin" class="easyui-dialog" title="登录授权" style="width:450px;height:380px;padding:10px;"
+         data-options="iconCls:'',resizable:false,modal:true,closed:true,closable:true,buttons:'#tb_ddAuthWin'">
+        <h2 style="padding:0;margin:0;">您好，在使用路局统一平台初次登录访问铁路总公司<label id="authName" style="color:red;"> </label>系统前，请完善您在铁总系统信息：</h2>
+        <div id="ddAuthWinBody" style="padding:10px 0;margin-top:10px;font-size:14px;border-top:1px solid silver;">
+
+        </div>
+        <div>之后若想修改保存的内容，请点击首页右上角个人姓名，在个人操作栏中选择 “铁总授权管理”，修改铁总系统信息。</div>
+        <p class="tip-error" id="ddAuthError" style="text-align:center;"> </p>
+        <div id="tb_ddAuthWin">
+            <input id="pageId" type="hidden" value=""/>
+            <input id="wlbz" type="hidden" value=""/>
+            <input id="linkUrl" type="hidden" value=""/>
+            <input id="authTzid" type="hidden" value=""/>
+            <a class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="saveAuth();">确定</a>
+            <a class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" onclick="$('#ddAuthWin').dialog('close');">取消</a>
+        </div>
+    </div>
+    <div id="ddAuthControlWin" class="easyui-dialog" title="铁总授权管理" style="width:600px;height:400px;overflow:hidden;"
+         data-options="iconCls:'',resizable:false,modal:true,closed:true,closable:true">
+        <iframe id="frameAuth" data-src='indexAuthControl.html' style="width:100%;height:100%;border:0;"> </iframe>
+    </div>
+    <div id="ddMailAndToDoList" class="easyui-dialog" title="邮件、待办工作" style="width:80%;height:90%;overflow:hidden;"
+         data-options="iconCls:'',resizable:false,modal:true,closed:true,closable:true">
+        <iframe id="frameMailAndToDoList" src='' style="width:100%;height:100%;border:0;"> </iframe>
+    </div>
+
+
+    <div id="loadingMsg" class='loading-msg' alt="跳转页面时，等待层">
+        <img src='/SSOP/publicRack/img/loading1.gif' style='height:30%;'/>
+    </div>
+
+    <script type="text/template" alt="蜂窝模板" id="mdBtn">
+        <div seq="{seq}" key="{key}" level="{level}" MJ_TYPE="{MJ_TYPE}" title="{tit}" class="btn-item {isMap}" x="{x}" y="{y}" style="background-image: url('{bg}');">
+            <img src="{img}">
+        </div>
+    </script>
+
+    <script type="text/template" alt="左侧菜单模板" id="mdLeftMenu">
+        <div class="left-menu-con expend">
+            <div class="left-menu-title" onclick="changeLeftMenuView(this);">
+                <i class="icon iconfont icon-diannao3" style="font-size:14px;"></i>
+                <label>{tit}</label>
+            </div>
+            <div class="left-menu-list-con">
+                <span class="left-menu-list-title">{tit}</span>
+                <ul class="left-menu-list">
+                    {pages}
+                </ul>
+            </div>
+        </div>
+    </script>
+</body>
+
+<script type="text/javascript" src="/SSOP/publicRack/js/indexSidebar.js?v=2cd3e87"></script>
+<script type="text/javascript" src="/SSOP/publicRack/js/index2.0.js?v=d37e39f"></script>
+</html>

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="panel-default">
+            <div class="panel-heading">
+                <h1 class="font-weight-bold title">{{ form.instance.get_taiwei_display }} {{ form.instance.get_shunxu_display }}
+                    出库数据编辑</h1>
+                <form class="form-group" method="post">
+                    {% csrf_token %}
+
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>二位轮径</th>
+                                    <th>一位轮径</th>
+                                    <th>二位垫板</th>
+                                    <th>一位垫板</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>{{ form.lunjing2 }}<span style="color: red;">{{ form.lunjing2.errors.0 }}</span>
+                                    </td>  <!--北头轮径-->
+                                    <td>{{ form.lunjing1 }}<span style="color: red;">{{ form.lunjing1.errors.0 }}</span>
+                                    </td>
+                                    <td>{{ form.dianban2 }}<span style="color: red;">{{ form.dianban2.errors.0 }}</span>
+                                    </td>  <!--北头垫板-->
+                                    <td>{{ form.dianban1 }}<span style="color: red;">{{ form.dianban1.errors.0 }}</span>
+                                    </td>  <!--南头垫板-->
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <button type="submit" name="save_all" class="btn btn-primary me-5">修改轮径并自动计算垫板</button>
+                    <button type="submit" name="save_dianban_only" class="btn btn-primary me-5">仅自定义修改垫板
+                    </button>
+                    <a href="." class="btn btn-info me-5">刷新</a>
+                    <a href="/index{{ form.instance.shunxu }}/" class="btn btn-info">返回</a>
+                    {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                                <li{% if message.tags %}
+                                    class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

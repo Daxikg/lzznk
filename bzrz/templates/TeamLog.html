@@ -1,0 +1,251 @@
+{% extends 'base0.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <h2 class="card-title m-b-10" style="text-align: center;">
+                        {{ log.shijian }}班组会议、培训、学习、演练和活动记录
+                        {% if role == '总管理员' or role == '修车管理员' or role == '修配管理员' %}
+                            <!-- 如果 role 是 '管理员'，则不会显示此按钮 -->
+                        {% else %}
+                            <button class="btn btn-primary edit-btn" data-toggle="modal" data-target="#myModal1"
+                                    data-log-id="{{ log.id }}">编辑
+                            </button>
+                            <a href="#" data-url="/bzrz/teamlog/delete/{{ log.id }}"
+                               style="font-size: 15px; padding: 5px 10px;"
+                               class="btn btn-danger btn-xs delete-btn">删除</a>
+                        {% endif %}
+                    </h2>
+                    <H2>
+                        <div id="message"></div>
+                    </H2>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="col-lg-1">时间</th>
+                            <th scope="col" class="col-lg-3">{{ log.shijian }}</th>
+                            <th scope="col" class="col-lg-2">地点</th>
+                            <th scope="col" class="col-lg-2">{% if log.didian %}{{ log.didian }}{% endif %}</th>
+                            <th scope="col" class="col-lg-2">主持人</th>
+                            <th scope="col" class="col-lg-2">{% if log.zhuchiren %}{{ log.zhuchiren }}{% endif %}</th>
+                        </tr>
+                        </thead>
+                    </table>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="row">
+                                参加人员：应到{% if log.renyuan1 %}
+                                {{ log.renyuan1 }}{% endif %}人，实到{% if log.renyuan2 %}{{ log.renyuan2 }}{% endif %}人，
+                                {% if log.renyuan3 %}
+                                    {{ log.renyuan3 }}{% endif %}</th>
+                        </tr>
+                        <tr>
+                            <th scope="row">内容：{% if log.neirong %}{{ log.neirong|linebreaks }}{% endif %}</th>
+                        </tr>
+                        </thead>
+                    </table>
+                    <div class="modal fade" id="myModal1" tabindex="-1" role="dialog"
+                         aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">修改活动记录</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="edit-form" method="POST" action="{% url 'bzrz:edit_teamlog' %}">
+                                        <input type="hidden" id="id_log_id" name="log_id"
+                                               class="form-control"
+                                               value="{{ log_id }}">
+                                        <div class="modal-body">
+                                            <table class="table">
+                                                <tr>
+                                                    <th scope="row"><span style="color: red">*</span>时间：</th>
+                                                    <th><input type="datetime-local" id="id_shijian" name="shijian"
+                                                               class="form-control"
+                                                               value="{{ form.shijian.value|date:"Y-m-d\TH:i" }}"></th>
+                                                </tr>
+                                                <tr>
+                                                    <th>地点：{{ form.didian }}</th>
+                                                    <th>主持人：{{ form.zhuchiren }}</th>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">参加人员应到：{{ form.renyuan1 }}</th>
+                                                    <th scope="row">实到：{{ form.renyuan2 }}</th>
+                                                </tr>
+                                            </table>
+                                            <table class="table">
+                                                <tr>
+                                                    <th scope="row">请假人员及原因：{{ form.renyuan3 }}</th>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">内容：{{ form.neirong }}</th>
+                                                </tr>
+                                            </table>
+                                            {% csrf_token %}
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭
+                                                </button>
+                                                <button type="submit" class="btn btn-primary">保存</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title m-b-10" style="text-align: center;">班组活动记录照片</h3>
+                        {% if log.pic and log.pic != "" %}
+                            <p style="text-align: center;">点击照片可查看大图</p>
+                            <p>
+                                <a href="/media/meeting/{{ log.pic }}" target="_blank">
+                                    <div class="image-container">
+                                        <img src="/media/meeting/{{ log.pic }}" alt="班组活动记录照片">
+                                    </div>
+                                </a>
+                            </p>
+                        {% else %}
+                            <h4 style="text-align: center; color: blue; margin-bottom: 3em;"></h4>
+                            <h4 style="text-align: center; color: blue; margin-bottom: 3em;">
+                                暂时未上传班组活动记录照片</h4>
+                            {% if role == '总管理员' or role == '修车管理员' or role == '修配管理员' %}
+                                <h4 style="text-align: center; color: blue; margin-bottom: 5em;"></h4>
+                            {% else %}
+                                <h4 style="text-align: center; color: blue; margin-bottom: 3em;">请上传</h4>
+                            {% endif %}
+                        {% endif %}
+                        {% if role == '总管理员' or role == '修车管理员' or role == '修配管理员' %}
+                        {% else %}
+                            <div class="my-2 d-flex justify-content-between align-items-center">
+                                <form action="/bzrz/license1/{{ banzu }}/{{ id }}/" enctype='multipart/form-data'
+                                      method="post">
+                                    {% csrf_token %}
+                                    <p>选择图片：<input type="file" name="pic"></p>
+                                    <p><input type="submit" value="上传现场学习照片">{{ succ }}</p>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title m-b-10" style="text-align: center;">班组签到表照片</h3>
+                        {% if log.pic1 and log.pic1 != "" %}
+                            <p style="text-align: center;">点击照片可查看大图</p>
+                            <p>
+                                <a href="/media/meeting/{{ log.pic1 }}" target="_blank">
+                                    <div class="image-container">
+                                        <img src="/media/meeting/{{ log.pic1 }}" alt="班组签到表照片">
+                                    </div>
+                                </a>
+                            </p>
+                        {% else %}
+                            <h4 style="text-align: center; color: blue; margin-bottom: 3em;"></h4>
+                            <h4 style="text-align: center; color: blue; margin-bottom: 3em;">
+                                暂时未上传班组签到表照片</h4>
+                            {% if role == '总管理员' or role == '修车管理员' or role == '修配管理员' %}
+                                <h4 style="text-align: center; color: blue; margin-bottom: 5em;"></h4>
+                            {% else %}
+                                <h4 style="text-align: center; color: blue; margin-bottom: 3em;">请上传</h4>
+                            {% endif %}
+                        {% endif %}
+                        {% if role == '总管理员' or role == '修车管理员' or role == '修配管理员' %}
+                        {% else %}
+                            <div class="my-2 d-flex justify-content-between align-items-center">
+                                <form action="/bzrz/license2/{{ banzu }}/{{ id }}/" enctype='multipart/form-data'
+                                      method="post">
+                                    {% csrf_token %}
+                                    <p>选择图片：<input type="file" name="pic1"></p>
+                                    <p><input type="submit" value="上传签到表照片">{{ succ }}</p>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'assets/libs/jquery/dist/jquery.min.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+
+            $("#edit-form").submit(function (event) {
+                // 阻止表单的默认提交行为
+                event.preventDefault();
+
+                // 获取表单实例
+                var $form = $(this);
+                // 获取表单数据
+                var $formData = $form.serialize();
+
+                // 创建 AJAX 调用
+                $.ajax({
+                    type: $form.attr('method'),
+                    url: $form.attr('action'),
+                    data: $formData,
+                    success: function (response) {
+                        // 关闭模态框
+                        $('#myModal1').modal('toggle');
+                        if (response.status === 'success') {
+                            $('#message').html('<div class="alert alert-success">' + response.message + '</div>');
+                        }
+                        if (response.status === 'error') {
+                            $('#message').html('<div class="alert alert-danger">' + response.message + '</div>');
+                        }
+                        // 刷新页面
+                        location.reload();
+                        alert('保存成功！');
+                    },
+                    error: function (response) {
+                        // 处理错误
+                        alert('发生错误（请确保已填写时间）。');
+                    },
+                });
+            });
+        });
+    </script>
+    <script>
+        $('.delete-btn').click(function (e) {
+            e.preventDefault();
+            var deleteUrl = $(this).data('url');
+            var alertResponse = confirm("确定要删除此次活动记录的全部数据吗?");
+            if (alertResponse) {
+                $.ajax({
+                    url: deleteUrl,
+                    type: 'POST',
+                    success: function (result) {
+                        // 在这进行你的数据处理，例如刷新页面
+                        location.href = '/bzrz/teamlog1/{{ log.banzu }}/';
+
+                    },
+                    error: function (result) {
+                        // 处理任何错误
+                        alert('删除操作失败。');
+                    }
+                });
+            }
+        });
+        $(document).ready(function () {
+            $('.delete-btn').each(function () {
+                var deleteUrl = $(this).data('url');
+                console.log(`Delete URL: ${deleteUrl}`);
+            });
+        });
+    </script>
+{% endblock %}

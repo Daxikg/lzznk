@@ -1,0 +1,45 @@
+/* 蜂巢布局 */
+.honeycomb-list {
+    display: grid;
+    /* 定义 8 格，即每列最多容纳 4 个蜂窝 */
+    /* 单格宽等于边长乘二分之根号三 */
+    grid-template-columns: repeat(6, 3.47em);
+    /* 定义 em 参考 */
+    font-size: 16px;
+    row-gap: calc(2em + 10px);
+    column-gap: 5px;
+}
+
+.honeycomb-item {
+    position: relative;
+    width: 6.94em;
+    /* 正六边形边长为 4em */
+    height: 4em;
+    /* 普通项每项占据两格 */
+    grid-column-end: span 2;
+}
+
+/* 定义 x 为 grid 列数的一半 */
+/* x(n+1)+(x-1)n+1 */
+/* (2*x-1)n+x+1 */
+.honeycomb-item:nth-child(5n+4) {
+    /* 偶数行第一个，占据三格 */
+    grid-column-end: span 3;
+    /* 设置左边距，使其靠右 */
+    margin-left: calc(3.47em + 5px);
+}
+
+.honeycomb-item-inner {
+    position: absolute;
+    top: -2em;
+    left: 0;
+    width: 6.94em;
+    height: 8em;
+    /* 使用剪切路径，使其展现蜂窝状 */
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    background-color: green;
+    font-size: 16px; /* 调整这个值来改变字体大小 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

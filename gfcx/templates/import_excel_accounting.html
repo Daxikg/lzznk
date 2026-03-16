@@ -1,0 +1,32 @@
+{% extends 'gfcx_base.html' %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <h3>导入Excel数据</h3>
+                <div class="alert alert-info">
+                    <H2 style="color: red">特别提醒：如果提示“导入失败：Workbook corruption: seen[2] == 4”，请打开该EXCEL表格，保存一下再重新上传。</H2>
+                    <p></p>
+                    <h4 style="color: red">文件导出来源>>>工资收入>>>核算结果>>>根据考核月份点击查看详情>>>点击到处详细数据</h4>
+                    <p>请确保Excel文件包含以下内容：</p>
+                    <ul>
+                        <li>姓名</li>
+                        <li>个人挂钩基数</li>
+                        <li>本工区定额所得分</li>
+                        <li>本工区定额所得金额</li>
+                    </ul>
+                </div>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="excel_file">选择Excel文件：</label>
+                        <input type="file" class="form-control-file" id="excel_file" name="excel_file" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">导入</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

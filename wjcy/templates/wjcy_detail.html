@@ -1,0 +1,521 @@
+{% extends 'base3.html' %}
+
+{% block content %}
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title m-b-0">文件传阅详情</h1>
+                    </div>
+                    <div class="comment-widgets scrollable">
+                        <!-- Comment Row -->
+                        <div class="d-flex flex-row comment-row m-t-0">
+                            <div class="comment-text w-100" style="width: auto;">
+                                <h1 class="font-medium" style="text-align: center;">
+                                    {{ circulate.title }}{% if circulate.status == 0 %}{% else %}
+                                        <span style="color: red">（{{ circulate.get_status_display }}）{% endif %}</span>
+                                </h1>
+                                <span class="m-b-15 d-block" style="text-align: center;">
+                                    <span style="margin-right: 20px;">{{ circulate.create_time|date:"Y-m-d H:i" }}</span>
+                                    <span style="margin-left: 20px;">分类：{{ circulate.classification }}</span>
+                                    <span style="margin-left: 20px;">发布人：{{ circulate.name }}</span>
+                                </span>
+                                <div class="comment-text w-100" style="width: auto; min-height: fit-content;">
+                                    <h2 class="pre-style">重点指示：{{ circulate.key_remindertitle }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 附件列表 -->
+                        <h2>附件：</h2>
+                        <div class="card">
+                            {% for attachment in attachments %}
+                                {% if attachment.file %}
+                                    {% if ".jpg" in attachment.file.url or ".jpeg" in attachment.file.url or ".png" in attachment.file.url or ".gif" in attachment.file.url %}
+                                        <p>
+                                            <a href="{{ attachment.file.url }}" target="_blank">
+                                                <div class="image-container">
+                                                    <img src="{{ attachment.file.url }}" alt="图片"
+                                                         style="width: 200px;">
+                                                </div>
+                                            </a>
+                                        </p>
+                                        <p>点击照片可查看大图</p>
+                                    {% else %}
+                                        <p>
+                                            <a href="{{ attachment.file.url }}" class="btn btn-outline-info"
+                                               target="_blank">{{ attachment.file.name }}</a>
+                                        </p>
+                                    {% endif %}
+                                {% else %}
+                                    <p>没有附件.</p>
+                                {% endif %}
+                                {#                                        <div class="col-md-4 mb-3">#}
+                                {#                                            <div class="card">#}
+                                {#                                                <div class="card-body">#}
+                                {#                                                    <a href="{{ attachment.file.url }}" target="_blank">#}
+                                {#                                                        {{ attachment.file.name }}#}
+                                {#                                                    </a>#}
+                                {#                                                </div>#}
+                                {#                                            </div>#}
+                                {#                                        </div>#}
+                            {% endfor %}
+                        </div>
+
+
+                        <!-- 用户列表 -->
+                        <div class="row">
+                            <div class="col-md-12">
+
+                                <h2>传阅人员：</h2>
+                                <div class="accordion" id="usersAccordion">
+                                    {% for banzu, users in users_by_banzu.items %}
+                                        <div class="card">
+                                            <div class="card-header" id="heading{{ banzu }}">
+                                                <h5 class="mb-0">
+                                                    <button class="btn btn-link collapsed" type="button"
+                                                            data-toggle="collapse"
+                                                            data-target="#collapse{{ banzu }}" aria-expanded="false"
+                                                            aria-controls="collapse{{ banzu }}">
+                                                        {{ banzu }} ({{ users|length }}人)
+                                                    </button>
+                                                </h5>
+                                            </div>
+
+                                            <div id="collapse{{ banzu }}" class="collapse show"
+                                                 aria-labelledby="heading{{ banzu }}"
+                                                 data-parent="#usersAccordion">
+                                                <div class="card-body">
+                                                    <div class="table-responsive">
+                                                        <table class="table" style="text-align: center">
+                                                            <thead>
+                                                            <tr>
+                                                                <th class="col-lg-1">序号</th>
+                                                                <th class="col-lg-1">姓名</th>
+                                                                <th class="col-lg-2">照片</th>
+                                                                <th class="col-lg-2">传阅日期</th>
+                                                                <th class="col-lg-1">状态</th>
+                                                                <th class="col-lg-2">缺席原因</th>
+                                                                {% if circulate.status == 0 %}
+                                                                    <th class="col-lg-3">操作</th>
+                                                                {% else %}
+                                                                {% endif %}
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            {% for user in users %}
+                                                                <tr>
+                                                                    <td>{{ forloop.counter }}</td>
+                                                                    <td>{{ user.name }}</td>
+                                                                    <td>
+                                                                        {% if user.photo %}
+                                                                            <img src="{{ user.photo.url }}"
+                                                                                 alt="照片"
+                                                                                 class="user-photo"
+                                                                                 onclick="viewPhoto('{{ user.photo.url }}')"
+                                                                                 style="width: 100px;">
+                                                                        {% else %}
+                                                                            -
+                                                                        {% endif %}
+                                                                    </td>
+                                                                    <td>
+                                                                        {% if user.photo %}
+                                                                            {{ user.photo_at|date:"Y-m-d H:i" }}
+                                                                        {% else %}
+                                                                            -
+                                                                        {% endif %}
+                                                                    </td>
+                                                                    <td>
+                                                                        {% if user.read and user.photo %}
+                                                                            <span class="badge badge-success">完成</span>
+                                                                        {% elif user.read %}
+                                                                            <span class="badge badge-primary">已阅</span>
+                                                                        {% else %}
+                                                                            <span class="badge badge-danger">未读</span>
+                                                                        {% endif %}
+                                                                    </td>
+                                                                    <td>{% if user.beizhu %}{{ user.beizhu }}{% else %}{% endif %}</td>
+                                                                    <td>
+                                                                        {% if circulate.status == 0 %}
+                                                                            {% if not user.read %}
+                                                                                <button class="btn btn-sm btn-primary mr-2"
+                                                                                        onclick="markAsRead('{{ circulate.id }}', '{{ user.id }}')">
+                                                                                    标记为已读
+                                                                                </button>
+                                                                            {% endif %}
+                                                                            <button class="btn btn-sm btn-info"
+                                                                                    onclick="takePhoto('{{ circulate.id }}', '{{ user.id }}')">
+                                                                                拍照确认
+                                                                            </button>
+                                                                            <button class="btn btn-sm btn-outline-info"
+                                                                                    onclick="takebeizhu('{{ circulate.id }}', '{{ user.id }}')">
+                                                                                缺席原因
+                                                                            </button>
+                                                                        {% else %}
+                                                                        {% endif %}
+                                                                    </td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看照片的模态框 -->
+    <div class="modal fade" id="photoModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">照片预览</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img src="" alt="照片" class="img-fluid" id="photoPreview">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 缺席原因模态框 -->
+    <div class="modal fade" id="beizhuModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">输入缺席原因</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="beizhuText">缺席原因：</label>
+                        <textarea class="form-control" id="beizhuText" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveBeizhu()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 查看照片
+        function viewPhoto(url) {
+            document.getElementById('photoPreview').src = url;
+            $('#photoModal').modal('show');
+        }
+
+        // 标记为已读
+        function markAsRead(circulateId, userId) {
+            // 检查页面是否已完全加载
+            if (document.readyState !== 'complete') {
+                alert('页面还在加载中，请稍等...');
+                return;
+            }
+
+            if (!confirm('确定要标记此用户为已读吗？')) {
+                return;
+            }
+
+            const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+            if (!csrfToken) {
+                alert('无法获取CSRF token，请刷新页面重试');
+                return;
+            }
+
+            // 显示调试信息
+            const debugInfo = document.getElementById('debugInfo');
+            if (debugInfo) {
+                debugInfo.textContent = '正在发送请求...';
+                debugInfo.style.display = 'block';
+            }
+
+            fetch('/wjcy/mark_as_read/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `circulate_id=${circulateId}&user_id=${userId}`
+            })
+                .then(response => {
+                    if (debugInfo) {
+                        debugInfo.textContent = `服务器响应: ${response.status}`;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        window.location.reload();
+                    } else {
+                        if (debugInfo) {
+                            debugInfo.textContent = `错误: ${data.message}`;
+                        }
+                        alert(data.message || '标记失败，请重试！');
+                    }
+                })
+                .catch(error => {
+                    if (debugInfo) {
+                        debugInfo.textContent = `错误: ${error.message}`;
+                    }
+                    console.error('Error:', error);
+                    alert('网络错误，请重试！');
+                });
+        }
+
+        // 拍照功能
+        function takePhoto(circulateId, userId) {
+            // 创建拍照模态框
+            const modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.id = 'cameraModal';
+            modal.innerHTML = `
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">拍照</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="camera-container">
+                                <div id="cameraStatus" class="alert alert-info">
+                                    请授权访问摄像头<br>
+                                    <small class="text-danger">
+                                        注意：由于这是内网网站，您需要在Chrome浏览器中进行以下设置：<br>
+                                        1. 浏览器新开tab标签输入地址：chrome://flags/#unsafely-treat-insecure-origin-as-secure<br>
+                                        2. 设置unsafely-treat-insecure-origin-as-secure变为“Enabled”或“已启用”<br>
+                                        3. 将网站ip地址复制进去：http://10.199.102.18:10003/<br>
+                                        4. 点击“Relaunch”或“重新启动”，重启浏览器即可<br>
+                                    </small>
+                                </div>
+                                <video id="video" width="640" height="480" autoplay></video>
+                                <canvas id="canvas" style="display: none;"></canvas>
+                                <div class="camera-preview" style="display: none; width: 640px; height: 480px; margin-top: 20px; position: relative;">
+                                    <img id="previewImage" src="" alt="预览" style="max-width: 100%; max-height: 100%; position: absolute; top: 0; left: 0; right: 0; bottom: 0; margin: auto;">
+                                </div>
+                                <div class="camera-controls">
+                                    <button id="startButton" class="btn btn-primary">打开摄像头</button>
+                                    <button id="captureButton" class="btn btn-success" disabled>拍照</button>
+                                    <button id="retakeButton" class="btn btn-secondary" disabled>重拍</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                            <button id="saveButton" class="btn btn-primary" disabled>保存</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // 初始化摄像头
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            const startButton = document.getElementById('startButton');
+            const captureButton = document.getElementById('captureButton');
+            const retakeButton = document.getElementById('retakeButton');
+            const saveButton = document.getElementById('saveButton');
+            const cameraStatus = document.getElementById('cameraStatus');
+
+            let stream = null;
+
+            // 启动摄像头
+            // 修改拍照初始化代码，添加更多错误处理和提示
+            startButton.onclick = async () => {
+                try {
+                    // 添加更多约束条件
+                    const constraints = {
+                        video: {
+                            width: {ideal: 1280},
+                            height: {ideal: 720},
+                            facingMode: "user",  // 前置摄像头
+                            frameRate: {ideal: 30}
+                        }
+                    };
+
+                    // 尝试获取摄像头访问权限
+                    stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    video.srcObject = stream;
+                    captureButton.disabled = false;
+                    startButton.disabled = true;
+                    cameraStatus.className = 'alert alert-success';
+                    cameraStatus.innerHTML = '摄像头已就绪<br><small class="text-muted">点击"拍照"按钮开始拍照</small>';
+
+                } catch (err) {
+                    console.error('摄像头访问错误:', err);
+                    cameraStatus.className = 'alert alert-danger';
+                    cameraStatus.innerHTML = `
+                        无法访问摄像头：
+                        <ul>
+                            <li>错误类型：${err.name}</li>
+                            <li>错误信息：${err.message}</li>
+                        </ul>
+                        <small class="text-danger">
+                            注意：由于这是内网网站，您需要在Chrome浏览器中进行以下设置：<br>
+                            1. 浏览器新开tab标签输入地址：chrome://flags/#unsafely-treat-insecure-origin-as-secure<br>
+                            2. 设置unsafely-treat-insecure-origin-as-secure变为“Enabled”或“已启用”<br>
+                            3. 将网站ip地址复制进去：http://10.199.102.18:10003/<br>
+                            4. 点击“Relaunch”或“重新启动”，重启浏览器即可<br>
+                        </small>
+                    `;
+                }
+            };
+
+            // 拍照
+            captureButton.onclick = () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0);
+                const photoData = canvas.toDataURL('image/jpeg');
+
+                // 显示预览图片和预览区域
+                const previewImage = document.getElementById('previewImage');
+                previewImage.src = photoData;
+                document.querySelector('.camera-preview').style.display = 'block'; // 显示预览区域
+
+                // 隐藏视频和画布，显示预览
+                video.style.display = 'none';
+                canvas.style.display = 'none';
+                document.getElementById('captureButton').disabled = true;
+                document.getElementById('retakeButton').disabled = false;
+                document.getElementById('saveButton').disabled = false;
+            };
+
+            // 重拍
+            retakeButton.onclick = () => {
+                const previewImage = document.getElementById('previewImage');
+                previewImage.src = '';
+                document.querySelector('.camera-preview').style.display = 'none'; // 隐藏预览区域
+
+                video.style.display = 'block';
+                canvas.style.display = 'none';
+                document.getElementById('captureButton').disabled = false;
+                document.getElementById('retakeButton').disabled = true;
+                document.getElementById('saveButton').disabled = true;
+            };
+
+            // 保存照片
+            saveButton.onclick = () => {
+                const photoData = canvas.toDataURL('image/jpeg');
+                const formData = new FormData();
+                formData.append('photo', dataURItoBlob(photoData));
+                formData.append('circulate_id', circulateId);
+                formData.append('user_id', userId);
+
+                fetch('/wjcy/upload_photo/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            alert('照片上传成功！');
+                            $('#cameraModal').modal('hide');
+                            window.location.reload();
+                        } else {
+                            alert('上传失败，请重试！');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('网络错误，请重试！');
+                    });
+            };
+
+            // 显示模态框
+            $('#cameraModal').modal('show');
+
+            // 清理
+            modal.addEventListener('hidden.bs.modal', () => {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+                modal.remove();
+            });
+        }
+
+        // 将dataURL转换为Blob
+        function dataURItoBlob(dataURI) {
+            const byteString = atob(dataURI.split(',')[1]);
+            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([ab], {type: mimeString});
+        }
+
+        // 缺席原因功能
+        let currentBeizhuCirculateId = null;
+        let currentBeizhuUserId = null;
+
+        // 显示缺席原因模态框
+        function takebeizhu(circulateId, userId) {
+            currentBeizhuCirculateId = circulateId;
+            currentBeizhuUserId = userId;
+            $('#beizhuModal').modal('show');
+        }
+
+        // 保存缺席原因
+        function saveBeizhu() {
+            const beizhuText = document.getElementById('beizhuText').value.trim();
+
+            if (!beizhuText) {
+                alert('请输入缺席原因！');
+                return;
+            }
+
+            const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+            if (!csrfToken) {
+                alert('无法获取CSRF token，请刷新页面重试');
+                return;
+            }
+
+            fetch('/wjcy/save_beizhu/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `circulate_id=${currentBeizhuCirculateId}&user_id=${currentBeizhuUserId}&beizhu=${encodeURIComponent(beizhuText)}`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('缺席原因保存成功！');
+                        $('#beizhuModal').modal('hide');
+                        window.location.reload();
+                    } else {
+                        alert(data.message || '保存失败，请重试！');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('网络错误，请重试！');
+                });
+        }
+    </script>
+{% endblock %}

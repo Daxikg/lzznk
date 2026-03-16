@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/favicon.png' %}">
+    <link href="{% static 'dist/css/style.min.css' %}" rel="stylesheet">
+    <title>历史会议记录</title>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title m-b-0">所有历史会议记录</h1>
+                    <a href="/meeting/meeting1/" class="btn btn-info">返回最新会议纪要</a>
+                </div>
+                <table class="table" style="text-align: center;">
+                    <thead>
+                    <tr style="vertical-align: middle;">
+                        <th scope="col">序号</th>
+                        <th scope="col">会议主题</th>
+                        <th scope="col">议定事项</th>
+                        <th scope="col">时间</th>
+                        <th scope="col">删除</th>
+                    </tr>
+                    </thead>
+                    {% for item in meetings %}
+                        <tbody>
+                        <tr style="vertical-align: middle;">
+                            <td style="vertical-align: middle;">{{ forloop.revcounter }}</td>
+                            <td style="vertical-align: middle;">
+                                <a href="{% url 'meeting:meeting1' item.id %}">{{ item.meeting }}</a></td>
+                            <td style="vertical-align: middle;">{{ item.Contents }}</td>
+                            <td style="vertical-align: middle;">{{ item.time }}</td>
+                            <td style="vertical-align: middle;">
+                                <a href="#" data-url="/meeting/delete/{{ item.id }}/"
+                                   class="btn btn-danger delete-btn">删除</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div style="text-align: right">
+                <a href="/meeting/meeting1/" class="btn btn-info">返回最新会议纪要</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'assets/libs/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<script>
+    $('.delete-btn').click(function (e) {
+        e.preventDefault();
+        var deleteUrl = $(this).data('url');
+        var alertResponse = confirm("确定要删除此会议纪要的全部数据吗?");
+        if (alertResponse) {
+            $.ajax({
+                url: deleteUrl,
+                type: 'POST',
+                success: function (result) {
+                    // 在这进行你的数据处理，例如刷新页面
+                    location.href = '/meeting/history_meetings/';
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('删除操作失败。错误信息: ' + textStatus + ', ' + errorThrown);
+                    console.log(jqXHR.responseText);
+                }
+            });
+        }
+    });
+    $(document).ready(function () {
+        $('.delete-btn').each(function () {
+            var deleteUrl = $(this).data('url');
+            console.log(`Delete URL: ${deleteUrl}`);
+        });
+    });
+</script>
+</body>
+</html>

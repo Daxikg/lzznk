@@ -1,0 +1,194 @@
+<!-- tools/templates/tools/tool_loan_history.html -->
+{% extends 'tools/base.html' %}
+
+{% block title %}{{ tool.name }} - 申领历史记录{% endblock %}
+
+{% block nav_page_title %}{{ tool.name }} - 申领历史记录{% endblock %}
+
+{% block nav_breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'tools:manage_tools' %}" class="text-muted">工具管理</a></li>
+<li class="breadcrumb-item text-muted active" aria-current="page">申领历史</li>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{% url 'tools:manage_tools' %}" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-left mr-1"></i>返回工具管理
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title text-primary"><i class="fa fa-history mr-2"></i>工具信息</h4>
+                <hr class="my-3">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="border rounded p-3 text-center bg-light">
+                            <small class="text-muted d-block">工具编码</small>
+                            <h5 class="mb-0 mt-2 text-primary">{{ tool.code }}</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="border rounded p-3 text-center bg-light">
+                            <small class="text-muted d-block">工具名称</small>
+                            <h5 class="mb-0 mt-2 text-dark">{{ tool.name }}</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="border rounded p-3 text-center bg-light">
+                            <small class="text-muted d-block">当前状态</small>
+                            <h5 class="mb-0 mt-2">
+                                <span class="badge badge-{% if tool.status == '正常' %}success{% elif tool.status == '故障' %}warning{% elif tool.status == '维修' %}info{% else %}secondary{% endif %}">
+                                    {{ tool.status }}
+                                </span>
+                            </h5>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="border rounded p-3 text-center bg-light">
+                            <small class="text-muted d-block">总申领次数</small>
+                            <h5 class="mb-0 mt-2 text-info">{{ loan_records.count }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title text-primary"><i class="fa fa-list mr-2"></i>申领记录列表</h4>
+                <hr class="my-3">
+                {% if loan_records %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>申领编号</th>
+                                <th>申领人</th>
+                                <th>申领班组</th>
+                                <th>申领时间</th>
+                                <th>预计归还</th>
+                                <th>实际归还</th>
+                                <th>状态</th>
+                                <th>逾期</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in loan_records %}
+                            <tr>
+                                <td><strong>#{{ record.id }}</strong></td>
+                                <td>{{ record.borrowing_person }}</td>
+                                <td>{{ record.borrowing_team }}</td>
+                                <td>{{ record.loan_time|date:"Y-m-d H:i" }}</td>
+                                <td>{{ record.expected_return_time|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    {% if record.actual_return_time %}
+                                        {{ record.actual_return_time|date:"Y-m-d H:i" }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if record.status == '已申请' %}
+                                        <span class="badge badge-warning">待审批</span>
+                                    {% elif record.status == '已发放' %}
+                                        <span class="badge badge-primary">领用中</span>
+                                    {% elif record.status == '已归还' %}
+                                        <span class="badge badge-success">已归还</span>
+                                    {% elif record.status == '逾期' %}
+                                        <span class="badge badge-danger">逾期</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if record.is_overdue and record.status == '已发放' %}
+                                        <span class="text-danger">
+                                            <i class="fa fa-exclamation-circle"></i>
+                                        </span>
+                                    {% elif record.status == '逾期' %}
+                                        <span class="text-danger">
+                                            <i class="fa fa-times-circle"></i>
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fa fa-history fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">暂无申领记录</h5>
+                    <p class="text-muted">该工具尚未有任何申领记录</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if loan_records %}
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white border-0">
+            <div class="card-body text-center">
+                <h3 class="mb-0">{{ loan_records|length }}</h3>
+                <p class="mb-0 opacity-75">总申领次数</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white border-0">
+            <div class="card-body text-center">
+                <h3 class="mb-0">
+                    {% if loan_records %}
+                        {{ loan_records.0.loan_time|date:"Y-m-d" }}
+                    {% else %}
+                        无记录
+                    {% endif %}
+                </h3>
+                <p class="mb-0 opacity-75">首次申领</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white border-0">
+            <div class="card-body text-center">
+                <h3 class="mb-0">
+                    {% if loan_records and loan_records.0.actual_return_time %}
+                        {{ loan_records.0.actual_return_time|timesince }}
+                    {% else %}
+                        使用中
+                    {% endif %}
+                </h3>
+                <p class="mb-0 opacity-75">最近归还</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-secondary text-white border-0">
+            <div class="card-body text-center">
+                <h3 class="mb-0">
+                    {% if loan_records %}
+                        {{ loan_records|length }}次
+                    {% else %}
+                        0次
+                    {% endif %}
+                </h3>
+                <p class="mb-0 opacity-75">申领频率</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,101 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/favicon.png' %}">
+    <title>车间构架登录</title>
+    <link href="{% static 'css/tabler.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/tabler-flags.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/tabler-payments.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/tabler-vendors.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/demo.min.css' %}" rel="stylesheet"/>
+    <style>
+        .card {
+            background-color: rgba(255, 255, 255, 0.5); /* White background with 50% opacity */
+        }
+
+        body {
+            background-image: url("{% static 'img/4.jpg' %}");
+            background-position: center center;
+            background-size: cover;
+        / / Make sure the image always covers the full screen background-repeat: no-repeat;
+        / / Prevent image repeat background-attachment: fixed;
+        / / Not scroll with the page
+        }
+    </style>
+    <style>
+        @import url('https://rsms.me/inter/inter.css');
+
+        :root {
+            --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+        }
+
+        body {
+            font-feature-settings: "cv03", "cv04", "cv11";
+        }
+    </style>
+</head>
+<body class=" d-flex flex-column">
+<script src="{% static 'js/demo-theme.min.js' %}"></script>
+<div class="page page-center">
+    <div class="container container-tight py-4">
+
+        <div class="card card-md">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <a href="." class="navbar-brand navbar-brand-autodark">
+                        <img src="{% static 'img/u8.png' %}" width="220" height="64" alt="Tabler"
+                             class="navbar-brand-image">
+                    </a>
+                </div>
+                <h2 class="h2 text-center mb-4" >车间构架</h2>
+                <form action="{% url 'cjgj:cjgj_login' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <input type="hidden" name="next" value="{{ next }}">
+                        <label class="form-label" for="exampleInputEmail">用户名</label>
+                        {{ form.username }}
+                        {#                <input type="email" class="form-control" placeholder="你的用户名" autocomplete="off">#}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label" for="exampleInputPassword">
+                            密码
+                            <span class="form-label-description">
+                    <p> 忘记密码请联系管理员</p>
+                  </span>
+                        </label>
+                        <div class="input-group input-group-flat">
+                            {{ form.password }}
+                            {#                  <input type="password" class="form-control"  placeholder="你的密码"  autocomplete="off">#}
+                        </div>
+                    </div>
+                    <div class="my-2 d-flex justify-content-between align-items-center">
+                        <div class="form-check">
+                            <label class="form-check-label text-muted">
+                                <input type="checkbox" class="form-check-input" name="keep_logged_in">
+                                保持登录状态
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-footer">
+                        <button type="submit" class="btn btn-primary w-100">登录</button>
+                    </div>
+                    <div class="text-center mt-3">
+                        <span>{{ form.password.errors.0 }}</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {#        <div class="text-center text-secondary mt-3">#}
+        {#          如未注册，请<a href="." tabindex="-1">点此注册</a>#}
+        {#        </div>#}
+    </div>
+</div>
+<script src="{% static 'js/tabler.min.js' %}" defer></script>
+<script src="{% static 'js/demo.min.js' %}" defer></script>
+</body>
+</html>

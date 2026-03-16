@@ -1,0 +1,30 @@
+/*-----------------Counter-------------*/
+.counter {
+    display: flex;
+    .counter-icon {
+        margin-right: 1rem;
+        i {
+            font-size: 40px;
+            color: $primary;
+            margin-top: 1rem;
+        }
+    }
+    .counter-info {
+        .number {
+            span {
+                font-size: 30px;
+                display: inline-block;
+                font-weight: 700;
+                font-family: 'Exo', sans-serif;
+            }
+        }
+        .title {
+            h4 {
+                font-size: 15px;
+                font-family: 'Roboto', sans-serif;
+                text-transform: uppercase;
+            }
+        }
+    }
+    
+}

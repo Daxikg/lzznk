@@ -1,0 +1,48 @@
+{% load static %}
+{% load my_tags %}
+
+<div class="row">
+    <table class="table table-bordered" style="text-align: center;">
+        <thead>
+        <tr>
+            <th>姓名</th>
+            {% for m in 1|make_list:12 %}
+                <th>{{ forloop.counter }}月</th>
+            {% endfor %}
+        </tr>
+        {% if selected_year == 2026 %}
+        <tr>
+            <th>编辑</th>
+            {% for m in 1|make_list:12 %}
+            <th>
+                <a href="/djgl/dangjianguanli1/{{ banzu }}/{{ forloop.counter }}/edit/"
+                   class="btn btn-outline-danger btn-xs"
+                   style="font-size: 15px; padding: 5px 10px;">编辑</a>
+            </th>
+            {% endfor %}
+        </tr>
+        {% endif %}
+        </thead>
+        <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.name }}</td>
+            {% for month in 1|make_list:12 %}
+            <td>
+                <button type="button" class="btn btn-danger"
+                        data-toggle="popover" data-html="true"
+                        data-placement="right"
+                        data-content="{{ user.jifen_popover|get_item:month|default:'暂无'|safe }}">
+                    {{ user.jifen|get_item:month|default:"0" }}
+                </button>
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="{% static 'djgl/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'djgl/js/toastr.min.js' %}"></script>
+<script src="{% static 'djgl/js/popper.min.js' %}"></script>

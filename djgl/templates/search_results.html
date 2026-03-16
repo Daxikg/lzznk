@@ -1,0 +1,15 @@
+{% if results %}
+    {% for dangyuan in results %}
+        <div class="result-item"
+             data-dangyuan-id="{{ dangyuan.id }}"
+             data-banzu="{{ dangyuan.banzu }}">
+            {{ dangyuan.name }}
+            {% if dangyuan.position %}
+                ({{ dangyuan.position }})
+            {% endif %}
+            - {{ dangyuan.get_banzu_display }}
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="no-results">没有找到匹配的党员</div>
+{% endif %}

@@ -1,0 +1,111 @@
+{% extends 'base11.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-3">
+            <div class="container-fluid page-body-wrapper">
+                <div class="main-panel">
+                    <br class="content-wrapper">
+                    <h1>点检已完成！</h1>
+                    <label>负责人:{{ log_entry1.user.name }}；</label>
+                    <label>班组:{{ log_entry1.get_banzu_display }}；</label>
+                    <label>操作人员:{{ log_entry.name.name }}</label><br>
+                    <label>设备名及编号：{{ log_entry1.get_device_display }}{% if log_entry1.number %}({{ log_entry1.number }}
+                        ){% else %}(无编号){% endif %}</label><br>
+
+                    <label>{% if log_entry.create_time %}点检时间：
+                        {{ log_entry.create_time }}{% else %}{% endif %}</label><br>
+                    {% if log_entry1.type == 1 %}
+                        <label>完成时间：{% if log_entry.create_time1 %}{{ log_entry.create_time1 }}{% else %}
+                            <span style="color: red;">还未完成完工点检</span>{% endif %}</label><br>
+                    {% else %}{% endif %}
+                    <label>{% if log_entry1.check_item1 %} {% if log_entry.check_item1 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item1 }} {% else %}{% endif %}</label><br>
+                    <label>{% if log_entry1.check_item2 %} {% if log_entry.check_item2 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item2 }} {% else %}{% endif %}</label><br>
+                    <label>{% if log_entry1.check_item3 %} {% if log_entry.check_item3 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item3 }} {% else %}{% endif %}</label><br>
+                    <label>{% if log_entry1.check_item4 %} {% if log_entry.check_item4 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item4 }} {% else %}{% endif %}</label><br>
+                    <label>{% if log_entry1.check_item5 %} {% if log_entry.check_item5 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item5 }} {% else %}{% endif %}</label><br>
+                    <label>{% if log_entry1.check_item6 %} {% if log_entry.check_item6 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item6 }} {% else %}{% endif %}</label><br>
+                    <label>{% if log_entry1.check_item7 %} {% if log_entry.check_item7 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item7 }} {% else %}{% endif %}</label><br>
+                    <label>{% if log_entry1.check_item8 %} {% if log_entry.check_item8 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item8 }} {% else %}{% endif %}</label><br>
+                    <label>{% if log_entry1.check_item9 %} {% if log_entry.check_item9 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item9 }} {% else %}{% endif %}</label><br>
+                    <label>{% if log_entry1.check_item10 %} {% if log_entry.check_item10 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i>
+                    {% endif %}
+                        {{ log_entry1.check_item10 }} {% else %}{% endif %}</label><br>
+                    <label>备注：{% if log_entry.beizhu %}{{ log_entry.beizhu }}{% else %} 无 {% endif %}</label><br>
+
+                    <div class="row">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="card-title m-b-10">照片1</h3>
+                                {% if log_entry.pic1 and log_entry.pic1 != "" %}
+                                    <p>点击照片可查看大图</p>
+                                    <p>
+                                        <a href="/media/{{ log_entry.pic1 }}" target="_blank">
+                                            <div class="image-container">
+                                                <img src="/media/{{ log_entry.pic1 }}" alt="照片1">
+                                            </div>
+                                        </a>
+                                    </p>
+                                {% else %}
+                                    <h4 style="color: blue; margin-bottom: 3em;"></h4>
+                                    <h4 style="color: blue; margin-bottom: 3em;">
+                                        暂未上传照片</h4>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if log_entry1.inspect != 2 %}
+                            <div class="row">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h3 class="card-title m-b-10">照片2</h3>
+                                        {% if log_entry.pic2 and log_entry.pic2 != "" %}
+                                            <p>点击照片可查看大图</p>
+                                            <p>
+                                                <a href="/media/{{ log_entry.pic2 }}" target="_blank">
+                                                    <div class="image-container">
+                                                        <img src="/media/{{ log_entry.pic2 }}" alt="照片1">
+                                                    </div>
+                                                </a>
+                                            </p>
+                                        {% else %}
+                                            <h4 style="color: blue; margin-bottom: 3em;"></h4>
+                                            <h4 style="color: blue; margin-bottom: 3em;">
+                                                暂未上传照片</h4>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}{% endif %}
+                    </div>
+                </div>
+                <form action="{% url 'xfgl:delete_check' id=log_entry.id %}" method="post">
+                    {% csrf_token %}
+                    <p style="color: red">如果点检出错，请点击下方按钮删除后重新点检。</p>
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('确定要删除此次点检记录么？');">
+                        删除点检记录
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/favicon.png' %}">
+    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+    <title>新增会议</title>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="col-md-3">
+    </div>
+    <div class="col-md-6">
+        <div class="row">
+            <h1 style="letter-spacing: 0.2em; text-align: center">
+                新增会议
+            </h1>
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="alert alert-danger">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-info">提交</button>
+                <a href="/meeting/meeting1/" class="btn btn-primary">返回最新会议纪要</a>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-3">
+    </div>
+</div>
+</body>
+</html>

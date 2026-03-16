@@ -1,0 +1,276 @@
+{% extends 'tools/base.html' %}
+
+{% block title %}用户权限管理{% endblock %}
+
+{% block nav_page_title %}用户权限管理{% endblock %}
+
+{% block nav_breadcrumb %}
+<li class="breadcrumb-item text-muted active" aria-current="page">用户权限管理</li>
+{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <button class="btn btn-outline-primary mr-2" onclick="bulkEditPermissions()">
+                <i class="fa fa-edit mr-1"></i> 批量编辑
+            </button>
+            <button class="btn btn-primary" onclick="refreshPermissions()">
+                <i class="fa fa-sync mr-1"></i> 刷新权限
+            </button>
+        </div>
+    </div>
+
+    <!-- 用户权限列表 -->
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title text-primary"><i class="fa fa-users mr-2"></i>用户权限配置</h4>
+            <hr class="my-3">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>用户名</th>
+                            <th>车间</th>
+                            <th>班组</th>
+                            <th class="text-center">用户管理</th>
+                            <th class="text-center">工具管理</th>
+                            <th class="text-center">申领审批</th>
+                            <th class="text-center">执行保养</th>
+                            <th class="text-center">维修管理</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>
+                                <strong>{{ user.username }}</strong>
+                                {% if user.is_superuser %}
+                                    <span class="badge badge-danger ms-1">超级管理员</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ chejian_choices|get_item:user.chejian }}</td>
+                            <td>{{ banzu_choices|get_item:user.banzu }}</td>
+
+                            <!-- 用户管理权限 -->
+                            <td class="text-center">
+                                {% with perm_key=user.chejian|stringformat:"s" "_" user.banzu|stringformat:"s" %}
+                                {% with team_perm=team_configs|get_item:perm_key %}
+                                {% with user_override=user.userpermissionoverride|default:None %}
+
+                                {% if user_override and user_override.override_can_manage_users is not None %}
+                                    {% if user_override.override_can_manage_users %}
+                                        <span class="badge badge-success" title="个人权限: 允许"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-danger" title="个人权限: 拒绝"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                {% else %}
+                                    {% if team_perm and team_perm.can_manage_users %}
+                                        <span class="badge badge-info" title="班组权限: 允许"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-secondary" title="班组权限: 拒绝"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                {% endif %}
+
+                                {% endwith %}{% endwith %}{% endwith %}
+                            </td>
+
+                            <!-- 工具管理权限 -->
+                            <td class="text-center">
+                                {% with perm_key=user.chejian|stringformat:"s" "_" user.banzu|stringformat:"s" %}
+                                {% with team_perm=team_configs|get_item:perm_key %}
+                                {% with user_override=user.userpermissionoverride|default:None %}
+
+                                {% if user_override and user_override.override_can_manage_tools is not None %}
+                                    {% if user_override.override_can_manage_tools %}
+                                        <span class="badge badge-success" title="个人权限: 允许"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-danger" title="个人权限: 拒绝"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                {% else %}
+                                    {% if team_perm and team_perm.can_manage_tools %}
+                                        <span class="badge badge-info" title="班组权限: 允许"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-secondary" title="班组权限: 拒绝"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                {% endif %}
+
+                                {% endwith %}{% endwith %}{% endwith %}
+                            </td>
+
+                            <!-- 申领审批权限 -->
+                            <td class="text-center">
+                                {% with perm_key=user.chejian|stringformat:"s" "_" user.banzu|stringformat:"s" %}
+                                {% with team_perm=team_configs|get_item:perm_key %}
+                                {% with user_override=user.userpermissionoverride|default:None %}
+
+                                {% if user_override and user_override.override_can_approve_loans is not None %}
+                                    {% if user_override.override_can_approve_loans %}
+                                        <span class="badge badge-success" title="个人权限: 允许"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-danger" title="个人权限: 拒绝"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                {% else %}
+                                    {% if team_perm and team_perm.can_approve_loans %}
+                                        <span class="badge badge-info" title="班组权限: 允许"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-secondary" title="班组权限: 拒绝"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                {% endif %}
+
+                                {% endwith %}{% endwith %}{% endwith %}
+                            </td>
+
+                            <!-- 执行保养权限 -->
+                            <td class="text-center">
+                                {% with perm_key=user.chejian|stringformat:"s" "_" user.banzu|stringformat:"s" %}
+                                {% with team_perm=team_configs|get_item:perm_key %}
+                                {% with user_override=user.userpermissionoverride|default:None %}
+
+                                {% if user_override and user_override.override_can_perform_maintenance is not None %}
+                                    {% if user_override.override_can_perform_maintenance %}
+                                        <span class="badge badge-success" title="个人权限: 允许"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-danger" title="个人权限: 拒绝"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                {% else %}
+                                    {% if team_perm and team_perm.can_perform_maintenance %}
+                                        <span class="badge badge-info" title="班组权限: 允许"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-secondary" title="班组权限: 拒绝"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                {% endif %}
+
+                                {% endwith %}{% endwith %}{% endwith %}
+                            </td>
+
+                            <!-- 维修管理权限 -->
+                            <td class="text-center">
+                                {% with perm_key=user.chejian|stringformat:"s" "_" user.banzu|stringformat:"s" %}
+                                {% with team_perm=team_configs|get_item:perm_key %}
+                                {% with user_override=user.userpermissionoverride|default:None %}
+
+                                {% if user_override and user_override.override_can_manage_repairs is not None %}
+                                    {% if user_override.override_can_manage_repairs %}
+                                        <span class="badge badge-success" title="个人权限: 允许"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-danger" title="个人权限: 拒绝"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                {% else %}
+                                    {% if team_perm and team_perm.can_manage_repairs %}
+                                        <span class="badge badge-info" title="班组权限: 允许"><i class="fa fa-check"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-secondary" title="班组权限: 拒绝"><i class="fa fa-times"></i></span>
+                                    {% endif %}
+                                {% endif %}
+
+                                {% endwith %}{% endwith %}{% endwith %}
+                            </td>
+
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary"
+                                        onclick="editUserPermission('{{ user.username }}')">
+                                    <i class="fa fa-edit mr-1"></i> 编辑
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+<!-- 编辑用户权限模态框 -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fa fa-key mr-2"></i>编辑用户权限</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="post" id="userPermissionForm">
+                {% csrf_token %}
+                <input type="hidden" name="username" id="editUsername">
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="alert alert-info border-0">
+                                <h6 class="alert-heading font-weight-bold"><i class="fa fa-info-circle mr-1"></i>权限说明</h6>
+                                <ul class="mb-0">
+                                    <li><strong>继承班组权限</strong>：使用该用户所在班组的默认权限设置</li>
+                                    <li><strong>允许</strong>：强制授予该权限，即使班组权限为拒绝</li>
+                                    <li><strong>拒绝</strong>：强制拒绝该权限，即使班组权限为允许</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-muted text-uppercase small font-weight-bold mb-3"><i class="fa fa-cog mr-1"></i>基础权限</h6>
+                            {% for perm in perms %}
+                            <div class="mb-3 p-3 border rounded">
+                                <label class="form-label font-weight-medium">{{ perm.label }}</label>
+                                <select name="override_{{ perm.name }}" class="form-control">
+                                    <option value="">继承班组权限</option>
+                                    <option value="true">允许</option>
+                                    <option value="false">拒绝</option>
+                                </select>
+                                <div class="form-text text-muted">班组默认权限：<span id="teamPerm_{{ perm.name }}">-</span></div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6 class="text-muted text-uppercase small font-weight-bold mb-3"><i class="fa fa-clock mr-1"></i>权限有效期</h6>
+                            <div class="mb-3">
+                                <label class="form-label font-weight-medium">生效时间</label>
+                                <input type="datetime-local" name="effective_from" class="form-control">
+                                <div class="form-text text-muted">留空表示立即生效</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label font-weight-medium">过期时间</label>
+                                <input type="datetime-local" name="expires_at" class="form-control">
+                                <div class="form-text text-muted">留空表示永不过期</div>
+                            </div>
+
+                            <div class="alert alert-warning border-0">
+                                <h6 class="alert-heading font-weight-bold"><i class="fa fa-exclamation-triangle mr-1"></i>注意</h6>
+                                <p class="mb-0">设置的有效期仅对个人权限覆盖生效，不影响班组基础权限。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-success"><i class="fa fa-check mr-1"></i>保存权限</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// 自定义过滤器辅助函数
+function getDictValue(dict, key) {
+    return dict[key] || key;
+}
+
+function editUserPermission(username) {
+    document.getElementById('editUsername').value = username;
+    // 这里可以添加更多逻辑来预填充表单
+    new bootstrap.Modal(document.getElementById('editUserModal')).show();
+}
+
+function bulkEditPermissions() {
+    alert('批量编辑功能正在开发中...');
+}
+
+function refreshPermissions() {
+    location.reload();
+}
+</script>
+{% endblock %}

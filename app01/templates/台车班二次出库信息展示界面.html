@@ -1,0 +1,265 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" http-equiv="refresh" content="15">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/favicon.png' %}">
+    <title>台车垫板选配展示</title>
+    <style>
+        .updated {
+            color: yellow !important;
+        }
+
+        .updated1 {
+            color: #00FF00 !important;
+        }
+
+        @keyframes colorchange {
+            0% {
+                color: white;
+            }
+            20% {
+                color: yellow;
+            }
+            40% {
+                color: blue;
+            }
+            60% {
+                color: #00FF00;
+            }
+            80% {
+                color: purple;
+            }
+            100% {
+                color: red;
+            }
+        }
+
+        .highlight {
+            animation-name: colorchange;
+            animation-duration: 2s;
+            animation-iteration-count: infinite;
+        }
+
+        .highlight1 {
+            color: yellow !important; /* 70T黄色显示，60T默认颜色显示 */
+        }
+
+        .large-font {
+            color: #00FF00;
+            font-size: 50px !important; /* 你可以根据需要设置字体大小 */
+        }
+
+        .large-font1 {
+            color: yellow;
+        }
+
+        body {
+            min-height: 100vh;
+            /* 将背景图片设置为 'background.jpg' */
+            background-image: url("{% static 'img/2.jpg' %}");
+
+            /* 设置背景图片大小为覆盖整个容器 */
+            background-size: cover;
+
+            /* 设置背景图片不重复 */
+            background-repeat: no-repeat;
+
+            /* 设置背景图片位置为居中 */
+            background-position: center center;
+            color: white; /*将所有字体设置为白色*/
+            font-weight: bold; /*加粗所有字体*/
+        }
+
+        .title {
+            text-align: center; /* 标题居中 */
+        }
+
+        .third-column2 {
+            border-right: 1px dashed white !important;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .column {
+            width: 34%;
+        }
+
+        .table {
+            border-collapse: collapse; /* 这样设置没有边框的表格 */
+            margin-bottom: 5px; /* 为每个表格底部添加30px的间距 */
+        }
+
+        .table th {
+            color: yellow; /*将表头字体设置为黄色*/
+            border-bottom: 2px solid white; /* 这样可以在表头行底部添加一条实线 */
+        }
+
+        .table td {
+            border-bottom: 1px dashed white; /* 在每个cell底部添加一条虚线 */
+            width: 150px; /* 确定的宽度 */
+            height: 85px; /* 确定的高度 */
+            overflow: hidden; /* 如果内容太大，隐藏它 */
+        }
+
+        .table tr {
+            border-bottom: 1px dashed white; /* 设置底部边框为虚线 */
+        }
+
+        .table td, .table th {
+            font-size: 40px; /* 调整字体大小到你想要的值 */
+            font-weight: bold; /* 加粗文字 */
+            text-align: center; /* 让文本居中 */
+            border-left: none; /* 移除左边框 */
+            border-right: none; /* 移除右边框 */
+            border-bottom: none;
+        }
+
+        .table thead tr {
+            border-bottom: 2px solid white; /* 为表头设置实线 */
+        }
+
+
+        .table-layout {
+            display: inline-block;
+            margin-right: 10px; /* 可以自由调整表格间的距离 */
+        }
+
+        .table-layout th:nth-child(1),
+        .table-layout td:nth-child(1) {
+            width: 160px;
+        }
+
+        .table-layout th:nth-child(2),
+        .table-layout td:nth-child(2) {
+            width: 150px;
+        }
+
+        .table-layout th:nth-child(3),
+        .table-layout td:nth-child(3) {
+            width: 150px;
+        }
+
+        .btn {
+            /* 设置背景和文字颜色 */
+            background-color: #004ab8;
+            color: white;
+
+            /* 内边距和字体大小 */
+            padding: 15px 32px;
+            text-align: center;
+            font-size: 16px;
+
+            /* 边框样式 */
+            border: none;
+            border-radius: 4px;
+
+            /* 文字装饰 */
+            text-decoration: none;
+            display: inline-block;
+
+            /* 鼠标悬停样式 */
+            transition-duration: 0.4s; /* transition effect */
+            cursor: pointer;
+        }
+
+        /* 鼠标悬停时的颜色变化 */
+        .btn:hover {
+            background-color: #0a66c2;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<header class="navbar-expand-md">
+    <div class="panel-default" style="margin-bottom: 20px">
+        <H1 class="font-weight-bold title">台车垫板选配展示(二次入库)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ today1 }}</H1>
+    </div>
+    <div class="container" style="margin-bottom: 10px">
+        <div class="column">
+            <table class="table table-bordered table-layout">
+                <thead>
+                <tr>
+                    <th class="third-column2">台位</th>
+                    <th class="third-column2">车型</th>
+                    <th class="third-column2">二</th>
+                    <th>一</th>
+                </tr>
+                </thead>
+                <tr class="table-row">
+                    {% for item in data_list2|slice:":9" %}
+                        <td class="third-column2 large-font1 {% if item.data.data4.beizhu %}updated1{% endif %}">{{ item.position }}</td>
+                        <td class="third-column2 {% if item.data.data4.chexing in highlight_list %}highlight1{% endif %}">
+                            {% if item.data.data4.chexing %}
+                                {{ item.data.data4.chexing }}{% endif %}</td>
+                        <td class="third-column2 large-font {% if item.data.data3.dianban2 is not None and item.data.data3.dianban2 < 0 or item.data.data3.dianban2 > 40 %}highlight{% elif item.data.data3.is_updated %}updated{% endif %}">
+                            {% if item.data.data3.dianban2 is not None %}{{ item.data.data3.dianban2 }}{% endif %}</td>
+                        <td class="large-font {% if item.data.data3.dianban1 is not None and item.data.data3.dianban1 < 0 or item.data.data3.dianban1 > 40 %}highlight{% elif item.data.data3.is_updated %}updated{% endif %}">
+                            {% if item.data.data3.dianban1 is not None %}{{ item.data.data3.dianban1 }}{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+            </table>
+        </div>
+
+        <div class="column">
+            <table class="table table-bordered table-layout">
+                <thead>
+                <tr>
+                    <th class="third-column2">台位</th>
+                    <th class="third-column2">车型</th>
+                    <th class="third-column2">二</th>
+                    <th>一</th>
+                </tr>
+                </thead>
+                <tr class="table-row">
+                    {% for item in data_list2|slice:"9:18" %}
+                        <td class="third-column2 large-font1 {% if item.data.data4.beizhu %}updated1{% endif %}">{{ item.position }}</td>
+                        <td class="third-column2 {% if item.data.data4.chexing in highlight_list %}highlight1{% endif %}">
+                            {% if item.data.data4.chexing %}
+                                {{ item.data.data4.chexing }}{% endif %}</td>
+                        <td class="third-column2 large-font {% if item.data.data3.dianban2 is not None and item.data.data3.dianban2 < 0 or item.data.data3.dianban2 > 40 %}highlight{% elif item.data.data3.is_updated %}updated{% endif %}">
+                            {% if item.data.data3.dianban2 is not None %}{{ item.data.data3.dianban2 }}{% endif %}</td>
+                        <td class="large-font {% if item.data.data3.dianban1 is not None and item.data.data3.dianban1 < 0 or item.data.data3.dianban1 > 40 %}highlight{% elif item.data.data3.is_updated %}updated{% endif %}">
+                            {% if item.data.data3.dianban1 is not None %}{{ item.data.data3.dianban1 }}{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+            </table>
+        </div>
+
+        <div class="column">
+            <table class="table table-bordered table-layout">
+                <thead>
+                <tr>
+                    <th class="third-column2">台位</th>
+                    <th class="third-column2">车型</th>
+                    <th class="third-column2">二</th>
+                    <th>一</th>
+                </tr>
+                </thead>
+                <tr class="table-row">
+                    {% for item in data_list2|slice:"18:27" %}
+                        <td class="third-column2 large-font1 {% if item.data.data4.beizhu %}updated1{% endif %}">{{ item.position }}</td>
+                        <td class="third-column2 {% if item.data.data4.chexing in highlight_list %}highlight1{% endif %}">
+                            {% if item.data.data4.chexing %}
+                                {{ item.data.data4.chexing }}{% endif %}</td>
+                        <td class="third-column2 large-font {% if item.data.data3.dianban2 is not None and item.data.data3.dianban2 < 0 or item.data.data3.dianban2 > 40 %}highlight{% elif item.data.data3.is_updated %}updated{% endif %}">
+                            {% if item.data.data3.dianban2 is not None %}{{ item.data.data3.dianban2 }}{% endif %}</td>
+                        <td class="large-font {% if item.data.data3.dianban1 is not None and item.data.data3.dianban1 < 0 or item.data.data3.dianban1 > 40 %}highlight{% elif item.data.data3.is_updated %}updated{% endif %}">
+                            {% if item.data.data3.dianban1 is not None %}{{ item.data.data3.dianban1 }}{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+            </table>
+        </div>
+    </div>
+    <ul class="pagination m-0 xs-auto" id="nav">
+        <a href="/台车班一次出库信息展示界面/" class="btn btn-default " role="button">一次入库</a>
+        <a href="/台车班二次出库信息展示界面/" class="btn btn-default " role="button">二次入库</a>
+        <a href="/台车班三次出库信息展示界面/" class="btn btn-default " role="button">三次入库</a>
+        <a href="/台车班顺序编辑1/" class="btn btn-default " role="button">返回</a>
+    </ul>
+</header>
+</body>
+</html>

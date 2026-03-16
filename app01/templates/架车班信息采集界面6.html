@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="bs-example" data-example-id="table-within-panel">
+        <div class="container">
+            <div class="panel-default">
+                <div class="panel-default">
+                    {#                <div class="container mb-4">#}
+                    <H1 class="font-weight-bold title ">
+                        架车班数据录入(9道二次入库)[出车顺序
+                        {% for order in orders %}
+                            {{ order.gudao1 }}{{ order.gudao2 }}{{ order.gudao3 }}
+                        {% endfor %}]
+                    </H1>
+                    <H1>
+                        {% if messages %}
+                            <ul class="messages">
+                                {% for message in messages %}
+                                    <li{% if message.tags %}
+                                        class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </H1>
+                    <ul class="pagination m-0 xs-auto mb-1" id="nav">
+                        <li class="page-item"><a href="/架车班信息采集界面1/"
+                                                 class="page-link {% if current_url_name == 'user_add1' or current_url_name == 'user_add2' or current_url_name == 'user_add3' %}active{% endif %}"
+                                                 role="button">一次入库</a></li>
+                        <li class="page-item"><a href="/架车班信息采集界面4/"
+                                                 class="page-link {% if current_url_name == 'user_add4' or current_url_name == 'user_add5' or current_url_name == 'user_add6' %}active{% endif %}"
+                                                 role="button">二次入库</a></li>
+                        <li class="page-item"><a href="/架车班信息采集界面7/"
+                                                 class="page-link {% if current_url_name == 'user_add16' %}active{% endif %}"
+                                                 role="button">三次入库</a></li>
+                    </ul>
+                    <ul class="pagination m-0 xs-auto mb-1" id="nav">
+                        <li class="page-item"><a href="/架车班信息采集界面4/"
+                                                 class="page-link {% if current_url_name == 'user_add4' %}active{% endif %}"
+                                                 role="button">7道</a>
+                        <li class="page-item"><a href="/架车班信息采集界面5/"
+                                                 class="page-link {% if current_url_name == 'user_add5' %}active{% endif %}"
+                                                 role="button">8道</a>
+                        <li class="page-item"><a href="/架车班信息采集界面6/"
+                                                 class="page-link {% if current_url_name == 'user_add6' %}active{% endif %}"
+                                                 role="button">9道</a>
+                    </ul>
+                </div>
+                <div style="margin-bottom: 10px" class="input-group">
+                    <span style="margin-bottom: 10px" class="input-group-addon">今日日期 : {{ today }}</span>
+                </div>
+                <div class="panel-body">
+                    <form method="post" action="{% url 'user_add6' %}" novalidate>
+                        {% csrf_token %}
+                        <div class="card">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-bordered">
+                                    {{ formset.management_form }}
+                                    <thead>
+                                    <tr>
+                                        <th style="background-color: #8ec2ed;">台位顺序</th>
+                                        <th style="background-color: #8fd19e;">二位钩高</th>
+                                        <th style="background-color: #8fd19e;">二位旁承</th>
+                                        <th style="background-color: #8fd19e;">二位垫板</th>
+                                        <th style="background-color: #8fd19e;">二位轮径</th>
+                                        <th style="background-color: #8ec2ed;">一位钩高</th>
+                                        <th style="background-color: #8ec2ed;">一位旁承</th>
+                                        <th style="background-color: #8ec2ed;">一位垫板</th>
+                                        <th style="background-color: #8ec2ed;">一位轮径</th>
+                                    </tr>
+                                    </thead>
+                                    {% for position, form in zipped_data %}
+                                        <tbody>
+                                        <tr>
+                                            {{ form.id }}
+                                            <td style="background-color: #8ec2ed;">{{ position }}</td>
+                                            <td>{{ form.chegou2 }}</td>
+                                            <td>{{ form.pangcheng2 }}</td>
+                                            <td>{{ form.dianban2 }}</td>
+                                            <td>{{ form.lunjing2 }}</td>
+                                            <td>{{ form.chegou1 }}</td>
+                                            <td>{{ form.pangcheng1 }}</td>
+                                            <td>{{ form.dianban1 }}</td>
+                                            <td>{{ form.lunjing1 }}</td>
+                                        </tr>
+                                        </tbody>
+                                    {% endfor %}
+                                </table>
+                                <div style="margin-bottom: 10px" class="clearfix">
+                                    <button type="submit" class="btn btn-primary me-5">提交</button>
+                                    <a href="." class="btn btn-light ms-5">刷新页面</a>
+                                    {{ error }}
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

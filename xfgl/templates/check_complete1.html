@@ -1,0 +1,101 @@
+{% extends 'base9.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12 grid-margin grid-margin-md-0 stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h1>点检已完成！</h1>
+                    <p>设备名及编号：{{ log_entry1.get_device_display }}（{{ log_entry1.number }}）</p>
+                    <p>操作人员：{{ log_entry.name.name }}</p>
+                    <p>{% if log_entry.create_time %}点检时间：
+                        {{ log_entry.create_time }}{% else %}{% endif %}</p>
+                    {% if log_entry1.type == 1 %}
+                        <p>完成时间：{% if log_entry.create_time1 %}{{ log_entry.create_time1 }}{% else %}
+                            还未完成完工点检{% endif %}</p>
+                    {% else %}{% endif %}
+                    <p>{% if log_entry1.check_item1 %} {% if log_entry.check_item1 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item1 }} {% else %}{% endif %}</p>
+                    <p>{% if log_entry1.check_item2 %} {% if log_entry.check_item2 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item2 }} {% else %}{% endif %}</p>
+                    <p>{% if log_entry1.check_item3 %} {% if log_entry.check_item3 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item3 }} {% else %}{% endif %}</p>
+                    <p>{% if log_entry1.check_item4 %} {% if log_entry.check_item4 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item4 }} {% else %}{% endif %}</p>
+                    <p>{% if log_entry1.check_item5 %} {% if log_entry.check_item5 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item5 }} {% else %}{% endif %}</p>
+                    <p>{% if log_entry1.check_item6 %} {% if log_entry.check_item6 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item6 }} {% else %}{% endif %}</p>
+                    <p>{% if log_entry1.check_item7 %} {% if log_entry.check_item7 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item7 }} {% else %}{% endif %}</p>
+                    <p>{% if log_entry1.check_item8 %} {% if log_entry.check_item8 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item8 }} {% else %}{% endif %}</p>
+                    <p>{% if log_entry1.check_item9 %} {% if log_entry.check_item9 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i> {% endif %}
+                        {{ log_entry1.check_item9 }} {% else %}{% endif %}</p>
+                    <p>{% if log_entry1.check_item10 %} {% if log_entry.check_item10 %} <i class="fas fa-check"></i>
+                    {% else %} <i style="color: red;" class="fas fa-times"></i>
+                    {% endif %}
+                        {{ log_entry1.check_item10 }} {% else %}{% endif %}</p>
+                    <p>备注：{% if log_entry.beizhu %}{{ log_entry.beizhu }}{% else %} 无 {% endif %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 grid-margin grid-margin-md-0 stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title m-b-10">照片1</h3>
+                    {% if log_entry.pic1 and log_entry.pic1 != "" %}
+                        <p>点击照片可查看大图</p>
+                        <p>
+                            <a href="/media/{{ log_entry.pic1 }}" target="_blank">
+                                <div class="image-container">
+                                    <img src="/media/{{ log_entry.pic1 }}" alt="照片1">
+                                </div>
+                            </a>
+                        </p>
+                    {% else %}
+                        <h4 style="color: blue; margin-bottom: 3em;"></h4>
+                        <h4 style="color: blue; margin-bottom: 3em;">
+                            暂未上传照片</h4>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if log_entry1.type != 2 %}
+            <div class="col-md-6 grid-margin grid-margin-md-0 stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title m-b-10">照片2</h3>
+                        {% if log_entry.pic2 and log_entry.pic2 != "" %}
+                            <p>点击照片可查看大图</p>
+                            <p>
+                                <a href="/media/{{ log_entry.pic2 }}" target="_blank">
+                                    <div class="image-container">
+                                        <img src="/media/{{ log_entry.pic2 }}" alt="照片1">
+                                    </div>
+                                </a>
+                            </p>
+                        {% else %}
+                            <h4 style="color: blue; margin-bottom: 3em;"></h4>
+                            <h4 style="color: blue; margin-bottom: 3em;">
+                                暂未上传照片</h4>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% else %}{% endif %}
+    </div>
+{% endblock %}

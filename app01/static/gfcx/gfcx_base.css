@@ -1,0 +1,108 @@
+/* 整体样式 */
+.score-table-container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* 表格样式 */
+.score-table {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.score-table th {
+    background-color: #c9f1bf;
+    color: black;
+    font-weight: 600;
+    padding: 12px;
+    text-align: center;
+}
+
+.score-table td {
+    padding: 10px;
+    vertical-align: middle;
+    border-top: 1px solid #dee2e6;
+}
+
+.score-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.score-table tr:hover {
+    background-color: #e9ecef;
+}
+
+/* 固定列样式 */
+.fixed-col {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background-color: white;
+    box-shadow: 8px 0 15px -8px rgba(0, 0, 0, 0.1);
+}
+
+.fixed-col:nth-child(2) {
+    left: 76px;
+    z-index: 9;
+}
+
+.fixed-col:nth-child(3) {
+    left: 166px;
+    z-index: 8;
+}
+
+.fixed-total {
+    position: sticky;
+    right: 0;
+    z-index: 11;
+    background-color: white;
+    box-shadow: -8px 0 15px -8px rgba(0, 0, 0, 0.1);
+}
+
+/* 表格滚动容器 */
+.scroll-container {
+    overflow: auto;
+    position: relative;
+}
+
+/* 表头固定 */
+.score-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: white;
+}
+
+/* 字体样式 */
+.score-table th:first-child,
+.score-table td:first-child {
+    font-weight: 500;
+    color: #343a40;
+}
+
+/* 总得分样式 */
+.total-score {
+    font-weight: bold;
+    color: black;
+}
+
+/* 导入按钮样式 */
+.import-btn {
+    background-color: #00b67b;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.import-btn:hover {
+    background-color: #00b67b;
+}
+
+/* 强制文字不换行 */
+.nowrap-table tr td, .nowrap-table tr th {
+    white-space: nowrap;
+}

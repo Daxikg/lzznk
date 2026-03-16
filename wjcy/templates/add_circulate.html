@@ -1,0 +1,191 @@
+{% extends 'wjcy_base.html' %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <form id="circulateForm" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label>传阅分类</label>
+                                <input type="text" class="form-control" name="classification" required>
+                            </div>
+                            <div class="form-group">
+                                <label>传阅名称</label>
+                                <input type="text" class="form-control" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label>重点提示</label>
+                                <textarea class="form-control" name="key_remindertitle" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>发布日期</label>
+                                <input type="date" class="form-control" name="create_time" value="{{ today }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>附件</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" name="files" multiple>
+                                    <label class="custom-file-label">选择文件</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <select class="form-control" id="banzuFilter">
+                                            <option value="">全部班组</option>
+                                            {% for banzu in xiupei %}
+                                                <option value="{{ banzu }}">{{ banzu }}</option>
+                                            {% endfor %}
+                                            {% for banzu in xiuche %}
+                                                <option value="{{ banzu }}">{{ banzu }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" id="userSearch" placeholder="搜索人员">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-header">未选择人员</div>
+                                            <div class="card-body" id="unselectedUsers">
+                                                <!-- 未选择人员列表 -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-header">已选择人员</div>
+                                            <div class="card-body" id="selectedUsers">
+                                                <!-- 已选择人员列表 -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-12 text-center">
+                                        <button class="btn btn-primary mr-2" id="selectUsers">添加 >></button>
+                                        <button class="btn btn-secondary" id="removeUsers"><< 移除</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-12 text-center">
+                        <button type="submit" form="circulateForm" class="btn btn-success">提交</button>
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='/wjcy/wjcy/'">
+                            关闭
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            loadUnselectedUsers();
+            loadSelectedUsers();
+
+            document.getElementById('banzuFilter').addEventListener('change', loadUnselectedUsers);
+            document.getElementById('userSearch').addEventListener('input', loadUnselectedUsers);
+
+            document.getElementById('selectUsers').addEventListener('click', function () {
+                const selected = document.querySelectorAll('#unselectedUsers input[type="checkbox"]:checked');
+                selected.forEach(checkbox => {
+                    const user = checkbox.closest('.user-item');
+                    addUserToSelected(user);
+                    user.remove();
+                });
+            });
+
+            document.getElementById('removeUsers').addEventListener('click', function () {
+                const selected = document.querySelectorAll('#selectedUsers input[type="checkbox"]:checked');
+                selected.forEach(checkbox => {
+                    const user = checkbox.closest('.user-item');
+                    addUserToUnselected(user);
+                    user.remove();
+                });
+            });
+        });
+
+        function loadUnselectedUsers() {
+            const banzu = document.getElementById('banzuFilter').value;
+            const search = document.getElementById('userSearch').value;
+            fetch(`/wjcy/get_team_users/?banzu=${banzu}&search=${search}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('unselectedUsers');
+                    container.innerHTML = '';
+                    data.users.forEach(user => {
+                        const userItem = createUserItem(user, false);
+                        container.appendChild(userItem);
+                    });
+                });
+        }
+
+        function loadSelectedUsers() {
+            const selectedUsers = JSON.parse(localStorage.getItem('selectedUsers') || '[]');
+            const container = document.getElementById('selectedUsers');
+            container.innerHTML = '';
+            selectedUsers.forEach(userId => {
+                fetch(`/wjcy/get_user_info/${userId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const userItem = createUserItem(data, true);
+                        container.appendChild(userItem);
+                    });
+            });
+        }
+
+        function createUserItem(user, isSelected) {
+            const div = document.createElement('div');
+            div.className = 'user-item mb-2';
+            div.innerHTML = `
+        <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="user_${user.id}">
+            <label class="custom-control-label" for="user_${user.id}">
+                <span class="badge badge-info mr-2">${user.banzu}</span>
+                ${user.name}
+            </label>
+        </div>
+        <input type="hidden" name="selected_users[]" value="${user.id}" ${isSelected ? '' : 'disabled'}>
+    `;
+            return div;
+        }
+
+        function addUserToSelected(user) {
+            const selectedUsers = JSON.parse(localStorage.getItem('selectedUsers') || '[]');
+            selectedUsers.push(parseInt(user.querySelector('input[type="hidden"]').value));
+            localStorage.setItem('selectedUsers', JSON.stringify(selectedUsers));
+            const newUser = createUserItem({
+                id: parseInt(user.querySelector('input[type="hidden"]').value),
+                name: user.querySelector('label').textContent.trim(),
+                banzu: user.querySelector('.badge').textContent.trim()
+            }, true);
+            document.getElementById('selectedUsers').appendChild(newUser);
+        }
+
+        function addUserToUnselected(user) {
+            const selectedUsers = JSON.parse(localStorage.getItem('selectedUsers') || '[]');
+            const userId = parseInt(user.querySelector('input[type="hidden"]').value);
+            const index = selectedUsers.indexOf(userId);
+            if (index > -1) {
+                selectedUsers.splice(index, 1);
+                localStorage.setItem('selectedUsers', JSON.stringify(selectedUsers));
+            }
+            user.querySelector('input[type="hidden"]').disabled = '';
+            document.getElementById('unselectedUsers').appendChild(user);
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="bs-example" data-example-id="table-within-panel">
+        <div class="container">
+            <div class="panel-default">
+                <H1 class="font-weight-bold title">
+                    出库数据(三次入库)[出车顺序
+                    {% for order in orders %}
+                        {{ order.gudao1 }}{{ order.gudao2 }}{{ order.gudao3 }}
+                    {% endfor %}]</H1>
+                <ul class="pagination m-0 xs-auto" id="nav">
+                    <li class="page-item"><a href="/index1/"
+                                             class="page-link {% if current_url_name == 'index1' %}active{% endif %}"
+                                             role="button">一次入库</a>
+                    <li class="page-item"><a href="/index2/"
+                                             class="page-link {% if current_url_name == 'index2' %}active{% endif %}"
+                                             role="button">二次入库</a>
+                    <li class="page-item"><a href="/index3/"
+                                             class="page-link {% if current_url_name == 'index3' %}active{% endif %}"
+                                             role="button">三次入库</a>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="panel-default">
+            <div style="margin-bottom: 10px" class="input-group">
+                <span style="margin-bottom: 10px" class="input-group-addon">今日日期 : {{ today }}</span>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th style="background-color: #8ec2ed;">台位顺序</th>
+                    <th style="background-color: #7ccecd;">货车修程</th>
+                    <th style="background-color: #7ccecd;">车型车种</th>
+                    <th style="background-color: #8fd19e;">二位旁承</th>
+                    <th style="background-color: #8ec2ed;">一位旁承</th>
+                    <th style="background-color: #8fd19e;">二位轮径</th>
+                    <th style="background-color: #8fd19e;">二位垫板</th>
+                    <th style="background-color: #8ec2ed;">一位轮径</th>
+                    <th style="background-color: #8ec2ed;">一位垫板</th>
+                    <th style="background-color: #7ccecd;">编辑</th>
+                    <th style="background-color: #7ccecd;">删除</th>
+                    <th style="background-color: #7ccecd;">计算</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in data_list %}
+                    <tr>
+                        <td style="background-color: #8ec2ed;"
+                            class="{% if item.data.data2.beizhu %}updated{% endif %}">{{ item.position }}</td>
+                        <td style="background-color: #7ccecd;">{% if item.data.data2.get_xiucheng_display %}
+                            {{ item.data.data2.get_xiucheng_display }}{% endif %}</td>
+                        <td style="background-color: #7ccecd;">{% if item.data.data2.chexing %}
+                            {{ item.data.data2.chexing }}{% endif %}</td>
+                        <td style="background-color: #8fd19e;">{% if item.data.data2.pangcheng2 is not None %}
+                            {{ item.data.data2.pangcheng2 }}{% endif %}</td>
+                        <td style="background-color: #8ec2ed;">{% if item.data.data2.pangcheng1 is not None %}
+                            {{ item.data.data2.pangcheng1 }}{% endif %}</td>
+                        <td style="background-color: #8fd19e;"
+                            class="{% if item.data.data1.is_updated %}updated{% endif %}">
+                            {% if item.data.data1.lunjing2 %}{{ item.data.data1.lunjing2 }}{% endif %}</td>
+                        <td style="background-color: #8fd19e;"
+                            class="{% if item.data.data1.dianban2 is not None and item.data.data1.dianban2 < 0 or item.data.data1.dianban2 > 40 %}highlight{% elif item.data.data1.is_updated %}updated{% endif %}">
+                            {% if item.data.data1.dianban2 is not None %}{{ item.data.data1.dianban2 }}{% endif %}</td>
+                        <td style="background-color: #8ec2ed;"
+                            class="{% if item.data.data1.is_updated %}updated{% endif %}">
+                            {% if item.data.data1.lunjing1 %}{{ item.data.data1.lunjing1 }}{% endif %}</td>
+                        <td style="background-color: #8ec2ed;"
+                            class="{% if item.data.data1.dianban1 is not None and item.data.data1.dianban1 < 0 or item.data.data1.dianban1 > 40 %}highlight{% elif item.data.data1.is_updated %}updated{% endif %}">
+                            {% if item.data.data1.dianban1 is not None %}{{ item.data.data1.dianban1 }}{% endif %}</td>
+                        {% if item.data.data1 %}
+                            <td>
+                                <a href="/index/{{ item.data.data1.taiwei }}/{{ item.data.data1.shunxu }}/edit/"
+                                   style="font-size: 15px; padding: 5px 10px;" class="btn btn-primary btn-xs">编辑</a>
+                            </td>
+                        {% else %}
+                            <td colspan="1"></td>
+                        {% endif %}
+                        {% if item.data.data1 %}
+                            <td>
+                                <a href="#"
+                                   data-url="/index/{{ item.data.data1.taiwei }}/{{ item.data.data1.shunxu }}/delete/"
+                                   style="font-size: 15px; padding: 5px 10px;" class="btn btn-danger btn-xs delete-btn">删除</a>
+                            </td>
+                        {% else %}
+                            <td colspan="1"></td>
+                        {% endif %}
+                        <td>
+                            <button onclick="myFunction(event)" class="btn btn-primary btn-xs">计算</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        $('.delete-btn').off('click').click(function (e) {
+            e.preventDefault();
+            var deleteUrl = $(this).data('url');
+            var alertResponse = confirm("确定要删除此条数据吗?");
+            if (alertResponse) {
+                $.ajax({
+                    url: deleteUrl,
+                    type: 'POST',
+                    success: function (result) {
+                        // 在这进行你的数据处理，例如刷新页面
+                        location.reload();
+                    },
+                    error: function (result) {
+                        // 处理任何错误
+                        alert('删除操作失败。');
+                    }
+                });
+            }
+        });
+    </script>
+    <script>
+        function myFunction(event) {
+            var position = $(event.target).parent().parent().children(":first").text().trim();
+            console.log("Position text: ", position); // 新增的调试行
+            var position_number = position.substr(-1); // 获取字符串的最后一个字符，假设是 1 或者 2.
+            console.log("Last char of Position: ", position_number); // 新增的调试行
+            $.ajax({
+                url: "{% url 'copy_data3' %}", // Django模板语言URL tag
+                data: {'position': position},  // 将获取的 position_number 传入 data 属性中
+
+                success: function (data) {
+                    if (data.success) {
+                        alert("数据计算成功！");
+                        location.reload();  // 刷新页面
+                    } else {
+                        alert("数据计算失败！请查看是否缺少必要数据或已有计算结果！");
+                        location.reload();  // 刷新页面
+                    }
+                }
+            });
+        }
+    </script>
+
+
+{% endblock %}

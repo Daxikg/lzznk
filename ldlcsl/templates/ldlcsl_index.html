@@ -1,0 +1,346 @@
+{% load static %}
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/favicon.png' %}">
+    <title>库存管理</title>
+    <!-- Custom CSS -->
+    <link href="{% static 'assets/libs/flot/css/float-chart.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.css' %}" rel="stylesheet">
+    <link href="{% static 'dist/css/style.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/libs/toastr/build/toastr.min.css' %}" rel="stylesheet">
+</head>
+<body>
+<div class="row">
+    <div class="card m-b-0" style="text-align: center; background-color: #D6EAF8;">
+        <div class="card-body">
+            <h1 style="text-align: center">库存管理</h1>
+            <table class="table table-striped table-bordered" style="text-align: center">
+                <thead>
+                <tr>
+                    <th style="background-color: #0a66c2;">
+                        <button id="Button" class="btn btn-success custom-button"
+                                data-toggle="modal" data-target="#addModal">
+                            新建
+                        </button>
+                    </th>
+                    <th style="background-color: #0a66c2;"></th>
+                    <th style="background-color: #0a66c2;"></th>
+                    <th colspan="8" style="background-color: #0a66c2; color: white">本段</th>
+                    <th colspan="8" style="background-color: #0a66c2; color: white">贵厂</th>
+                    <th colspan="8" style="background-color: #0a66c2; color: white">成都北</th>
+                    <th style="background-color: #0a66c2;"></th>
+                </tr>
+                </thead>
+                <thead>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th colspan="2" style="background-color: #9cdcfe;">旧轴</th>
+                    <th colspan="2" style="background-color: #8ec2ed;">旧轮</th>
+                    <th colspan="2" style="background-color: #9cdcfe;">新轴</th>
+                    <th colspan="2" style="background-color: #8ec2ed;">新轮</th>
+                    <th colspan="2" style="background-color: #9cdcfe;">旧轴</th>
+                    <th colspan="2" style="background-color: #8ec2ed;">旧轮</th>
+                    <th colspan="2" style="background-color: #9cdcfe;">新轴</th>
+                    <th colspan="2" style="background-color: #8ec2ed;">新轮</th>
+                    <th colspan="2" style="background-color: #9cdcfe;">旧轴</th>
+                    <th colspan="2" style="background-color: #8ec2ed;">旧轮</th>
+                    <th colspan="2" style="background-color: #9cdcfe;">新轴</th>
+                    <th colspan="2" style="background-color: #8ec2ed;">新轮</th>
+                    <th style="background-color: #9cdcfe;"></th>
+                </tr>
+                <tr>
+                    <th>日期</th>
+                    <th>类型</th>
+                    <th>厂家</th>
+                    <th style="background-color: #9cdcfe;">D</th>
+                    <th style="background-color: #9cdcfe;">E</th>
+                    <th style="background-color: #8ec2ed;">D</th>
+                    <th style="background-color: #8ec2ed;">E</th>
+                    <th style="background-color: #9cdcfe;">D</th>
+                    <th style="background-color: #9cdcfe;">E</th>
+                    <th style="background-color: #8ec2ed;">D</th>
+                    <th style="background-color: #8ec2ed;">E</th>
+                    <th style="background-color: #9cdcfe;">D</th>
+                    <th style="background-color: #9cdcfe;">E</th>
+                    <th style="background-color: #8ec2ed;">D</th>
+                    <th style="background-color: #8ec2ed;">E</th>
+                    <th style="background-color: #9cdcfe;">D</th>
+                    <th style="background-color: #9cdcfe;">E</th>
+                    <th style="background-color: #8ec2ed;">D</th>
+                    <th style="background-color: #8ec2ed;">E</th>
+                    <th style="background-color: #9cdcfe;">D</th>
+                    <th style="background-color: #9cdcfe;">E</th>
+                    <th style="background-color: #8ec2ed;">D</th>
+                    <th style="background-color: #8ec2ed;">E</th>
+                    <th style="background-color: #9cdcfe;">D</th>
+                    <th style="background-color: #9cdcfe;">E</th>
+                    <th style="background-color: #8ec2ed;">D</th>
+                    <th style="background-color: #8ec2ed;">E</th>
+                    <th style="background-color: #9cdcfe;">编辑</th>
+                </tr>
+                <tr>
+                    <td style="background-color: #00b0ff;">初始库存</td>
+                    <td style="background-color: #00b0ff;">{{ initial.get_operation_type_display }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.get_factory_display }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.old_axle_D_a }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.old_axle_E_a }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.old_wheel_D_a }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.old_wheel_E_a }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.new_axle_D_a }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.new_axle_E_a }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.new_wheel_D_a }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.new_wheel_E_a }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.old_axle_D_b }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.old_axle_E_b }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.old_wheel_D_b }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.old_wheel_E_b }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.new_axle_D_b }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.new_axle_E_b }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.new_wheel_D_b }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.new_wheel_E_b }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.old_axle_D_c }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.old_axle_E_c }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.old_wheel_D_c }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.old_wheel_E_c }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.new_axle_D_c }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.new_axle_E_c }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.new_wheel_D_c }}</td>
+                    <td style="background-color: #00b0ff;">{{ initial.new_wheel_E_c }}</td>
+                    <td style="background-color: #00b0ff;">
+                        <a href="/ldlcsl/Inventory_edit/" data-url="/ldlcsl/Inventory_edit/"
+                           style="font-size: 15px; padding: 5px 10px;"
+                           class="btn btn-primary btn-xs">
+                            编辑
+                        </a>
+                    </td>
+                </tr>
+                </thead>
+                <tbody>
+                {% regroup records by record_date|date:"Y-m" as records_by_month %}
+                {% for month in records_by_month %}
+                    <!-- 这个月的每个记录 -->
+                    {% for record in month.list %}
+                        <tr>
+                            <td>{{ record.record_date|date:"Y-m-d" }}</td>
+                            <td>{{ record.get_operation_type_display }}</td>
+                            <td>{{ record.get_factory_display|default:"" }}</td>
+                            <td style="background-color: #9cdcfe;">{{ record.old_axle_D_a }}</td>
+                            <td style="background-color: #9cdcfe;">{{ record.old_axle_E_a }}</td>
+                            <td style="background-color: #8ec2ed;">{{ record.old_wheel_D_a }}</td>
+                            <td style="background-color: #8ec2ed;">{{ record.old_wheel_E_a }}</td>
+                            <td style="background-color: #9cdcfe;">{{ record.new_axle_D_a }}</td>
+                            <td style="background-color: #9cdcfe;">{{ record.new_axle_E_a }}</td>
+                            <td style="background-color: #8ec2ed;">{{ record.new_wheel_D_a }}</td>
+                            <td style="background-color: #8ec2ed;">{{ record.new_wheel_E_a }}</td>
+                            <td style="background-color: #9cdcfe;">{{ record.old_axle_D_b }}</td>
+                            <td style="background-color: #9cdcfe;">{{ record.old_axle_E_b }}</td>
+                            <td style="background-color: #8ec2ed;">{{ record.old_wheel_D_b }}</td>
+                            <td style="background-color: #8ec2ed;">{{ record.old_wheel_E_b }}</td>
+                            <td style="background-color: #9cdcfe;">{{ record.new_axle_D_b }}</td>
+                            <td style="background-color: #9cdcfe;">{{ record.new_axle_E_b }}</td>
+                            <td style="background-color: #8ec2ed;">{{ record.new_wheel_D_b }}</td>
+                            <td style="background-color: #8ec2ed;">{{ record.new_wheel_E_b }}</td>
+                            <td style="background-color: #9cdcfe;">{{ record.old_axle_D_c }}</td>
+                            <td style="background-color: #9cdcfe;">{{ record.old_axle_E_c }}</td>
+                            <td style="background-color: #8ec2ed;">{{ record.old_wheel_D_c }}</td>
+                            <td style="background-color: #8ec2ed;">{{ record.old_wheel_E_c }}</td>
+                            <td style="background-color: #9cdcfe;">{{ record.new_axle_D_c }}</td>
+                            <td style="background-color: #9cdcfe;">{{ record.new_axle_E_c }}</td>
+                            <td style="background-color: #8ec2ed;">{{ record.new_wheel_D_c }}</td>
+                            <td style="background-color: #8ec2ed;">{{ record.new_wheel_E_c }}</td>
+                            <td style="background-color: #9cdcfe;">
+                                <a href="#" data-url="/ldlcsl/ldlcsl_delete/{{ record.id }}/"
+                                   style="font-size: 15px; padding: 5px 10px;"
+                                   class="btn btn-danger btn-xs delete-btn">
+                                    删除
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        {% for sum_record in sum_records %}
+                            {% if sum_record.month|date:"Y-m" == month.grouper %}
+                                <td colspan="3" style="background-color: #00b0ff;">库存合计：{{ month.grouper }}:</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_old_axle_D_a }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_old_axle_E_a }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_old_wheel_D_a }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_old_wheel_E_a }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_new_axle_D_a }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_new_axle_E_a }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_new_wheel_D_a }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_new_wheel_E_a }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_old_axle_D_b }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_old_axle_E_b }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_old_wheel_D_b }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_old_wheel_E_b }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_new_axle_D_b }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_new_axle_E_b }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_new_wheel_D_b }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_new_wheel_E_b }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_old_axle_D_c }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_old_axle_E_c }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_old_wheel_D_c }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_old_wheel_E_c }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_new_axle_D_c }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_new_axle_E_c }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_new_wheel_D_c }}</td>
+                                <td style="background-color: #00b0ff;">{{ sum_record.total_new_wheel_E_c }}</td>
+                                <td style="background-color: #00b0ff;"></td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="modal fade" id="addModal" tabindex="-1" role="dialog"
+                 aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">新建库存记录</h5>
+                            <button type="button" class="close" data-dismiss="modal"
+                                    aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="addForm" method="POST" action="{% url 'ldlcsl:ldlcsl_add' %}">
+                                <input type="hidden" id="id_logid" name="logid">
+                                <div class="modal-body">
+                                    <table class="table">
+                                        <tbody>
+                                        <tr>
+                                            <th><span style="color: red">*</span>做账日期：
+                                                <input type="date" id="id_record_date"
+                                                       name="record_date"
+                                                       class="form-control"
+                                                       value="{{ form.time.value|date:"Y-m-d" }}">
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th><span
+                                                    style="color: red">*</span>类型(选择检修新品消耗可以不填厂家)：{{ form.operation_type }}
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th>厂家(选择调出或调入时请选厂家)：{{ form.factory }}</th>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                    <table class="table">
+                                        <tr>
+                                            <th>旧轴D：{{ form.old_axle_D_a }}</th>
+                                            <th>旧轴E：{{ form.old_axle_E_a }}</th>
+                                        </tr>
+                                        <tr>
+                                            <th>旧轮D：{{ form.old_wheel_D_a }}</th>
+                                            <th>旧轮E：{{ form.old_wheel_E_a }}</th>
+                                        </tr>
+                                        <tr>
+                                            <th>新轴D：{{ form.new_axle_D_a }}</th>
+                                            <th>新轴E：{{ form.new_axle_E_a }}</th>
+                                        </tr>
+                                        <tr>
+                                            <th>新轮D：{{ form.new_wheel_D_a }}</th>
+                                            <th>新轮E：{{ form.new_wheel_E_a }}</th>
+                                        </tr>
+                                    </table>
+                                    {% csrf_token %}
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                                data-dismiss="modal">关闭
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">保存</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'assets/libs/jquery/dist/jquery.min.js' %}"></script>
+<!-- Bootstrap tether Core JavaScript -->
+<script src="{% static 'assets/libs/popper.js/dist/umd/popper.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js' %}"></script>
+<script src="{% static 'assets/extra-libs/sparkline/sparkline.js' %}"></script>
+<!--Wave Effects -->
+<script src="{% static 'dist/js/waves.js' %}"></script>
+<!--Menu sidebar -->
+<script src="{% static 'dist/js/sidebarmenu.js' %}"></script>
+<!--Custom JavaScript -->
+<script src="{% static 'dist/js/custom.min.js' %}"></script>
+<!--This page JavaScript -->
+<!-- <script src="dist/js/pages/dashboards/dashboard1.js"></script> -->
+<!-- Charts js Files -->
+<script src="{% static 'assets/libs/flot/excanvas.js' %}"></script>
+<script src="{% static 'assets/libs/flot/jquery.flot.js' %}"></script>
+<script src="{% static 'assets/libs/flot/jquery.flot.pie.js' %}"></script>
+<script src="{% static 'assets/libs/flot/jquery.flot.time.js' %}"></script>
+<script src="{% static 'assets/libs/flot/jquery.flot.stack.js' %}"></script>
+<script src="{% static 'assets/libs/flot/jquery.flot.crosshair.js' %}"></script>
+<script src="{% static 'assets/libs/flot.tooltip/js/jquery.flot.tooltip.min.js' %}"></script>
+<script src="{% static 'dist/js/pages/chart/chart-page-init.js' %}"></script>
+<script src="{% static 'assets/extra-libs/DataTables/datatables.min.js' %}"></script>
+<script src="{% static 'assets/libs/toastr/build/toastr.min.js' %}"></script>
+<script>
+    $(function () {
+        {% for message in messages %}
+            if ("{{ message.tags }}" === "success") {
+                toastr.success("{{ message }}", '成功！');
+            } else if ("{{ message.tags }}" === "info") {
+                toastr.info("{{ message }}", '提醒！');
+            } else if ("{{ message.tags }}" === "warning") {
+                toastr.warning("{{ message }}", '警告！');
+            } else {
+                toastr.error("{{ message }}", '失败！');
+            }
+        {% endfor %}
+    });
+</script>
+<script>
+    $('.delete-btn').click(function (e) {
+        e.preventDefault();
+        var deleteUrl = $(this).data('url');
+        var alertResponse = confirm("确定要删除全部数据吗?");
+        if (alertResponse) {
+            $.ajax({
+                url: deleteUrl,
+                type: 'POST',
+                success: function (result) {
+                    // 在这进行你的数据处理，例如刷新页面
+                    location.href = '/ldlcsl/ldlcsl_index/';
+
+                },
+                error: function (result) {
+                    // 处理任何错误
+                    alert('删除操作失败。');
+                }
+            });
+        }
+    });
+    $(document).ready(function () {
+        $('.delete-btn').each(function () {
+            var deleteUrl = $(this).data('url');
+            console.log(`Delete URL: ${deleteUrl}`);
+        });
+    });
+</script>
+</body>
+</html>

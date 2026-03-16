@@ -1,0 +1,173 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/favicon.png' %}">
+    <title>检修轮轴智能选配系统</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="all,follow">
+    <!-- Bootstrap CSS-->
+    <style>
+        table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+    </style>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/fontastic.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/grasp_mobile_progress_circle-1.0.0.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'vendor/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/style.default.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/jquery-ui.css' %}" rel="stylesheet"/>
+    <link href="{% static 'assets/libs/toastr/build/toastr.min.css' %}" rel="stylesheet">
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+</head>
+<body>
+<!-- Side Navbar -->
+<nav class="side-navbar">
+    <div class="side-navbar-wrapper">
+        <!-- Sidebar Header    -->
+        <img src="{% static 'img/u8.png' %}" width="220" height="64" alt="Tabler"
+             class="navbar-brand-image">
+        <div class="main-menu">
+            <h4 class="sidenav-heading">数据录入</h4>
+            <ul id="side-main-menu" class="side-menu list-unstyled">
+                <li><a href="/架车班信息手持机查看界面1/"><i class="icon-form"></i>架车班数据录入
+                    <div class="badge badge-info">手持机</div>
+                </a></li>
+                <li class="{% if current_url_name == 'user_add1' or current_url_name == 'user_add2' or current_url_name == 'user_add3' or current_url_name == 'user_add4' or current_url_name == 'user_add5' or current_url_name == 'user_add6' or current_url_name == 'user_add16' %}active{% endif %}">
+                    <a href="/架车班信息采集界面1/"><i class="fa fa-bar-chart"></i>架车班数据录入</a>
+                </li>
+                <li class="{% if current_url_name == 'user_add7' or current_url_name == 'user_add8' or current_url_name == 'user_add9' or current_url_name == 'user_add10' or current_url_name == 'user_add11' or current_url_name == 'user_add12' or current_url_name == 'user_add13' or current_url_name == 'user_add15' %}active{% endif %}">
+                    <a href="/轮轴班信息采集界面1/"><i class="icon-rss-feed"></i>轮轴班数据录入</a>
+                </li>
+
+            </ul>
+        </div>
+        <div class="main-menu">
+            <h4 class="sidenav-heading">数据修改</h4>
+            <ul id="side-main-menu" class="side-menu list-unstyled">
+                <li class="{% if current_url_name == 'user_list1' or current_url_name == 'user_list2' or current_url_name == 'user_list3' %}active{% endif %}">
+                    <a href="/架车班信息查看界面1/"><i class="icon-grid"></i>架车班数据修改</a>
+                </li>
+                <li class="{% if request.path == '/index7/' or request.path == '/index8/' or request.path == '/index9/' %}active{% endif %}">
+                    <a href="/index7/"><i class="icon-form"></i>轮轴班轮径修改
+                        <div class="badge badge-info">手持机</div>
+                    </a>
+                </li>
+                <li class="{% if request.path == '/index1/' or request.path == '/index2/' or request.path == '/index3/' %}active{% endif %}">
+                    <a href="/index1/"><i class="icon-interface-windows"></i>轮轴班轮径修改</a>
+                </li>
+                <li class="{% if current_url_name == 'user_list10' or current_url_name == 'user_list11' or current_url_name == 'user_list12' %}active{% endif %}">
+                    <a href="/台车班顺序编辑1/"><i class="icon-interface-windows"></i>台车班顺序修改</a>
+                </li>
+            </ul>
+        </div>
+        <div class="admin-menu">
+            <h4 class="sidenav-heading">终端显示</h4>
+            <ul id="side-admin-menu">
+                <li><a href="/轮轴班一次出库信息展示界面/">轮轴轮对选配展示</a></li>
+                <li><a href="/台车班一次出库信息展示界面/">台车垫板选配展示</a></li>
+            </ul>
+        </div>
+        <div class="main-menu">
+            <h4 class="sidenav-heading">历史数据查询</h4>
+            <ul id="side-main-menu" class="side-menu list-unstyled">
+                <li class="{% if request.path == '/index/' %}active{% endif %}"><a href="/index/"><i
+                        class="icon-home"></i>历史数据查询</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="page">
+    <!-- navbar-->
+    <header class="header">
+        <nav class="navbar">
+            <div class="container-fluid">
+                <div class="navbar-holder d-flex align-items-center justify-content-between">
+                    <div class="navbar-header">
+                        <a id="toggle-btn" href="#" class="menu-btn">
+                            <i class="icon-bars"> </i>
+                        </a>
+                        <a href="/index/" class="navbar-brand">
+                            <div class="brand-text d-none d-md-inline-block"><strong
+                                    class="text-primary">检修轮轴智能选配系统</strong>
+                            </div>
+                        </a>
+                    </div>
+                    <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
+                        <!-- Log out-->
+
+                        <a href="." class="navbar-brand">
+                            <div class="brand-text d-none d-md-inline-block">
+                                <span>欢迎登录：{{ request.session.info.role }}</span>
+                            </div>
+                        </a>
+                        <a href="/1/" class="navbar-brand">
+                            <div class="brand-text d-none d-md-inline-block">
+                                <span>进入信息管理平台</span>
+                            </div>
+                        </a>
+                        <li class="nav-item"><a href="/register/" class="nav-link logout">
+                            <span class="d-none d-sm-inline-block">退出登录</span><i class="fa fa-sign-out"></i></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <!-- Counts Section -->
+    <section class="dashboard-counts section-padding">
+        {% block content %}
+
+        {% endblock %}
+    </section>
+
+    <footer class="main-footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <p>Copyright &copy; 2024.GYNCLD All rights reserved.</p>
+                </div>
+                <div class="col-sm-6 text-right">
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+<!-- JavaScript files-->
+{% block js %}
+{% endblock %}
+<script src="{% static 'vendor/popper.js/umd/popper.min.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/grasp_mobile_progress_circle-1.0.0.min.js' %}"></script>
+<script src="{% static 'vendor/jquery.cookie/jquery.cookie.js' %}"></script>
+<script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
+<script src="{% static 'vendor/jquery-validation/jquery.validate.min.js' %}"></script>
+<script src="{% static 'vendor/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js' %}"></script>
+<script src="{% static 'js/front.js' %}"></script>
+<script src="{% static 'js/jquery-ui.js' %}"></script>
+<script src="{% static 'assets/libs/toastr/build/toastr.min.js' %}"></script>
+<script>
+    $(function () {
+        {% for message in messages %}
+            if ("{{ message.tags }}" === "success") {
+                toastr.success("{{ message }}", '成功！');
+            } else if ("{{ message.tags }}" === "info") {
+                toastr.info("{{ message }}", '提醒！');
+            } else if ("{{ message.tags }}" === "warning") {
+                toastr.warning("{{ message }}", '警告！');
+            } else {
+                toastr.error("{{ message }}", '失败！');
+            }
+        {% endfor %}
+    });
+</script>
+</body>
+</html>

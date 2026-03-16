@@ -1,0 +1,435 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--Required Meta-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/favicon.png' %}">
+    <!--Title Here-->
+    <title>党建管理</title>
+
+    <!--Stylesheets-->
+    <link rel="stylesheet" href="{% static 'djgl/css/fontawesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'djgl/css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'djgl/css/owl.theme.default.min.css' %}">
+    <link rel="stylesheet" href="{% static 'djgl/css/animate.min.css' %}">
+    <link rel="stylesheet" href="{% static 'djgl/css/meanmenu.min.css' %}">
+    <link rel="stylesheet" href="{% static 'djgl/style.css' %}">
+    <link rel="stylesheet" href="{% static 'djgl/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'djgl/css/toastr.min.css' %}">
+    <style>
+        .image-container img {
+            max-width: 100%; /* 操作证照片，默认最大宽度展示 */
+            height: auto;
+            object-fit: contain;
+        }
+
+        .submenu {
+            padding-left: 3em !important;
+        }
+
+        .pre-style {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+            height: auto; /* 确保高度自适应 */
+            min-height: auto; /* 移除固定最小高度 */
+            overflow: visible; /* 防止出现滚动条 */
+            display: block; /* 确保块级元素特性 */
+        }
+
+        .search-container {
+            position: relative;
+            margin: 20px 0;
+            width: 300px; /* 调整宽度 */
+        }
+
+        .search-results-container {
+            position: absolute;
+            width: 100%;
+            max-height: 400px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+
+        .result-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .result-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .tooltip1 {
+            position: fixed;
+            background: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            display: none;
+            max-width: 300px;
+        }
+
+        .search-results-container.loading {
+            position: relative;
+        }
+
+        .search-results-container.loading:after {
+            content: "加载中...";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #666;
+        }
+
+        .no-results {
+            padding: 10px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .temp-tooltip1 {
+            position: absolute;
+            visibility: hidden;
+        }
+
+        .error-tooltip1 {
+            color: #dc3545;
+            padding: 8px;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+<!--Preloader Start-->
+<div class="preloader">
+    <img src="{% static 'djgl/img/preloader.gif' %}" alt="Preloader">
+</div>
+<!--Preloader End-->
+
+<!--Header Start-->
+<header>
+    <div class="topbar dark-bg">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="topbar-msg text-white">
+                        <span>贵阳南检修信息管理平台-->>>党建管理</span>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <ul class="social-links text-white">
+                        {% if banzu_logged_in == 0 %}
+                            <li><span>未登录</span></li>
+                        {% else %}
+                            <li><span>欢迎使用：{{ request.session.info.role }}</span></li>
+                        {% endif %}
+                        <li><a class="nav-link" href="/1/"><span>进入信息管理平台</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="primary-header bg-light">
+        <div class="container-lg">
+            <div class="row desktop-header">
+                <div class="col-md-2">
+                    <!--Desktop Logo-->
+                    <div class="logo desktop-logo light-bg">
+                        {% if chejian == 0 %}
+                            <a href="/djgl/dangjianguanli0/"><i class="fa-solid fa-flag" style="color: red"></i>
+                                修车修配</a>
+                        {% elif chejian == 1 %}
+                            <a href="/djgl/dangjianguanli0/"><i class="fa-solid fa-flag" style="color: red"></i>
+                                修配车间</a>
+                        {% elif chejian == 2 %}
+                            <a href="/djgl/dangjianguanli0/"><i class="fa-solid fa-flag" style="color: red"></i>
+                                修车车间</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <!--Primary Navigation Start-->
+                    <div class="primary-navigation">
+                        <ul class="menu">
+                            <li><a href="/djgl/dangjianguanli0" style="color: red">主页</a></li>
+                            {% if banzu_logged_in == 13 or banzu_logged_in == 0 %}
+                                {% if chejian == 0 %}
+                                    <li class="has-child"><a href="." style="color: red">党支部菜单</a>
+                                        <ul class="submenu scale-down-ver-top">
+                                            <li><a href="/djgl/dangjianguanli/1/" style="color: red">架车班党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/2/" style="color: red">轮轴班党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/3/" style="color: red">台车班党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/4/" style="color: red">内制动党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/5/" style="color: red">外制动党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/6/" style="color: red">车钩班党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/7/" style="color: red">探伤班党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/8/" style="color: red">调车组党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/9/" style="color: red">车体班党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/10/" style="color: red">预修班党支部</a>
+                                            </li>
+{#                                            <li><a href="/djgl/dangjianguanli/11/" style="color: red">质检组党支部</a>#}
+{#                                            </li>#}
+                                            <li><a href="/djgl/dangjianguanli/12/" style="color: red">信息班党支部</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                {% elif chejian == 1 %}
+                                    <li class="has-child"><a href="." style="color: red">修配党支部菜单</a>
+                                        <ul class="submenu scale-down-ver-top">
+                                            <li><a href="/djgl/dangjianguanli/2/" style="color: red">轮轴班党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/3/" style="color: red">台车班党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/6/" style="color: red">车钩班党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/7/" style="color: red">探伤班党支部</a>
+                                            </li>
+{#                                            <li><a href="/djgl/dangjianguanli/11/" style="color: red">质检组党支部</a>#}
+{#                                            </li>#}
+                                            <li><a href="/djgl/dangjianguanli/12/" style="color: red">信息班党支部</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                {% elif chejian == 2 %}
+                                    <li class="has-child"><a href="." style="color: red">修车党支部菜单</a>
+                                        <ul class="submenu scale-down-ver-top">
+                                            <li><a href="/djgl/dangjianguanli/1/" style="color: red">架车班党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/4/" style="color: red">内制动党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/5/" style="color: red">外制动党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/8/" style="color: red">调车组党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/9/" style="color: red">车体班党支部</a>
+                                            </li>
+                                            <li><a href="/djgl/dangjianguanli/10/" style="color: red">预修班党支部</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                {% endif %}
+                                <li>
+                                    <div class="search-container">
+                                        <div class="input-group">
+                                            <input type="text" id="search-input" class="form-control"
+                                                   placeholder="搜索党员姓名、职务等" autocomplete="off">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-danger" disabled><i
+                                                        class="fa-solid fa-magnifying-glass"></i></button>
+                                            </div>
+                                        </div>
+                                        <div id="search-results" class="search-results-container"></div>
+                                        <div id="tooltip1" class="tooltip1"></div>
+                                    </div>
+                                </li>
+                            {% else %}
+                                <li><a href="/djgl/dangjianguanli/{{ banzu_logged_in }}/"
+                                       style="color: red">{{ banzu_display }}</a></li>
+                            {% endif %}
+                            {#								<li><a href="projects.html">Projects</a></li>#}
+                            {#								<li><a href="contact.html">Contact Us</a></li>#}
+                        </ul>
+                    </div>
+                    <!--Primary Navigation End-->
+                </div>
+                <div class="col-md-2">
+                    <div class="header-btn">
+                        {% if banzu_logged_in == 0 %}
+                            <a href="/djgl/djgl_login/" class="btn light-btn-lg">登录</a>
+                        {% else %}
+                            <a href="/djgl/djgl_register/" class="btn dark-btn-lg">退出登录</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<!--Header End-->
+
+
+{% block content %}
+
+{% endblock %}
+
+
+<!--Footer Start-->
+<footer class="secondary-bg">
+    <div class="footer-widgets ptb-20">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="footer-credit">
+                        <p><i class="far fa-copyright"></i>Copyright &copy; 2024.GYNCLD All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<!--Footer End-->
+
+<!--Scroll To Top Start-->
+<div class="scrolltotop">
+    <a href="#"><i class="fa-solid fa-long-arrow-alt-up"></i></a>
+</div>
+<!--Scroll To Top End-->
+
+<!-- Javascripts -->
+<script src="{% static 'djgl/js/jquery-3.5.1.min.js' %}"></script>
+{% block js %}
+{% endblock %}
+<script src="{% static 'djgl/js/popper.min.js' %}"></script>
+<script src="{% static 'djgl/js/toastr.min.js' %}"></script>
+<script src="{% static 'djgl/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'djgl/js/owl.carousel.min.js' %}"></script>
+<script src="{% static 'djgl/js/meanmenu.min.js' %}"></script>
+<script src="{% static 'djgl/js/waypoints.min.js' %}"></script>
+<script src="{% static 'djgl/js/counterup.min.js' %}"></script>
+<script src="{% static 'djgl/js/custom.js' %}"></script>
+<script src="{% static 'djgl/js/select2.min.js' %}"></script>
+<script src="{% static 'djgl/js/toastr.min.js' %}"></script>
+<script>
+    <!-- 积分悬浮内容换行用的 -->
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip({
+            html: true,
+            boundary: 'window',
+            sanitize: false  // 关闭自动消毒以保留HTML结构
+        });
+
+    });
+</script>
+<script>
+    $(function () {
+        {% for message in messages %}
+            if ("{{ message.tags }}" === "success") {
+                toastr.success("{{ message }}", '成功！');
+            } else if ("{{ message.tags }}" === "info") {
+                toastr.info("{{ message }}", '提醒！');
+            } else if ("{{ message.tags }}" === "warning") {
+                toastr.warning("{{ message }}", '警告！');
+            } else {
+                toastr.error("{{ message }}", '失败！');
+            }
+        {% endfor %}
+    });
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%',  // 设置下拉框的宽度
+            dropdownAutoWidth: true  // 自动调整下拉选项的宽度
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        // 防抖函数，减少频繁请求
+        function debounce(func, wait) {
+            let timeout;
+            return function () {
+                const context = this, args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    func.apply(context, args);
+                }, wait);
+            };
+        }
+
+        // 实时搜索功能
+        $('#search-input').on('input', debounce(function () {
+            const query = $(this).val().trim();
+            if (query.length >= 1) {  // 至少输入2个字符才开始搜索
+                $.ajax({
+                    url: "{% url 'djgl:search_results' %}",
+                    data: {'q': query},
+                    success: function (data) {
+                        $('#search-results').html(data).show();
+                    },
+                    error: function () {
+                        $('#search-results').html('<div class="no-results">搜索出错，请重试</div>').show();
+                    }
+                });
+            } else {
+                $('#search-results').hide().empty();
+            }
+        }, 300));  // 300毫秒防抖
+
+        // 点击跳转功能
+        $(document).on('click', '.result-item', function () {
+            const banzu = $(this).data('banzu');
+            if (banzu) {
+                window.location.href = `/djgl/dangjianguanli/${banzu}/`;
+            }
+        });
+
+        // 悬浮提示功能 - 使用事件委托处理动态生成的元素
+        $(document).on('mouseenter', '.result-item', function (event) {
+            const $this = $(this);
+            const dangyuanId = $this.data('dangyuan-id');
+
+            // 创建临时tooltip1容器防止闪烁
+            const tempTooltip1 = $('<div>').addClass('temp-tooltip1').hide();
+            $('body').append(tempTooltip1);
+
+            // 获取元素位置
+            const offset = $this.offset();
+            const x = offset.left + $this.outerWidth() + 10;
+            const y = offset.top;
+
+            $.ajax({
+                url: `/djgl/get_dangyuan_info/${dangyuanId}/`,
+                success: function (data) {
+                    $('#tooltip1').html(data)
+                        .css({
+                            'left': x + 'px',
+                            'top': y + 'px',
+                            'display': 'block'
+                        });
+                },
+                error: function () {
+                    $('#tooltip1').html('<div class="error-tooltip1">无法加载详细信息</div>')
+                        .css({
+                            'left': x + 'px',
+                            'top': y + 'px',
+                            'display': 'block'
+                        });
+                },
+                complete: function () {
+                    tempTooltip1.remove();
+                }
+            });
+        });
+
+        $(document).on('mouseleave', '.result-item', function () {
+            $('#tooltip1').hide();
+        });
+    });
+</script>
+</body>
+</html>

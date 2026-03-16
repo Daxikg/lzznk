@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <style>
+        .updated {
+            color: red !important;
+        }
+
+    </style>
+    <div class="bs-example" data-example-id="table-within-panel">
+        <div class="container">
+            <div class="panel-default">
+                {#                <div class="container mb-4">#}
+                <H1 class="font-weight-bold title">
+                    <form action="{% url 'create-data3' %}" method="post">
+                        {% csrf_token %}
+                        台车班出库顺序编辑(一次入库)[出车顺序
+                        {% for order in orders %}
+                            {{ order.gudao1 }}{{ order.gudao2 }}{{ order.gudao3 }}
+                        {% endfor %}]
+                        <button type="button" style="font-size: 20px; padding: 2px 10px;"
+                                class="btn btn-primary"
+                                data-toggle="modal" data-target="#myModal">选择出车顺序
+                        </button>
+                        <button type="submit" style="font-size: 20px; padding: 2px 10px;" class="btn btn-primary">
+                            创建入线计划
+                        </button>
+                    </form>
+                    <H1>
+                        {% if messages %}
+                            <ul class="messages">
+                                {% for message in messages %}
+                                    <li{% if message.tags %}
+                                        class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </H1>
+                </H1>
+                <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+                     aria-labelledby="myLargeModalLabel">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title" id="exampleModalLabel">选择出车顺序：</h4>
+                                <button type="button" class="close" data-dismiss="modal"
+                                        aria-label="Close"><span
+                                        aria-hidden="true">×</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form class="row" method="POST" action="{% url 'shunxu2' %}">
+                                    {% csrf_token %}
+                                    <div class="form-group col-md-3">
+                                        <label for="select-line1" class="control-label">第一线:</label>
+                                        <select class="form-control" id="select-line1" name="line1">
+                                            {% for value, text in choices1 %}
+                                                <option value="{{ value }}">{{ text }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group col-md-3">
+                                        <label for="select-line2" class="control-label">第二线:</label>
+                                        <select class="form-control" id="select-line2" name="line2">
+                                            {% for value, text in choices2 %}
+                                                <option value="{{ value }}">{{ text }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group col-md-3">
+                                        <label for="select-line3" class="control-label">第三线:</label>
+                                        <select class="form-control" id="select-line3" name="line3">
+                                            {% for value, text in choices3 %}
+                                                <option value="{{ value }}">{{ text }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">保存</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="pagination m-0 xs-auto" id="nav">
+                    <li class="page-item"><a href="/台车班顺序编辑1/"
+                                             class="page-link {% if current_url_name == 'user_list10' %}active{% endif %}"
+                                             role="button">一次入库</a>
+                    <li class="page-item"><a href="/台车班顺序编辑2/"
+                                             class="page-link {% if current_url_name == 'user_list11' %}active{% endif %}"
+                                             role="button">二次入库</a>
+                    <li class="page-item"><a href="/台车班顺序编辑3/"
+                                             class="page-link {% if current_url_name == 'user_list12' %}active{% endif %}"
+                                             role="button">三次入库</a>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="panel-default">
+            <div style="margin-bottom: 10px" class="input-group">
+                <span style="margin-bottom: 10px" class="input-group-addon">今日日期 : {{ today }}</span>
+            </div>
+            <div class="panel-body">
+                <form method="post" action="{% url 'user_list10' %}" novalidate>
+                    {% csrf_token %}
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered">
+                                {{ formset.management_form }}
+                                <thead>
+                                <tr>
+                                    <th style="background-color: #8ec2ed;">台位顺序</th>
+                                    <th style="background-color: #7ccecd;">货车修程</th>
+                                    <th style="background-color: #7ccecd;">车种车型</th>
+                                    <th style="background-color: #8fd19e;">临时出车顺序</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for position, form in zipped_data %}
+                                    <tr>
+                                        {{ form.id }}
+                                        <td style="background-color: #8ec2ed;"
+                                            class="{% if form.instance.beizhu %}updated{% endif %}">{{ position }}</td>
+                                        <td style="background-color: #7ccecd;">{% if form.instance.xiucheng %}
+                                            {{ form.instance.get_xiucheng_display }}{% endif %}</td>
+                                        <td style="background-color: #7ccecd;">{% if form.instance.chexing %}
+                                            {{ form.instance.chexing }}{% endif %}</td>
+                                        <td>{{ form.beizhu }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                            <div style="margin-bottom: 10px" class="clearfix">
+                                <button type="submit" class="btn btn-primary me-5">提交</button>
+                                <a href="." class="btn btn-light ms-5">刷新页面</a>
+                                {{ error }}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

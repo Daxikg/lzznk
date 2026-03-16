@@ -1,0 +1,162 @@
+/*-----------------Blog-------------*/
+.blog-item {
+    margin-bottom: 20px;
+    .blog-info {
+        .blog-meta {
+            margin-bottom: 10px;
+            span {
+                display: inline-block;
+                font-size: 14px;
+                font-weight: bold;
+                text-transform: uppercase;
+                color: $gray;
+                i {
+                    font-size: 16px;
+                }
+            }
+        }
+        .blog-title {
+            margin-bottom: 10px;
+            h4 {
+                a {
+                    color: $secondary;
+                    display: block;
+                    &:hover {
+                        color: $primary;
+                    }
+                }
+            }
+        }
+    }
+    &.white {
+        background: $white;
+    }
+}
+
+.blog-single {
+    .blog-meta {
+        span {
+            font-weight: 600;
+            color: $gray;
+            font-size: 14px;
+            display: inline-block;
+            margin-right: 1rem;
+            &:last-child {
+                margin-right: 0;
+            }
+            a {
+                color: $gray;
+                &:hover {
+                    color: $primary;
+                }
+            }
+            i {
+                font-size: 15px;
+            }
+        }
+    }
+    .blog-content {
+        ul {
+            list-style: inherit;
+            list-style-type: square;
+            padding: 1rem 2rem;
+            li {
+                color: $gray;
+                font-weight: 600;
+                font-size: 15px;
+            }
+        }
+        blockquote {
+            padding: 1rem 3rem;
+            margin: 1rem 0;
+            background-color: $darkwhite;
+            position: relative;
+            font-size: 18px;
+            font-style: italic;
+            color: $gray;
+            text-align: center;    
+            &::before {
+                content: '\f10d';
+                color: darken($gray, 10);
+                display: inline-block;
+                font-style: normal;
+                font-variant: normal;
+                text-rendering: auto;
+                -webkit-font-smoothing: antialiased;
+                font-family: "Font Awesome 5 Free";
+                font-weight: 900;
+                font-size: 20px;
+                position: absolute;
+                top: 0;
+                left: 2%;
+            }
+            &::after {
+                content: '\f10e';
+                color: darken($gray, 10);
+                display: inline-block;
+                font-style: normal;
+                font-variant: normal;
+                text-rendering: auto;
+                -webkit-font-smoothing: antialiased;
+                font-family: "Font Awesome 5 Free";
+                font-weight: 900;
+                font-size: 20px;
+                position: absolute;
+                bottom: 0;
+                right: 2%;
+            }
+        }
+        h1, h2, h3, h4, h5, h6 {
+            margin: 1rem 0;
+        }
+    }
+}
+.blog-comments, .comment-form {
+    h4 {
+        margin: 1rem 0;
+    }
+}
+.comment-item {
+    display: flex;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    &:last-child {
+        margin-bottom: 0;
+    }
+    .author-thumb {
+        margin-right: 1rem;
+        img {
+            width: 100px;
+            border: 1px solid $darkwhite;
+            padding: 5px;
+        }
+    }
+    .comment-info {
+        .authorname {
+            font-size: 17px;
+        }
+        .comment-date {
+            font-size: 14px;
+            font-weight: bold;
+            color: $gray;
+            text-transform: uppercase;
+        }
+        .comment-text {
+            margin: .3rem 0;
+        }
+        .reply {
+            a {
+                color: $primary;
+                font-weight: 600;
+                &:hover {
+                    color: $primary;
+                }
+            }
+        }
+    }
+}
+.comment-form, .contact-form {
+    .form-control:focus {
+        border-color: $primary;
+    }
+}

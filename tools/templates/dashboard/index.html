@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修配车间工具管理系统 - 大屏</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #1a1a1a; color: #f8f9fa; font-family: 'Courier New', monospace; }
+        .card { background-color: #2c2c2c; border: 1px solid #444; }
+        .metric-card { text-align: center; padding: 20px; }
+        .metric-value { font-size: 3rem; font-weight: bold; color: #00ffcc; }
+        .metric-label { font-size: 1.2rem; color: #aaa; }
+        .alert-danger { background-color: #440000; border-color: #aa0000; color: #ffcccc; }
+        .alert-warning { background-color: #443300; border-color: #aa8800; color: #ffe0b3; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-4">
+        <h1 class="text-center mb-4">修配车间工具管理系统 - 实时监控大屏</h1>
+
+        <!-- 核心指标 -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="metric-value" id="total-tools">-</div>
+                    <div class="metric-label">工具总数</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="metric-value" id="borrowed-tools">-</div>
+                    <div class="metric-label">在借工具数</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="metric-value" id="overdue-loans">-</div>
+                    <div class="metric-label">逾期未还数</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="metric-value" id="high-value-tools">-</div>
+                    <div class="metric-label">高价值工具数</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 异常告警 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">异常告警</div>
+                    <div class="card-body">
+                        <div id="alerts-container">
+                            <!-- 动态加载告警信息 -->
+                            <p class="text-muted">暂无异常</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 待办事项 -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">今日待归还</div>
+                    <div class="card-body">
+                        <ul id="due-today-list" class="list-unstyled">
+                            <!-- 动态加载列表 -->
+                            <li>无</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-info text-white">今日待保养</div>
+                    <div class="card-body">
+                        <ul id="maintenance-due-list" class="list-unstyled">
+                             <!-- 动态加载列表 -->
+                            <li>无</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 简单的轮询更新数据 (可替换为WebSocket)
+        function updateDashboard() {
+            fetch('/api/real-time-data/') // 对应 dashboard/urls.py 中的路径
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('borrowed-tools').textContent = data.borrowed_count;
+                    document.getElementById('overdue-loans').textContent = data.overdue_count;
+                    // ... 更新其他指标 ...
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // 页面加载完成后开始轮询
+        document.addEventListener('DOMContentLoaded', function () {
+            // 获取初始数据
+            fetch('/api/tools/dashboard-stats/') // 对应 tools_app/views.py 中的路径
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('total-tools').textContent = data.total_tools;
+                    document.getElementById('high-value-tools').textContent = data.high_value_tools;
+                });
+
+            // 设置定时器，每30秒更新一次数据
+            setInterval(updateDashboard, 30000);
+            updateDashboard(); // 立即加载一次
+        });
+    </script>
+</body>
+</html>

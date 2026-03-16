@@ -1,0 +1,72 @@
+{% extends 'gfcx_base.html' %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="card score-table-container">
+            <div class="card-body">
+                <div class="justify-content-between align-items-center mb-3">
+                        <h4 style="text-align: left">详情内容</h4>
+                        <p style="margin-left: 20px;">日期:{{ year }}年{{ month }}月</p>
+                </div>
+
+                <!-- 添加分数类型切换按钮 -->
+                <div class="d-flex justify-content mb-3">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-success {% if score_type == 'work' %}active{% endif %}" onclick="changeScoreType('work')">
+                            工作({{ total_work }})
+                        </button>
+                        <button type="button" class="btn btn-outline-success {% if score_type == 'study' %}active{% endif %}" onclick="changeScoreType('study')">
+                            学习({{ total_study }})
+                        </button>
+                        <button type="button" class="btn btn-outline-success {% if score_type == 'business' %}active{% endif %}" onclick="changeScoreType('business')">
+                            出差({{ total_business }})
+                        </button>
+                        <button type="button" class="btn btn-outline-success {% if score_type == 'holiday' %}active{% endif %}" onclick="changeScoreType('holiday')">
+                            休假({{ total_holiday }})
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive scroll-container">
+                    <table class="table table-striped table-bordered score-table nowrap-table" style="text-align: center; font-weight: bold;">
+                    <div class="card-body">
+                        <h3 style="text-align: center">《{{ year }}年{{ month }}月工作积分表》</h3>
+                    </div>
+                        <thead>
+                            <tr>
+                                <th class="fixed-col">姓名</th>
+                                <th class="fixed-col">工种</th>
+                                <th class="fixed-col">工号</th>
+                                {% for day in days_list %}
+                                    <th style="width: 100px;">{{ day|date:"m.d" }}</th>
+                                {% endfor %}
+                                <th class="fixed-total">总得分</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in month_log %}
+                                <tr>
+                                    <td class="fixed-col">{{ log.name }}</td>
+                                    <td class="fixed-col">{{ log.gongzhong }}</td>
+                                    <td class="fixed-col">{{ log.gonghao }}</td>
+                                    {% for score in log.daily_scores %}
+                                        <td style="color: #00b67b;">{{ score }}</td>
+                                    {% endfor %}
+                                    <td class="fixed-total total-score">{{ log.total_score }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function changeScoreType(type) {
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('score_type', type);
+            window.location.search = urlParams.toString();
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,182 @@
+<div class="modal fade" id="faultReportModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title"><i class="fa fa-exclamation-triangle mr-2"></i>故障报修</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="faultReportForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- 工具信息 -->
+                    <div class="mb-3">
+                        <h6 class="border-bottom pb-2 mb-2 text-muted small">
+                            <i class="fa fa-info-circle mr-1"></i>工具信息
+                        </h6>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted mb-0">工具编号</label>
+                                    <div class="font-weight-bold">{{ tool.code }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted mb-0">工具名称</label>
+                                    <div class="font-weight-bold">{{ tool.name }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted mb-0">规格型号</label>
+                                    <div class="font-weight-bold">{{ tool.specification }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted mb-0">当前状态</label>
+                                    <div>
+                                        <span class="badge badge-{% if tool.status == '正常' %}success{% elif tool.status == '故障' %}warning{% elif tool.status == '维修' %}info{% elif tool.status == '报废' %}dark{% else %}secondary{% endif %}">{{ tool.get_status_display }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <!-- 报修信息 -->
+                    <h6 class="border-bottom pb-2 mb-3 text-muted small">
+                        <i class="fa fa-wrench mr-1"></i>报修信息
+                    </h6>
+
+                    <!-- 报修班组和报修人 -->
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label for="{{ form.team.id_for_label }}">报修班组 <span class="text-danger">*</span></label>
+                            <select name="team" id="{{ form.team.id_for_label }}" class="form-control" required>
+                                <option value="">-- 请选择 --</option>
+                                {% for choice in form.team.field.choices %}
+                                    {% if choice.0 %}
+                                        <option value="{{ choice.0 }}" {% if form.team.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>{{ choice.1 }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col">
+                            <label for="{{ form.reporter_name.id_for_label }}">报修人 <span class="text-danger">*</span></label>
+                            <select name="reporter_name" id="{{ form.reporter_name.id_for_label }}" class="form-control" required>
+                                <option value="">请先选择班组</option>
+                            </select>
+                            <input type="hidden" name="reporter_id" id="{{ form.reporter_id.id_for_label }}">
+                        </div>
+                    </div>
+
+                    <!-- 故障描述 -->
+                    <div class="form-group mb-0">
+                        <label for="{{ form.fault_description.id_for_label }}">故障描述 <span class="text-danger">*</span></label>
+                        <textarea name="fault_description" id="{{ form.fault_description.id_for_label }}"
+                                  class="form-control" rows="3"
+                                  placeholder="请详细描述工具的故障现象和问题..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-warning"><i class="fa fa-check mr-1"></i>提交报修</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const teamSelect = document.getElementById('{{ form.team.id_for_label }}');
+    const reporterSelect = document.getElementById('{{ form.reporter_name.id_for_label }}');
+    const reporterIdInput = document.getElementById('{{ form.reporter_id.id_for_label }}');
+
+    // 加载指定班组的人员列表
+    function loadTeamUsers(teamName) {
+        if (!teamName) {
+            reporterSelect.innerHTML = '<option value="">请先选择班组</option>';
+            reporterIdInput.value = '';
+            return;
+        }
+
+        // 显示加载状态
+        reporterSelect.innerHTML = '<option value="">加载中...</option>';
+
+        // 发送 AJAX 请求获取班组人员
+        fetch(`/tools/api/team-users/${getTeamId(teamName)}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 清空现有选项
+                    reporterSelect.innerHTML = '<option value="">-- 请选择 --</option>';
+
+                    // 添加人员选项
+                    data.users.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user.name;
+                        option.textContent = `${user.name} (${user.skill || '未设置工种'})`;
+                        option.dataset.userId = user.id;
+                        reporterSelect.appendChild(option);
+                    });
+                } else {
+                    reporterSelect.innerHTML = '<option value="">加载失败</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                reporterSelect.innerHTML = '<option value="">加载失败</option>';
+            });
+    }
+
+    // 页面加载完成后，检查是否有默认选中的班组
+    setTimeout(function() {
+        const defaultSelectedTeam = teamSelect.value;
+        if (defaultSelectedTeam) {
+            // 如果有默认班组，立即加载对应的人员列表
+            loadTeamUsers(defaultSelectedTeam);
+        }
+    }, 100);
+
+    // 当班组选择改变时，加载对应人员
+    teamSelect.addEventListener('change', function() {
+        const selectedTeam = this.value;
+        loadTeamUsers(selectedTeam);
+    });
+
+    // 当人员选择改变时，设置隐藏的 ID 字段
+    reporterSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption && selectedOption.dataset.userId) {
+            reporterIdInput.value = selectedOption.dataset.userId;
+        } else {
+            reporterIdInput.value = '';
+        }
+    });
+
+    // 根据班组名称获取班组 ID 的辅助函数
+    function getTeamId(teamName) {
+        const teamMapping = {
+            '架车班': 1,
+            '轮轴班': 2,
+            '台车班': 3,
+            '内制动班': 4,
+            '外制动班': 5,
+            '车钩班': 6,
+            '探伤班': 7,
+            '调车组': 8,
+            '车体班': 9,
+            '预修班': 10,
+            '信息班': 12,
+        };
+        return teamMapping[teamName] || 0;
+    }
+});
+</script>

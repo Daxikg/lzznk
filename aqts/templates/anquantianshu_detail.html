@@ -1,0 +1,154 @@
+{% extends 'base_aqts.html' %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title m-b-0">{{ item.anquanfenlei }}</h1>
+
+                        <div class="comment-widgets scrollable">
+                            <div class="d-flex flex-row comment-row m-t-0">
+                                <div class="comment-text w-100" style="width: auto;">
+                                    <h1 class="font-medium" style="text-align: center;">
+                                        {{ item.anquanbiaoti }}</h1>
+                                    <span class="m-b-15 d-block" style="text-align: center;">
+                                    <span style="margin-right: 20px;">{{ item.todaytime|date:'Y-m-d H:i' }}</span>
+                                    <span style="margin-left: 20px;">发布人：{{ item.user }}</span>
+                                </span>
+                                    <div class="comment-text w-100"
+                                         style="width: auto; min-height: fit-content; font-size: 35px">
+                                        <pre class="pre-style">{{ item.anquanneirong }}</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                {% if item.file %}
+                                    {% if ".jpg" in item.file.url or ".jpeg" in item.file.url or ".png" in item.file.url or ".gif" in item.file.url %}
+                                        <p>
+                                            <a href="{{ item.file.url }}" target="_blank">
+                                                <div class="image-container">
+                                                    <img src="{{ item.file.url }}" alt="图片">
+                                                </div>
+                                            </a>
+                                        </p>
+                                        <p>点击照片可查看大图</p>
+                                    {% elif ".pdf" in item.file.url %}
+                                        <p>
+                                            <a href="{{ item.file.url }}" class="btn btn-cyan" target="_blank">打开
+                                                PDF 文件</a>
+                                        </p>
+                                    {% else %}
+                                        <p>
+                                            <a href="{{ item.file.url }}" class="btn btn-cyan"
+                                               target="_blank">下载文件</a>
+                                        </p>
+                                    {% endif %}
+                                {% else %}
+                                    <p>没有附件.</p>
+                                {% endif %}
+                            </div>
+                            {% if banzu == 13 %}
+                                <button
+                                        class="btn btn-primary edit-btn"
+                                        data-toggle="modal"
+                                        data-target="#editModal"
+                                        data-id="{{ item.id }}"
+                                        data-anquanfenlei="{{ item.anquanfenlei }}"
+                                        data-anquanbiaoti="{{ item.anquanbiaoti }}"
+                                        data-user="{{ item.user }}"
+                                        data-anquanneirong="{{ item.anquanneirong|escapejs }}"
+                                >编辑
+                                </button>
+                                <!-- "编辑通知"模态框 -->
+                                <div class="modal fade" id="editModal" tabindex="-1" role="dialog"
+                                     aria-labelledby="editModalLabel"
+                                     aria-hidden="true">
+                                    <div class="modal-dialog modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <form id="editForm" method="post" enctype="multipart/form-data" action="">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="id" id="edit-id" value="">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="editModalLabel">编辑安全通知</h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                            aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <!-- 安全分类 -->
+                                                    <div class="form-group">
+                                                        <label>安全分类</label>
+                                                        <select name="anquanfenlei" id="edit-anquanfenlei"
+                                                                class="form-control" required>
+                                                            <option value="">请选择</option>
+                                                            <option value="劳动安全">劳动安全</option>
+                                                            <option value="行车安全">行车安全</option>
+                                                            <option value="车辆故障">车辆故障</option>
+                                                        </select>
+                                                    </div>
+                                                    <!-- 标题 -->
+                                                    <div class="form-group">
+                                                        <label>标题</label>
+                                                        <input type="text" name="anquanbiaoti" id="edit-anquanbiaoti"
+                                                               class="form-control" required>
+                                                    </div>
+                                                    <!-- 发布人 -->
+                                                    <div class="form-group">
+                                                        <label>发布人</label>
+                                                        <input type="text" name="user" id="edit-user"
+                                                               class="form-control">
+                                                    </div>
+                                                    <!-- 内容 -->
+                                                    <div class="form-group">
+                                                        <label>内容</label>
+                                                        <textarea name="anquanneirong" id="edit-anquanneirong"
+                                                                  class="form-control"
+                                                                  rows="4"></textarea>
+                                                    </div>
+                                                    <!-- 附件 (仅一个) -->
+                                                    <div class="form-group">
+                                                        <label>附件（选择一份覆盖之前的）</label>
+                                                        <input type="file" name="file" class="form-control" accept="">
+                                                        {% if item.file %}
+                                                            <div style="margin-top:10px;">
+                                                                当前附件: <a href="{{ item.file.url }}"
+                                                                             target="_blank">{{ item.file.name }}</a>
+                                                                <label>
+                                                                    <input type="checkbox" name="delete_file" value="1">
+                                                                    删除附件
+                                                                </label>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-primary">保存</button>
+                                                    <button type="button" class="btn btn-secondary"
+                                                            data-dismiss="modal">取消
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <form method="post"
+                                      action="{% url 'aqts:delete_anquantianshu' item.id %}?fenlei={{ item.anquanfenlei }}"
+                                      style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger"
+                                            onclick="return confirm('确定要删除吗？');">删除
+                                    </button>
+                                </form>
+                            {% else %}
+                            {% endif %}
+                            <a href="{% url 'aqts:anquantianshu_list' %}?fenlei={{ item.anquanfenlei }}"
+                               class="btn btn-secondary">返回列表</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
