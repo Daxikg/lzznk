@@ -166,6 +166,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     r'E:\lzznk\app01\static',
     r'E:\lzznk\tools\static',
+    r'E:\lzznk\workshop\static',
 ]
 
 # Authentication settings

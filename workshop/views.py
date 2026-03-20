@@ -3,7 +3,13 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.utils import timezone
 from django.db.models import Count
+from django.shortcuts import render
 from .models import Device, DeviceArea
+
+
+def workshop_screen(request):
+    """大屏展示页面"""
+    return render(request, 'workshop/screen.html')
 
 
 @api_view(['GET'])

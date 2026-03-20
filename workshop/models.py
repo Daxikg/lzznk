@@ -10,11 +10,24 @@ class Device(models.Model):
     ]
 
     TYPE_CHOICES = [
-        ('measure', '测量设备'),
+        ('grind', '磨合设备'),
+        ('detect', '检测设备'),
+        ('unload', '退卸设备'),
+        ('rust', '除锈设备'),
+        ('flaw', '探伤设备'),
+        ('oil', '涂油设备'),
+        ('bolt', '紧固设备'),
         ('press', '压装设备'),
+        ('measure', '测量设备'),
+        ('crane', '天车设备'),
+        ('lathe', '车轮车床'),
+        ('protect', '防护装置'),
+        ('forklift', '货叉装置'),
+        ('stacker', '堆垛系统'),
+        ('warehouse', '立体库'),
+        # 保留旧类型兼容
         ('platform', '平台设备'),
         ('conveyor', '传输设备'),
-        ('warehouse', '仓储设备'),
         ('cabinet', '控制设备'),
         ('room', '防护设施'),
         ('power', '动力设备'),

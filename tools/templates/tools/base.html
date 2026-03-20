@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/favicon.png' %}">
     <title>{% block title %}修配车间工具管理系统{% endblock %}</title>
     <!-- Bootstrap 4 CSS -->
     <link href="{% static 'tools/assets/libs/bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet">
@@ -88,7 +89,7 @@
 
         /* 侧边栏链接文字 */
         .sidebar-nav .sidebar-link {
-            color: #a0aec0 !important;
+            color: #fff !important;
         }
 
         .sidebar-nav .sidebar-link:hover {
@@ -153,13 +154,12 @@
 
                 <!-- Logo -->
                 <div class="navbar-brand">
-                    <a href="{% url 'tools:user_dashboard' %}">
-                        <b class="logo-icon">
-                            <i class="fas fa-tools fa-2x text-primary"></i>
-                        </b>
+                    <a href="{% url 'tools:user_dashboard' %}" class="d-flex align-items-center">
+                        <!-- LOGO 图标 -->
+
                         <span class="logo-text">
-                                <span class="text-dark font-weight-bold">工具管理系统</span>
-                            </span>
+                            <span class="text-dark font-weight-bold">贵阳南修配车间</span>
+                        </span>
                     </a>
                 </div>
 
@@ -177,20 +177,37 @@
                 <ul class="navbar-nav float-left mr-auto ml-3 pl-1">
                     <li class="nav-item d-flex align-items-center">
                         <h5 class="mb-0 font-weight-medium text-dark mr-3">
-                            {% block nav_page_title %}仪表板{% endblock %}
+                            {% block nav_page_title %}主页{% endblock %}
                         </h5>
                     </li>
                     <li class="nav-item d-flex align-items-center">
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb m-0 p-0" style="background: transparent; font-size: 0.85rem;">
-                                <li class="breadcrumb-item"><a href="{% url 'tools:user_dashboard' %}" class="text-muted">首页</a></li>
+                                <li class="breadcrumb-item"><a href="{% url 'tools:user_dashboard' %}"
+                                                               class="text-muted">首页</a></li>
                                 {% block nav_breadcrumb %}{% endblock %}
                             </ol>
                         </nav>
                     </li>
                 </ul>
+
+                <!-- Center: System Title -->
+                <div class="navbar-nav mx-auto d-flex align-items-center">
+                    <h1 class="mb-0 font-weight-bold text-white"
+                        style="letter-spacing: 2px; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
+                        修配车间高价值工具管理
+                    </h1>
+                </div>
+
                 <!-- Right side nav items -->
                 <ul class="navbar-nav float-right">
+                    <!-- 进入信息管理平台链接 -->
+                    <li class="nav-item d-flex align-items-center mr-3">
+                        <a href="/1/" class="nav-link" style="color: #e2e8f0 !important; font-weight: 500;">
+                            <i class="fas fa-external-link-alt mr-1"></i>
+                            进入信息管理平台
+                        </a>
+                    </li>
                     <!-- User profile dropdown -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown"
