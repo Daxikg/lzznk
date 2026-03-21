@@ -104,6 +104,9 @@ class Command(BaseCommand):
         # 钢轨4-5设备
         for rail_idx in range(3, 5):
             for dev_idx, device in enumerate(lun_zhou_devices_45):
+                # 跳过双轮磨合机-5-3（钢轨5的第3个设备）
+                if rail_idx == 4 and dev_idx == 2:
+                    continue
                 x = 30 + device['x_offset']
                 y = RAIL_Y[rail_idx] + 10 - DH // 2
                 width = device.get('width', DW)
@@ -122,6 +125,9 @@ class Command(BaseCommand):
 
         # 钢轨6设备
         for dev_idx, device in enumerate(lun_zhou_devices_6):
+            # 跳过双轮磨合机-6-3（第3个设备）
+            if dev_idx == 2:
+                continue
             x = 30 + device['x_offset']
             y = RAIL_Y[5] + 10 - DH // 2
             width = device.get('width', DW)
@@ -138,16 +144,30 @@ class Command(BaseCommand):
             })
             device_id += 1
 
-        # 轴承堆垛系统（墙外下方）
+        # 标志牌打印机（轴承端盖及配件清洗间内右边）
+        devices_data.append({
+            'device_id': f'D{str(device_id).zfill(3)}',
+            'name': '标志牌打印机',
+            'area': '轴承端盖及配件清洗间',
+            'device_type': 'detect',
+            'status': 'running',
+            'pos_x': 145,
+            'pos_y': 527,
+            'pos_width': 60,
+            'pos_height': 40,
+        })
+        device_id += 1
+
+        # 轴承堆垛系统（工具间内）
         devices_data.append({
             'device_id': f'D{str(device_id).zfill(3)}',
             'name': '轴承堆垛系统',
-            'area': '墙外',
+            'area': '工具间',
             'device_type': 'stacker',
             'status': 'running',
-            'pos_x': 200,
-            'pos_y': 620,
-            'pos_width': 180,
+            'pos_x': 280,
+            'pos_y': 623,
+            'pos_width': 60,
             'pos_height': 45,
             'capacity': 500,
             'used': 328,
@@ -187,8 +207,8 @@ class Command(BaseCommand):
             })
             device_id += 1
 
-        # 第三组：纵向钢轨3与钢轨1-6的交叉点处（x=945，对应转盘-10到转盘-15）
-        # 纵向钢轨3中心在x=960，转盘直径40，x=960-20+5=945
+        # 第三组：纵向钢轨3与钢轨1-6的交叉点处（x=935，对应转盘-10到转盘-15）
+        # 纵向钢轨3中心在x=950，转盘直径40，x=950-20+5=935
         for i in range(6):
             devices_data.append({
                 'device_id': f'D{str(device_id).zfill(3)}',
@@ -196,7 +216,7 @@ class Command(BaseCommand):
                 'area': '探伤间',
                 'device_type': 'turntable',
                 'status': 'running',
-                'pos_x': 945,
+                'pos_x': 935,
                 'pos_y': RAIL_Y[i] - 10,
                 'pos_width': 40,
                 'pos_height': 40,
@@ -230,6 +250,21 @@ class Command(BaseCommand):
                     'pos_height': DH,
                 })
                 device_id += 1
+
+        # 转轮器（探伤间，钢轨1-3）
+        for i in range(3):
+            devices_data.append({
+                'device_id': f'D{str(device_id).zfill(3)}',
+                'name': f'转轮器-{i + 1}',
+                'area': '探伤间',
+                'device_type': 'detect',
+                'status': 'running',
+                'pos_x': LEFT_WIDTH + 280,
+                'pos_y': RAIL_Y[i] + 10 - 18,
+                'pos_width': 35,
+                'pos_height': 36,
+            })
+            device_id += 1
 
         # 钢轨5：轴承压装机、轴颈自动测量机（轮对压装线2）
         # 轴承压装机
@@ -288,6 +323,21 @@ class Command(BaseCommand):
         })
         device_id += 1
 
+        # 轮对识别机（探伤间右边墙体往左5像素处，钢轨1-3）
+        for i in range(3):
+            devices_data.append({
+                'device_id': f'D{str(device_id).zfill(3)}',
+                'name': f'轮对识别机-{i + 1}',
+                'area': '探伤间',
+                'device_type': 'detect',
+                'status': 'running',
+                'pos_x': LEFT_WIDTH + MIDDLE_WIDTH - 20,
+                'pos_y': RAIL_Y[i] + 10 - DH // 2,
+                'pos_width': 15,
+                'pos_height': DH,
+            })
+            device_id += 1
+
         # 轴承智能选配立体库（Y与轮轴间房间平齐）
         devices_data.append({
             'device_id': f'D{str(device_id).zfill(3)}',
@@ -333,30 +383,83 @@ class Command(BaseCommand):
         device_id += 1
 
         # ==================== 旋轮间设备 ====================
-        # 天车设备（第六条钢轨下方，靠近旋轮间左边墙体，纵向排列）
+        # 航架机械手（第六条钢轨下方，靠近旋轮间左边墙体，纵向排列，间隔10）
         devices_data.append({
             'device_id': f'D{str(device_id).zfill(3)}',
-            'name': '天车设备-1',
+            'name': '航架机械手-1',
             'area': '旋轮间',
             'device_type': 'crane',
             'status': 'running',
             'pos_x': LEFT_WIDTH + MIDDLE_WIDTH + 10,
-            'pos_y': RAIL_Y[5] + 50,
+            'pos_y': RAIL_Y[5] + 30,
             'pos_width': 80,
-            'pos_height': 35,
+            'pos_height': 25,
         })
         device_id += 1
 
         devices_data.append({
             'device_id': f'D{str(device_id).zfill(3)}',
-            'name': '天车设备-2',
+            'name': '航架机械手-2',
             'area': '旋轮间',
             'device_type': 'crane',
             'status': 'running',
             'pos_x': LEFT_WIDTH + MIDDLE_WIDTH + 10,
-            'pos_y': RAIL_Y[5] + 95,
+            'pos_y': RAIL_Y[5] + 65,
             'pos_width': 80,
-            'pos_height': 35,
+            'pos_height': 25,
+        })
+        device_id += 1
+
+        devices_data.append({
+            'device_id': f'D{str(device_id).zfill(3)}',
+            'name': '航架天车',
+            'area': '旋轮间',
+            'device_type': 'crane',
+            'status': 'running',
+            'pos_x': LEFT_WIDTH + MIDDLE_WIDTH + 10,
+            'pos_y': RAIL_Y[5] + 100,
+            'pos_width': 80,
+            'pos_height': 25,
+        })
+        device_id += 1
+
+        # 航架设备（虚线右边，间隔10）
+        devices_data.append({
+            'device_id': f'D{str(device_id).zfill(3)}',
+            'name': '航架机械手-3',
+            'area': '旋轮间',
+            'device_type': 'crane',
+            'status': 'running',
+            'pos_x': LEFT_WIDTH + MIDDLE_WIDTH + RIGHT_WIDTH // 2 + 10,
+            'pos_y': RAIL_Y[5] + 30,
+            'pos_width': 80,
+            'pos_height': 25,
+        })
+        device_id += 1
+
+        devices_data.append({
+            'device_id': f'D{str(device_id).zfill(3)}',
+            'name': '航架机械手-4',
+            'area': '旋轮间',
+            'device_type': 'crane',
+            'status': 'running',
+            'pos_x': LEFT_WIDTH + MIDDLE_WIDTH + RIGHT_WIDTH // 2 + 10,
+            'pos_y': RAIL_Y[5] + 65,
+            'pos_width': 80,
+            'pos_height': 25,
+        })
+        device_id += 1
+
+        devices_data.append({
+            'device_id': f'D{str(device_id).zfill(3)}',
+            'name': '天车',
+            'area': '旋轮间',
+            'device_type': 'crane',
+            'status': 'running',
+            'pos_x': LEFT_WIDTH + MIDDLE_WIDTH + RIGHT_WIDTH // 2 + 10,
+            'pos_y': RAIL_Y[5] + 100,
+            'pos_width': 80,
+            'pos_height': 25,
         })
         device_id += 1
 
