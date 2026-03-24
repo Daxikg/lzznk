@@ -132,7 +132,10 @@
                                         <tr>
                                             {{ form.id }}
                                             <td style="background-color: #8ec2ed;">{{ position }}</td>
-                                            <td>{{ car_numbers|index:forloop.counter0 }}</td>
+                                            <td>
+                                                <span style="display:none">{{ form.car_number }}</span>
+                                                {{ car_numbers|index:forloop.counter0 }}
+                                            </td>
                                             <td>{{ form.xiucheng }}</td>
                                             <td>{{ form.chexing }}</td>
                                             <td>{{ form.nianxian }}</td>
@@ -173,6 +176,10 @@
         // C64AK单独判断，不在type_16里
         document.getElementById("fetchDataBtn").onclick = function () {
             for (let i = 0; i < car_r_types.length; i++) {
+                // 车号自动填充
+                let car_number_input = document.querySelector('[name="form-' + i + '-car_number"]');
+                if (car_number_input) car_number_input.value = car_numbers[i] || '';
+
                 // 修程自动填充
                 let xiucheng = document.querySelector('[name="form-' + i + '-xiucheng"]');
                 if (xiucheng) xiucheng.value = car_r_types[i] || '';

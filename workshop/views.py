@@ -22,8 +22,8 @@ def get_devices(request):
         item = {
             'id': device.device_id,
             'name': device.name,
-            'area': device.area,
-            'type': device.device_type,
+            'area': device.area.name if device.area else '',
+            'type': device.device_type.code if device.device_type else '',
             'description': device.description,
             'status': device.status,
             'computedStatus': device.computed_status,
@@ -53,8 +53,8 @@ def get_device_detail(request, device_id):
     data = {
         'id': device.device_id,
         'name': device.name,
-        'area': device.area,
-        'type': device.device_type,
+        'area': device.area.name if device.area else '',
+        'type': device.device_type.code if device.device_type else '',
         'description': device.description,
         'status': device.status,
         'computedStatus': device.computed_status,
@@ -64,6 +64,9 @@ def get_device_detail(request, device_id):
         'height': device.pos_height,
         'updatedAt': device.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
     }
+    # 二维码图片URL
+    if device.qrcode_image:
+        data['qrcodeUrl'] = device.qrcode_image.url
     if device.fault_time:
         data['faultTime'] = int(device.fault_time.timestamp() * 1000)
         data['faultStartTime'] = device.fault_time.strftime('%Y-%m-%d %H:%M:%S')
@@ -164,8 +167,8 @@ def get_all_data(request):
         item = {
             'id': device.device_id,
             'name': device.name,
-            'area': device.area,
-            'type': device.device_type,
+            'area': device.area.name if device.area else '',
+            'type': device.device_type.code if device.device_type else '',
             'description': device.description,
             'status': device.status,
             'computedStatus': status,
@@ -174,6 +177,9 @@ def get_all_data(request):
             'width': device.pos_width,
             'height': device.pos_height,
         }
+        # 二维码图片URL
+        if device.qrcode_image:
+            item['qrcodeUrl'] = device.qrcode_image.url
         if device.fault_time:
             item['faultTime'] = int(device.fault_time.timestamp() * 1000)
         if device.capacity:

@@ -32,6 +32,10 @@
             color: yellow !important; /* 70T黄色显示，60T默认颜色显示 */
         }
 
+        .red-highlight {
+            color: red !important; /* number以0开头时红色显示 */
+        }
+
         body {
             min-height: 100vh;
             /* 将背景图片设置为 'background.jpg' */
@@ -175,7 +179,7 @@
                 <a href="/轮轴班二次出库信息展示界面/" class="btn btn-default " role="button">二次入库</a>
                 <a href="/轮轴班三次出库信息展示界面/" class="btn btn-default " role="button">三次入库</a>
                 <a href="/轮轴班临修信息展示界面/" class="btn btn-default " role="button">临修</a>
-                        <a href="/index1/" class="btn btn-default " role="button">返回</a>
+                <a href="/index1/" class="btn btn-default " role="button">返回</a>
             </ul>
         </div>
     </div>
@@ -195,13 +199,13 @@
                 {% for item in data_list|slice:":9" %}
                     <tr class="table-row">
                         <td class="large-font2 {% if item.data.data1.beizhu %}updated{% endif %}">{{ item.position }}</td>
-                        <td class="large-font2 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                        <td class="large-font2 {% if item.data.data1.car_number|slice:':1' == '0' %}red-highlight{% elif item.data.data1.chexing in highlight_list %}highlight{% endif %}">
                             {% if item.data.data1.get_xiucheng_display %}
                                 {{ item.data.data1.get_xiucheng_display }}{% endif %}</td>
-                        <td class="large-font2 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                        <td class="large-font2 {% if item.data.data1.car_number|slice:':1' == '0' %}red-highlight{% elif item.data.data1.chexing in highlight_list %}highlight{% endif %}">
                             {% if item.data.data1.chexing %}
                                 {{ item.data.data1.chexing }}{% endif %}</td>
-                        <td class="large-font1 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                        <td class="large-font1 {% if item.data.data1.car_number|slice:':1' == '0' %}red-highlight{% elif item.data.data1.chexing in highlight_list %}highlight{% endif %}">
                             {% if item.data.data1.get_nianxian_display %}
                                 {{ item.data.data1.get_nianxian_display }}{% endif %}</td>
                         <td class="large-font">
@@ -227,13 +231,13 @@
                 {% for item in data_list|slice:"9:18" %}
                     <tr class="table-row">
                         <td class="large-font2 {% if item.data.data1.beizhu %}updated{% endif %}">{{ item.position }}</td>
-                        <td class="large-font2 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                        <td class="large-font2 {% if item.data.data1.car_number|slice:':1' == '0' %}red-highlight{% elif item.data.data1.chexing in highlight_list %}highlight{% endif %}">
                             {% if item.data.data1.get_xiucheng_display %}
                                 {{ item.data.data1.get_xiucheng_display }}{% endif %}</td>
-                        <td class="large-font2 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                        <td class="large-font2 {% if item.data.data1.car_number|slice:':1' == '0' %}red-highlight{% elif item.data.data1.chexing in highlight_list %}highlight{% endif %}">
                             {% if item.data.data1.chexing %}
                                 {{ item.data.data1.chexing }}{% endif %}</td>
-                        <td class="large-font1 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                        <td class="large-font1 {% if item.data.data1.car_number|slice:':1' == '0' %}red-highlight{% elif item.data.data1.chexing in highlight_list %}highlight{% endif %}">
                             {% if item.data.data1.get_nianxian_display %}
                                 {{ item.data.data1.get_nianxian_display }}{% endif %}</td>
                         <td class="large-font">
@@ -259,13 +263,13 @@
                 {% for item in data_list|slice:"18:27" %}
                     <tr class="table-row">
                         <td class="large-font2 {% if item.data.data1.beizhu %}updated{% endif %}">{{ item.position }}</td>
-                        <td class="large-font2 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                        <td class="large-font2 {% if item.data.data1.car_number|slice:':1' == '0' %}red-highlight{% elif item.data.data1.chexing in highlight_list %}highlight{% endif %}">
                             {% if item.data.data1.get_xiucheng_display %}
                                 {{ item.data.data1.get_xiucheng_display }}{% endif %}</td>
-                        <td class="large-font2 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                        <td class="large-font2 {% if item.data.data1.car_number|slice:':1' == '0' %}red-highlight{% elif item.data.data1.chexing in highlight_list %}highlight{% endif %}">
                             {% if item.data.data1.chexing %}
                                 {{ item.data.data1.chexing }}{% endif %}</td>
-                        <td class="large-font1 {% if item.data.data1.chexing in highlight_list %}highlight{% endif %}">
+                        <td class="large-font1 {% if item.data.data1.car_number|slice:':1' == '0' %}red-highlight{% elif item.data.data1.chexing in highlight_list %}highlight{% endif %}">
                             {% if item.data.data1.get_nianxian_display %}
                                 {{ item.data.data1.get_nianxian_display }}{% endif %}</td>
                         <td class="large-font">

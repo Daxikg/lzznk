@@ -2485,7 +2485,7 @@ def user_delete(request, nid1, nid2):
 class processedForm(ModelForm):
     class Meta:
         model = models.initial
-        fields = ['xiucheng', 'chexing', 'nianxian', "beizhu"]
+        fields = ['car_number', 'xiucheng', 'chexing', 'nianxian', "beizhu"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

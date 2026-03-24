@@ -18,11 +18,13 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.static import serve
+from django.contrib import admin
 from app01 import views
 from app01.views import InitialView, copy_data1, copy_data2, copy_data3, create_data, create_data1, create_data2, \
     change_password, create_data3
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
     path('', views.ddd),
     path('1/', views.ddd, name='1'),
     path('wlgl/', views.wlgl, name='wlgl'),

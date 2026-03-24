@@ -145,7 +145,7 @@ class initial(models.Model):
                                      validators=[MinValueValidator(0), MaxValueValidator(35)])
     pangcheng2 = models.IntegerField(_('二位上旁承'), blank=True, null=True,
                                      validators=[MinValueValidator(0), MaxValueValidator(35)])
-
+    car_number = models.CharField(_("车号"), max_length=20, blank=True, null=True)
     xiucheng = models.CharField(_("货车修程"), max_length=10, choices=(("段", "段"), ("厂", "厂"), ("临", "临")),
                                 blank=True, null=True, default="段")
     chexing = models.CharField(_("车种车型"), max_length=20, blank=True, null=True)

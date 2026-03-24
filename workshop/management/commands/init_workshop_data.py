@@ -1,55 +1,26 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from workshop.models import Device, DeviceArea
+from workshop.models import Device, DeviceArea, DeviceType
 
 
 class Command(BaseCommand):
-    help = '初始化车间设备数据（2026-03-17更新）'
+    help = '初始化车间设备数据（2026-03-24更新）'
 
     def handle(self, *args, **options):
         self.stdout.write('开始初始化数据...')
 
-        # 清空现有数据
+        # 获取已有的设备类型和区域（不删除，从数据库获取）
+        device_type_map = {dt.code: dt for dt in DeviceType.objects.all()}
+        area_map = {da.name: da for da in DeviceArea.objects.all()}
+
+        # 清空现有设备数据
         Device.objects.all().delete()
-        DeviceArea.objects.all().delete()
 
         # 布局参数
         LEFT_WIDTH = 600      # 轮轴间宽度
         MIDDLE_WIDTH = 400    # 探伤间宽度
         RIGHT_WIDTH = 400     # 旋轮间宽度
         RAIL_Y = [80, 150, 220, 320, 390, 460]  # 6条钢轨Y坐标
-
-        # 创建区域
-        areas_data = [
-            {
-                'name': '轮轴间',
-                'pos_x': 10, 'pos_y': 40,
-                'width': LEFT_WIDTH - 20, 'height': 540,
-                'color': 'rgba(52, 152, 219, 0.06)',
-                'border_color': 'rgba(52, 152, 219, 0.5)',
-                'sort_order': 1
-            },
-            {
-                'name': '探伤间',
-                'pos_x': LEFT_WIDTH + 10, 'pos_y': 40,
-                'width': MIDDLE_WIDTH - 20, 'height': 540,
-                'color': 'rgba(46, 204, 113, 0.06)',
-                'border_color': 'rgba(46, 204, 113, 0.5)',
-                'sort_order': 2
-            },
-            {
-                'name': '旋轮间',
-                'pos_x': LEFT_WIDTH + MIDDLE_WIDTH + 10, 'pos_y': 40,
-                'width': RIGHT_WIDTH - 20, 'height': 540,
-                'color': 'rgba(155, 89, 182, 0.06)',
-                'border_color': 'rgba(155, 89, 182, 0.5)',
-                'sort_order': 3
-            },
-        ]
-
-        for area_data in areas_data:
-            DeviceArea.objects.create(**area_data)
-        self.stdout.write(f'创建了 {len(areas_data)} 个区域')
 
         # 设备基础尺寸
         DW, DH = 100, 45
@@ -60,9 +31,9 @@ class Command(BaseCommand):
         device_id = 1
 
         # ==================== 轮轴间设备 ====================
-        # 钢轨1-3：轮对自动检测机(前移60)、轴承退卸机、轮对除锈机（后两列位置不变）
+        # 钢轨1-3：轮对自动检测机(宽度缩短40，右移40)、轴承退卸机、轮对除锈机（后两列位置不变）
         lun_zhou_devices_123 = [
-            {'name': '轮对自动检测机', 'type': 'detect', 'x_offset': 80},  # 前移60
+            {'name': '轮对自动检测机', 'type': 'detect', 'x_offset': 120, 'width': 60},  # 右移40，宽度60
             {'name': '轴承退卸机', 'type': 'unload', 'x_offset': 280},     # 不变
             {'name': '轮对除锈机', 'type': 'rust', 'x_offset': 420},       # 不变
         ]
@@ -88,6 +59,7 @@ class Command(BaseCommand):
             for dev_idx, device in enumerate(lun_zhou_devices_123):
                 x = 30 + device['x_offset']
                 y = RAIL_Y[rail_idx] + 10 - DH // 2
+                width = device.get('width', DW)
                 devices_data.append({
                     'device_id': f'D{str(device_id).zfill(3)}',
                     'name': f"{device['name']}-{rail_idx + 1}-{dev_idx + 1}",
@@ -96,10 +68,65 @@ class Command(BaseCommand):
                     'status': 'running',
                     'pos_x': x,
                     'pos_y': y,
-                    'pos_width': DW,
+                    'pos_width': width,
                     'pos_height': DH,
                 })
                 device_id += 1
+
+        # 轴承自动开盖机（第一、二条钢轨，转盘与检测机中间）
+        for i in range(2):
+            devices_data.append({
+                'device_id': f'D{str(device_id).zfill(3)}',
+                'name': f'轴承自动开盖机-{i + 1}',
+                'area': '轮轴间',
+                'device_type': 'detect',
+                'status': 'running',
+                'pos_x': 87,
+                'pos_y': RAIL_Y[i] + 10 - DH // 2,
+                'pos_width': 40,
+                'pos_height': DH,
+            })
+            device_id += 1
+
+        # 配件存放间设备（归属轮轴间）
+        devices_data.append({
+            'device_id': f'D{str(device_id).zfill(3)}',
+            'name': '轴承附件清洗机',
+            'area': '轮轴间',
+            'device_type': 'detect',
+            'status': 'running',
+            'pos_x': 5,
+            'pos_y': 625,
+            'pos_width': 75,
+            'pos_height': 22,
+        })
+        device_id += 1
+
+        devices_data.append({
+            'device_id': f'D{str(device_id).zfill(3)}',
+            'name': '附件超声波清洗机',
+            'area': '轮轴间',
+            'device_type': 'detect',
+            'status': 'running',
+            'pos_x': 90,
+            'pos_y': 625,
+            'pos_width': 75,
+            'pos_height': 22,
+        })
+        device_id += 1
+
+        devices_data.append({
+            'device_id': f'D{str(device_id).zfill(3)}',
+            'name': '悬臂吊',
+            'area': '轮轴间',
+            'device_type': 'crane',
+            'status': 'running',
+            'pos_x': 175,
+            'pos_y': 625,
+            'pos_width': 70,
+            'pos_height': 22,
+        })
+        device_id += 1
 
         # 钢轨4-5设备
         for rail_idx in range(3, 5):
@@ -144,11 +171,11 @@ class Command(BaseCommand):
             })
             device_id += 1
 
-        # 标志牌打印机（轴承端盖及配件清洗间内右边）
+        # 标志牌打印机（轴承端盖及配件清洗间内右边，归属轮轴间）
         devices_data.append({
             'device_id': f'D{str(device_id).zfill(3)}',
             'name': '标志牌打印机',
-            'area': '轴承端盖及配件清洗间',
+            'area': '轮轴间',
             'device_type': 'detect',
             'status': 'running',
             'pos_x': 145,
@@ -158,11 +185,11 @@ class Command(BaseCommand):
         })
         device_id += 1
 
-        # 轴承堆垛系统（工具间内）
+        # 轴承堆垛系统（工具间内，归属轮轴间）
         devices_data.append({
             'device_id': f'D{str(device_id).zfill(3)}',
             'name': '轴承堆垛系统',
-            'area': '工具间',
+            'area': '轮轴间',
             'device_type': 'stacker',
             'status': 'running',
             'pos_x': 280,
@@ -232,15 +259,18 @@ class Command(BaseCommand):
 
         # 钢轨1-3设备（探伤间部分）
         # 轮对超声波探伤机往左移动20
+        # 轮对超声波探伤机-1改名为相控阵探伤机
         for rail_idx in range(3):
             for dev_idx, device in enumerate(tan_shang_devices_123):
                 # 第二列设备（轮对超声波探伤机）往左移动20
                 x_offset = 130 if dev_idx == 1 else 150
                 x = LEFT_WIDTH + 30 + dev_idx * x_offset
                 y = RAIL_Y[rail_idx] + 10 - DH // 2
+                # 轮对超声波探伤机-1改名为相控阵探伤机
+                device_name = '相控阵探伤机' if (rail_idx == 0 and dev_idx == 1) else f"{device['name']}-{rail_idx + 1}"
                 devices_data.append({
                     'device_id': f'D{str(device_id).zfill(3)}',
-                    'name': f"{device['name']}-{rail_idx + 1}",
+                    'name': device_name,
                     'area': '探伤间',
                     'device_type': device['type'],
                     'status': 'running',
@@ -347,32 +377,58 @@ class Command(BaseCommand):
             'status': 'running',
             'pos_x': LEFT_WIDTH + 30,
             'pos_y': 520,
-            'pos_width': 220,
+            'pos_width': 190,
             'pos_height': 45,
             'capacity': 1000,
             'used': 756,
         })
         device_id += 1
 
-        # 轴承上料机器人（在立体库右边）
+        # 轴承内径测量机（立体库与机器人中间，拆分为2台）
+        devices_data.append({
+            'device_id': f'D{str(device_id).zfill(3)}',
+            'name': '轴承内径测量机-1',
+            'area': '探伤间',
+            'device_type': 'measure',
+            'status': 'running',
+            'pos_x': LEFT_WIDTH + 230,
+            'pos_y': 520,
+            'pos_width': 40,
+            'pos_height': 20,
+        })
+        device_id += 1
+        devices_data.append({
+            'device_id': f'D{str(device_id).zfill(3)}',
+            'name': '轴承内径测量机-2',
+            'area': '探伤间',
+            'device_type': 'measure',
+            'status': 'running',
+            'pos_x': LEFT_WIDTH + 230,
+            'pos_y': 545,
+            'pos_width': 40,
+            'pos_height': 20,
+        })
+        device_id += 1
+
+        # 轴承上料机器人（在测量机右边）
         devices_data.append({
             'device_id': f'D{str(device_id).zfill(3)}',
             'name': '轴承上料机器人',
             'area': '探伤间',
             'device_type': 'detect',
             'status': 'running',
-            'pos_x': LEFT_WIDTH + 260,
+            'pos_x': LEFT_WIDTH + 280,
             'pos_y': 520,
-            'pos_width': 100,
+            'pos_width': 80,
             'pos_height': 45,
         })
         device_id += 1
 
-        # 标志牌识别机（3号钢轨起始位置处，轮轴间左边墙体外）
+        # 标志牌识别机（3号钢轨起始位置处，轮轴间左边墙体外，归属轮轴间）
         devices_data.append({
             'device_id': f'D{str(device_id).zfill(3)}',
             'name': '标志牌识别机',
-            'area': '墙外',
+            'area': '轮轴间',
             'device_type': 'detect',
             'status': 'running',
             'pos_x': -75,
@@ -390,7 +446,7 @@ class Command(BaseCommand):
             'area': '旋轮间',
             'device_type': 'crane',
             'status': 'running',
-            'pos_x': LEFT_WIDTH + MIDDLE_WIDTH + 10,
+            'pos_x': LEFT_WIDTH + MIDDLE_WIDTH + 110,
             'pos_y': RAIL_Y[5] + 30,
             'pos_width': 80,
             'pos_height': 25,
@@ -403,8 +459,8 @@ class Command(BaseCommand):
             'area': '旋轮间',
             'device_type': 'crane',
             'status': 'running',
-            'pos_x': LEFT_WIDTH + MIDDLE_WIDTH + 10,
-            'pos_y': RAIL_Y[5] + 65,
+            'pos_x': LEFT_WIDTH + MIDDLE_WIDTH + 110,
+            'pos_y': RAIL_Y[5] + 60,
             'pos_width': 80,
             'pos_height': 25,
         })
@@ -416,8 +472,8 @@ class Command(BaseCommand):
             'area': '旋轮间',
             'device_type': 'crane',
             'status': 'running',
-            'pos_x': LEFT_WIDTH + MIDDLE_WIDTH + 10,
-            'pos_y': RAIL_Y[5] + 100,
+            'pos_x': LEFT_WIDTH + MIDDLE_WIDTH + 110,
+            'pos_y': RAIL_Y[5] + 90,
             'pos_width': 80,
             'pos_height': 25,
         })
@@ -444,7 +500,7 @@ class Command(BaseCommand):
             'device_type': 'crane',
             'status': 'running',
             'pos_x': LEFT_WIDTH + MIDDLE_WIDTH + RIGHT_WIDTH // 2 + 10,
-            'pos_y': RAIL_Y[5] + 65,
+            'pos_y': RAIL_Y[5] + 60,
             'pos_width': 80,
             'pos_height': 25,
         })
@@ -457,50 +513,52 @@ class Command(BaseCommand):
             'device_type': 'crane',
             'status': 'running',
             'pos_x': LEFT_WIDTH + MIDDLE_WIDTH + RIGHT_WIDTH // 2 + 10,
-            'pos_y': RAIL_Y[5] + 100,
+            'pos_y': RAIL_Y[5] + 90,
             'pos_width': 80,
             'pos_height': 25,
         })
         device_id += 1
 
         # 6个车轮车床，布局改为3行2列
+        # 编号映射：原位置 0,1,2,3,4,5 -> 新编号 01,06,02,05,03,04
         lathe_width = 90
         lathe_height = 100
         col_gap = 20               # 两列间距
         row_gap = 30               # 两行间距
-        # 居中计算：旋轮间宽度400，两列车床+间距 = 180*2 + 20 = 380，居中偏移 = (400-380)/2 = 10
         start_x = LEFT_WIDTH + MIDDLE_WIDTH + 100
         start_y = 100
 
-        for i in range(6):
-            # 计算行列位置：3行2列
-            row = i // 2      # 行号 0, 0, 1, 1, 2, 2
-            col = i % 2       # 列号 0, 1, 0, 1, 0, 1
+        # 第一组：01、02、03（左列）
+        group1_numbers = [1, 2, 3]  # 编号01, 02, 03
+        group1_positions = [
+            {'row': 0, 'row_offset': 10},   # 01: 第一行，偏移+10
+            {'row': 1, 'row_offset': 0},    # 02: 第二行，无偏移
+            {'row': 2, 'row_offset': -10},  # 03: 第三行，偏移-10
+        ]
 
-            # 行偏移：第一行往下10，第三行往上10
-            row_offset = 10 if row == 0 else (-10 if row == 2 else 0)
-
-            lathe_x = start_x + col * (lathe_width + col_gap)
-            lathe_y = start_y + row * (lathe_height + row_gap) + row_offset
+        for idx, num in enumerate(group1_numbers):
+            pos = group1_positions[idx]
+            lathe_x = start_x
+            lathe_y = start_y + pos['row'] * (lathe_height + row_gap) + pos['row_offset']
 
             # 车轮车床主体
             devices_data.append({
                 'device_id': f'D{str(device_id).zfill(3)}',
-                'name': f"车轮车床-{str(i + 1).zfill(2)}",
+                'name': f"车轮车床-{str(num).zfill(2)}",
                 'area': '旋轮间',
                 'device_type': 'lathe',
                 'status': 'running',
-                'pos_x': lathe_x,
+                'pos_x': lathe_x + 20,
                 'pos_y': lathe_y,
-                'pos_width': lathe_width,
+                'pos_width': lathe_width - 20,
                 'pos_height': lathe_height,
             })
             device_id += 1
 
-            # 防护套自动装卸装置（集成在车床左边1/5处）
+            # 防护套自动装卸装置
             devices_data.append({
                 'device_id': f'D{str(device_id).zfill(3)}',
-                'name': f"防护套装卸装置-{str(i + 1).zfill(2)}",
+                'name': f"防护套装卸装置-{str(num).zfill(2)}",
                 'area': '旋轮间',
                 'device_type': 'protect',
                 'status': 'running',
@@ -511,10 +569,65 @@ class Command(BaseCommand):
             })
             device_id += 1
 
-            # 升降货叉式上下料装置（集成在车床左边1/5处）
+            # 升降货叉式上下料装置
             devices_data.append({
                 'device_id': f'D{str(device_id).zfill(3)}',
-                'name': f"升降货叉装置-{str(i + 1).zfill(2)}",
+                'name': f"升降货叉装置-{str(num).zfill(2)}",
+                'area': '旋轮间',
+                'device_type': 'forklift',
+                'status': 'running',
+                'pos_x': lathe_x + 5,
+                'pos_y': lathe_y + 52,
+                'pos_width': lathe_width // 5 - 8,
+                'pos_height': 38,
+            })
+            device_id += 1
+
+        # 第二组：04、05、06（右列）
+        group2_numbers = [4, 5, 6]  # 编号04, 05, 06
+        group2_positions = [
+            {'row': 2, 'row_offset': -10},  # 04: 第三行，偏移-10
+            {'row': 1, 'row_offset': 0},    # 05: 第二行，无偏移
+            {'row': 0, 'row_offset': 10},   # 06: 第一行，偏移+10
+        ]
+
+        for idx, num in enumerate(group2_numbers):
+            pos = group2_positions[idx]
+            lathe_x = start_x + lathe_width + col_gap
+            lathe_y = start_y + pos['row'] * (lathe_height + row_gap) + pos['row_offset']
+
+            # 车轮车床主体
+            devices_data.append({
+                'device_id': f'D{str(device_id).zfill(3)}',
+                'name': f"车轮车床-{str(num).zfill(2)}",
+                'area': '旋轮间',
+                'device_type': 'lathe',
+                'status': 'running',
+                'pos_x': lathe_x + 20,
+                'pos_y': lathe_y,
+                'pos_width': lathe_width - 20,
+                'pos_height': lathe_height,
+            })
+            device_id += 1
+
+            # 防护套自动装卸装置
+            devices_data.append({
+                'device_id': f'D{str(device_id).zfill(3)}',
+                'name': f"防护套装卸装置-{str(num).zfill(2)}",
+                'area': '旋轮间',
+                'device_type': 'protect',
+                'status': 'running',
+                'pos_x': lathe_x + 5,
+                'pos_y': lathe_y + 8,
+                'pos_width': lathe_width // 5 - 8,
+                'pos_height': 38,
+            })
+            device_id += 1
+
+            # 升降货叉式上下料装置
+            devices_data.append({
+                'device_id': f'D{str(device_id).zfill(3)}',
+                'name': f"升降货叉装置-{str(num).zfill(2)}",
                 'area': '旋轮间',
                 'device_type': 'forklift',
                 'status': 'running',
@@ -540,6 +653,9 @@ class Command(BaseCommand):
             device_id = device_data['device_id']
             if device_id in fault_time_map:
                 device_data['fault_time'] = fault_time_map[device_id]
+            # 将字符串转换为外键实例
+            device_data['area'] = area_map.get(device_data['area'])
+            device_data['device_type'] = device_type_map.get(device_data['device_type'])
             Device.objects.create(**device_data)
 
         self.stdout.write(f'创建了 {len(devices_data)} 台设备')
