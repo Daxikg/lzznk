@@ -4,7 +4,9 @@ from rest_framework.response import Response
 from django.utils import timezone
 from django.db.models import Count
 from django.shortcuts import render
-from .models import Device, DeviceArea
+from .models import Device, DeviceArea, InspectionRecord, RepairRecord, SyncConfig
+from .services import DataSyncService
+from .scheduler import get_scheduler_status, start_scheduler, stop_scheduler
 
 
 def workshop_screen(request):
@@ -34,9 +36,6 @@ def get_devices(request):
         }
         if device.fault_time:
             item['faultTime'] = int(device.fault_time.timestamp() * 1000)
-        if device.capacity:
-            item['capacity'] = device.capacity
-            item['used'] = device.used or 0
         data.append(item)
     return Response(data)
 
@@ -70,9 +69,27 @@ def get_device_detail(request, device_id):
     if device.fault_time:
         data['faultTime'] = int(device.fault_time.timestamp() * 1000)
         data['faultStartTime'] = device.fault_time.strftime('%Y-%m-%d %H:%M:%S')
-    if device.capacity:
-        data['capacity'] = device.capacity
-        data['used'] = device.used or 0
+
+    # 点检信息
+    if device.inspection_start:
+        data['inspectionStart'] = device.inspection_start.strftime('%Y-%m-%d %H:%M:%S')
+    if device.inspection_end:
+        data['inspectionEnd'] = device.inspection_end.strftime('%Y-%m-%d %H:%M:%S')
+    if device.inspection_location:
+        data['inspectionLocation'] = device.inspection_location
+
+    # 最新维修记录
+    latest_repair = RepairRecord.objects.filter(device_id=device_id).order_by('-fault_date').first()
+    if latest_repair:
+        data['latestRepair'] = {
+            'faultDate': latest_repair.fault_date.strftime('%Y-%m-%d %H:%M:%S') if latest_repair.fault_date else '',
+            'phenomenon': latest_repair.phenomenon,
+            'repairDate': latest_repair.repair_date.strftime('%Y-%m-%d %H:%M:%S') if latest_repair.repair_date else '',
+            'worker': latest_repair.worker,
+            'result': latest_repair.result,
+            'isResolved': latest_repair.is_resolved,
+        }
+
     return Response(data)
 
 
@@ -182,9 +199,6 @@ def get_all_data(request):
             item['qrcodeUrl'] = device.qrcode_image.url
         if device.fault_time:
             item['faultTime'] = int(device.fault_time.timestamp() * 1000)
-        if device.capacity:
-            item['capacity'] = device.capacity
-            item['used'] = device.used or 0
         device_data.append(item)
 
     # 区域数据
@@ -218,3 +232,85 @@ def get_all_data(request):
             'runningRate': running_rate,
         }
     })
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def sync_data(request):
+    """手动触发数据同步"""
+    sync_type = request.data.get('type', 'all')
+    date = request.data.get('date')
+    teamsname = request.data.get('teamsname')
+    dpname = request.data.get('dpname')
+
+    if sync_type == 'inspection':
+        success, message, count = DataSyncService.sync_inspection_data(date=date, teamsname=teamsname)
+    elif sync_type == 'repair':
+        success, message, count = DataSyncService.sync_repair_data(date=date, dpname=dpname)
+    elif sync_type == 'status':
+        count = DataSyncService.update_device_status()
+        return Response({'success': True, 'message': f'更新了 {count} 台设备状态'})
+    else:
+        results = DataSyncService.sync_all(date=date, teamsname=teamsname, dpname=dpname)
+        return Response({
+            'success': True,
+            'inspection': {'success': results['inspection'][0], 'message': results['inspection'][1]},
+            'repair': {'success': results['repair'][0], 'message': results['repair'][1]},
+            'statusUpdate': results['status_update'],
+        })
+
+    return Response({'success': success, 'message': message})
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_repair_records(request, device_id=None):
+    """获取维修记录"""
+    if device_id:
+        records = RepairRecord.objects.filter(device_id=device_id).order_by('-fault_date')[:10]
+    else:
+        records = RepairRecord.objects.all().order_by('-fault_date')[:50]
+
+    data = [{
+        'deviceId': r.device_id,
+        'deviceName': r.device_name,
+        'location': r.location,
+        'model': r.model,
+        'department': r.department,
+        'teamName': r.team_name,
+        'faultDate': r.fault_date.strftime('%Y-%m-%d %H:%M:%S') if r.fault_date else '',
+        'reporter': r.reporter,
+        'phenomenon': r.phenomenon,
+        'analysis': r.analysis,
+        'repairDate': r.repair_date.strftime('%Y-%m-%d %H:%M:%S') if r.repair_date else '',
+        'repairTeam': r.repair_team,
+        'worker': r.worker,
+        'result': r.result,
+        'materials': r.materials,
+        'isResolved': r.is_resolved,
+    } for r in records]
+
+    return Response(data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_scheduler_status_api(request):
+    """获取定时任务状态"""
+    status = get_scheduler_status()
+    return Response(status)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def control_scheduler(request):
+    """控制定时任务"""
+    action = request.data.get('action')
+    if action == 'start':
+        start_scheduler()
+        return Response({'success': True, 'message': '定时任务已启动'})
+    elif action == 'stop':
+        stop_scheduler()
+        return Response({'success': True, 'message': '定时任务已停止'})
+    else:
+        return Response({'success': False, 'message': '无效的操作'}, status=400)

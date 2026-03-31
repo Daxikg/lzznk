@@ -62,22 +62,6 @@
               </div>
             </div>
           </div>
-
-          <!-- 立体库特殊信息 -->
-          <div class="warehouse-section" v-if="device.type === 'warehouse' && device.capacity">
-            <h4>仓储信息</h4>
-            <div class="warehouse-info">
-              <div class="capacity-bar">
-                <div class="capacity-fill" :style="{ width: (device.used / device.capacity * 100) + '%' }"></div>
-              </div>
-              <div class="capacity-text">
-                已使用: {{ device.used }} / {{ device.capacity }} 货位
-              </div>
-              <div class="capacity-percent">
-                使用率: {{ (device.used / device.capacity * 100).toFixed(1) }}%
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -347,27 +331,5 @@ const faultStartTime = computed(() => {
   background: rgba(155, 89, 182, 0.1);
   border-radius: 8px;
   padding: 12px;
-}
-
-.capacity-bar {
-  width: 100%;
-  height: 10px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
-  overflow: hidden;
-  margin-bottom: 10px;
-}
-
-.capacity-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #9b59b6, #8e44ad);
-  border-radius: 5px;
-  transition: width 0.5s ease;
-}
-
-.capacity-text, .capacity-percent {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.8);
-  margin-top: 6px;
 }
 </style>

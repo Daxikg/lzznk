@@ -196,8 +196,6 @@ class Command(BaseCommand):
             'pos_y': 623,
             'pos_width': 60,
             'pos_height': 45,
-            'capacity': 500,
-            'used': 328,
         })
         device_id += 1
 
@@ -379,8 +377,6 @@ class Command(BaseCommand):
             'pos_y': 520,
             'pos_width': 190,
             'pos_height': 45,
-            'capacity': 1000,
-            'used': 756,
         })
         device_id += 1
 
@@ -435,6 +431,20 @@ class Command(BaseCommand):
             'pos_y': RAIL_Y[2] + 10 - DH // 2,
             'pos_width': 50,
             'pos_height': 45,
+        })
+        device_id += 1
+
+        # 天车（轮轴间，与标志牌识别机同y坐标，与轴承自动开盖机-1同x坐标）
+        devices_data.append({
+            'device_id': f'D{str(device_id).zfill(3)}',
+            'name': '天车',
+            'area': '轮轴间',
+            'device_type': 'crane',
+            'status': 'running',
+            'pos_x': -75,
+            'pos_y': 68,
+            'pos_width': 60,
+            'pos_height': 25,
         })
         device_id += 1
 
@@ -603,7 +613,7 @@ class Command(BaseCommand):
                 'area': '旋轮间',
                 'device_type': 'lathe',
                 'status': 'running',
-                'pos_x': lathe_x + 20,
+                'pos_x': lathe_x + 5,
                 'pos_y': lathe_y,
                 'pos_width': lathe_width - 20,
                 'pos_height': lathe_height,
@@ -617,8 +627,8 @@ class Command(BaseCommand):
                 'area': '旋轮间',
                 'device_type': 'protect',
                 'status': 'running',
-                'pos_x': lathe_x + 5,
-                'pos_y': lathe_y + 8,
+                'pos_x': lathe_x + 80,
+                'pos_y': lathe_y + 52,
                 'pos_width': lathe_width // 5 - 8,
                 'pos_height': 38,
             })
@@ -631,8 +641,8 @@ class Command(BaseCommand):
                 'area': '旋轮间',
                 'device_type': 'forklift',
                 'status': 'running',
-                'pos_x': lathe_x + 5,
-                'pos_y': lathe_y + 52,
+                'pos_x': lathe_x + 80,
+                'pos_y': lathe_y + 8,
                 'pos_width': lathe_width // 5 - 8,
                 'pos_height': 38,
             })

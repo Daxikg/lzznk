@@ -126,8 +126,15 @@
           <!-- 轮轴间与探伤间与旋轮间分隔线：实线，宽度为外墙的一半 -->
           <line :x1="LAYOUT.leftWidth" y1="20" :x2="LAYOUT.leftWidth" y2="610" stroke="rgba(79, 195, 247, 0.6)" stroke-width="5"/>
           <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth" y1="20" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth" y2="610" stroke="rgba(79, 195, 247, 0.6)" stroke-width="5"/>
-          <!-- 旋轮间纵向分隔线 -->
-          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth / 2" y1="40" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth / 2" y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="1" stroke-dasharray="8,4"/>
+          <!-- 旋轮间中间纵向双虚线，每根宽度3，间隔1 -->
+          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth / 2 - 2" y1="40" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth / 2 - 2" y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
+          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth / 2 + 3" y1="40" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth / 2 + 3" y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
+          <!-- 旋轮间右边纵向双虚线，每根宽度3，间隔1 -->
+          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth - 20" y1="40" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth - 20" y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
+          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth - 15" y1="40" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth - 15" y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
+          <!-- 旋轮间左边纵向双虚线，每根宽度3，间隔1 -->
+          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + 15 " y1="40" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + 15 " y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
+          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 " y1="40" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 " y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
 
           <!-- 区域背景 -->
           <g class="areas">
@@ -346,7 +353,7 @@
         <div class="area-stats">
           <h4>区域设备统计</h4>
           <div class="area-list">
-            <div class="area-item" v-for="area in ['轮轴间', '探伤间', '旋轮间', '墙外']" :key="area">
+            <div class="area-item" v-for="area in ['轮轴间', '探伤间', '旋轮间']" :key="area">
               <span class="area-name">{{ area }}</span>
               <span class="area-count">{{ getAreaCount(area) }}台</span>
             </div>
@@ -371,7 +378,7 @@
     <footer class="screen-footer">
       <div class="footer-left">
         <span class="refresh-info">
-          自动刷新间隔: {{ deviceStore.refreshInterval / 1000 }}秒
+          自动刷新间隔: 1分钟
         </span>
       </div>
       <div class="footer-center">
@@ -465,18 +472,34 @@ const handleDeviceClick = (device) => {
 // 自动刷新定时器
 let refreshTimer = null
 
+// 刷新数据并更新设备状态
+async function refreshData() {
+  // 先更新设备状态
+  try {
+    await fetch('/workshop/api/sync/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'status' })
+    })
+  } catch (e) {
+    console.error('更新设备状态失败:', e)
+  }
+  // 然后获取最新数据
+  await deviceStore.fetchAllData()
+}
+
 onMounted(async () => {
   // 初始加载数据
-  await deviceStore.fetchAllData()
+  await refreshData()
 
   // 启动时间更新
   updateCurrentTime()
   updateTimeId.value = setInterval(updateCurrentTime, 1000)
 
-  // 启动自动刷新
+  // 启动自动刷新（每1分钟）
   refreshTimer = setInterval(() => {
     if (deviceStore.autoRefresh) {
-      deviceStore.fetchAllData()
+      refreshData()
     }
   }, deviceStore.refreshInterval)
 })

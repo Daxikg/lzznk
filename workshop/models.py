@@ -59,7 +59,13 @@ class Device(models.Model):
 
     # 状态相关
     status = models.CharField('状态', max_length=20, choices=STATUS_CHOICES, default='offline')
+    auto_status = models.BooleanField('启用自动状态判断', default=True, help_text='启用后根据点检/维修记录自动判断状态，禁用则使用手动设置的状态')
     fault_time = models.DateTimeField('故障发生时间', null=True, blank=True)
+
+    # 点检信息（来自外部API）
+    inspection_start = models.DateTimeField('开工点检时间', null=True, blank=True)
+    inspection_end = models.DateTimeField('完工点检时间', null=True, blank=True)
+    inspection_location = models.CharField('设备处所', max_length=100, blank=True, default='')
 
     # 位置信息（用于大屏展示）
     pos_x = models.IntegerField('X坐标', default=0)
@@ -69,10 +75,6 @@ class Device(models.Model):
 
     # 二维码图片
     qrcode_image = models.ImageField('设备二维码', upload_to=qrcode_upload_path, blank=True, null=True)
-
-    # 立体库专用字段
-    capacity = models.IntegerField('总容量', null=True, blank=True)
-    used = models.IntegerField('已使用', null=True, blank=True)
 
     # 时间戳
     created_at = models.DateTimeField('创建时间', auto_now_add=True)
@@ -95,3 +97,70 @@ class Device(models.Model):
             if fault_duration.total_seconds() > 2 * 60 * 60:
                 return 'longFault'
         return self.status
+
+
+class InspectionRecord(models.Model):
+    """点检记录（来自外部API）"""
+    device_id = models.CharField('设备编号', max_length=20, db_index=True)
+    device_name = models.CharField('设备名称', max_length=100, blank=True, default='')
+    location = models.CharField('设备处所', max_length=100, blank=True, default='')
+    start_time = models.DateTimeField('开工点检时间', null=True, blank=True)
+    end_time = models.DateTimeField('完工点检时间', null=True, blank=True)
+    sync_time = models.DateTimeField('同步时间', auto_now=True)
+
+    class Meta:
+        verbose_name = '点检记录'
+        verbose_name_plural = '点检记录'
+        ordering = ['-start_time']
+
+    def __str__(self):
+        return f"{self.device_id} - {self.start_time}"
+
+
+class RepairRecord(models.Model):
+    """维修记录（来自外部API）"""
+    device_id = models.CharField('设备编号', max_length=20, db_index=True)
+    device_name = models.CharField('设备名称', max_length=100, blank=True, default='')
+    location = models.CharField('设备处所', max_length=100, blank=True, default='')
+    model = models.CharField('型号规格', max_length=100, blank=True, default='')
+    department = models.CharField('所在部门', max_length=50, blank=True, default='')
+    team_name = models.CharField('所在班组', max_length=50, blank=True, default='')
+    fault_date = models.DateTimeField('故障日期', null=True, blank=True)
+    reporter = models.CharField('发现人', max_length=50, blank=True, default='')
+    phenomenon = models.CharField('故障情况描述', max_length=500, blank=True, default='')
+    analysis = models.CharField('故障分析', max_length=500, blank=True, default='')
+    repair_date = models.DateTimeField('维修日期', null=True, blank=True)
+    repair_team = models.CharField('维修班组', max_length=50, blank=True, default='')
+    worker = models.CharField('修理人员', max_length=50, blank=True, default='')
+    result = models.CharField('故障处理情况', max_length=500, blank=True, default='')
+    materials = models.CharField('材料消耗', max_length=200, blank=True, default='')
+    is_resolved = models.BooleanField('是否已修复', default=False)
+    external_id = models.IntegerField('外部记录ID', null=True, blank=True, help_text='用于避免重复同步')
+    sync_time = models.DateTimeField('同步时间', auto_now=True)
+
+    class Meta:
+        verbose_name = '维修记录'
+        verbose_name_plural = '维修记录'
+        ordering = ['-fault_date']
+
+    def __str__(self):
+        return f"{self.device_id} - {self.fault_date}"
+
+
+class SyncConfig(models.Model):
+    """同步配置"""
+    name = models.CharField('配置名称', max_length=50, unique=True)
+    api_url = models.CharField('API地址', max_length=500)
+    api_key = models.CharField('API密钥', max_length=200, blank=True, default='')
+    is_enabled = models.BooleanField('是否启用', default=True)
+    sync_interval = models.IntegerField('同步间隔(秒)', default=60)
+    last_sync = models.DateTimeField('上次同步时间', null=True, blank=True)
+    last_status = models.CharField('上次同步状态', max_length=20, blank=True, default='')
+    last_error = models.TextField('上次错误信息', blank=True, default='')
+
+    class Meta:
+        verbose_name = '同步配置'
+        verbose_name_plural = '同步配置'
+
+    def __str__(self):
+        return self.name

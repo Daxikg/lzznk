@@ -40,8 +40,8 @@
         :fill="statusColor"
         opacity="0.15"
       >
-        <animate v-if="!isFault" attributeName="r" :values="`${device.width / 2 + 3};${device.width / 2 + 8};${device.width / 2 + 3}`" dur="2s" repeatCount="indefinite"/>
-        <animate v-if="!isFault" attributeName="opacity" values="0.15;0.25;0.15" dur="2s" repeatCount="indefinite"/>
+        <animate v-if="shouldRotate" attributeName="r" :values="`${device.width / 2 + 3};${device.width / 2 + 8};${device.width / 2 + 3}`" dur="2s" repeatCount="indefinite"/>
+        <animate v-if="shouldRotate" attributeName="opacity" values="0.15;0.25;0.15" dur="2s" repeatCount="indefinite"/>
       </circle>
       <!-- 主体圆 -->
       <circle
@@ -72,16 +72,16 @@
       <!-- 旋转指示线 -->
       <g :transform="`translate(${device.width / 2}, ${device.height / 2})`">
         <line x1="0" y1="-15" x2="0" y2="-25" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round">
-          <animateTransform v-if="!isFault" attributeName="transform" type="rotate" from="0" to="360" dur="4s" repeatCount="indefinite"/>
+          <animateTransform v-if="shouldRotate" attributeName="transform" type="rotate" from="0" to="360" dur="4s" repeatCount="indefinite"/>
         </line>
         <line x1="0" y1="15" x2="0" y2="25" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round">
-          <animateTransform v-if="!isFault" attributeName="transform" type="rotate" from="0" to="360" dur="4s" repeatCount="indefinite"/>
+          <animateTransform v-if="shouldRotate" attributeName="transform" type="rotate" from="0" to="360" dur="4s" repeatCount="indefinite"/>
         </line>
         <line x1="-15" y1="0" x2="-25" y2="0" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round">
-          <animateTransform v-if="!isFault" attributeName="transform" type="rotate" from="0" to="360" dur="4s" repeatCount="indefinite"/>
+          <animateTransform v-if="shouldRotate" attributeName="transform" type="rotate" from="0" to="360" dur="4s" repeatCount="indefinite"/>
         </line>
         <line x1="15" y1="0" x2="25" y2="0" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round">
-          <animateTransform v-if="!isFault" attributeName="transform" type="rotate" from="0" to="360" dur="4s" repeatCount="indefinite"/>
+          <animateTransform v-if="shouldRotate" attributeName="transform" type="rotate" from="0" to="360" dur="4s" repeatCount="indefinite"/>
         </line>
       </g>
     </template>
@@ -101,15 +101,10 @@
       <!-- 车床内部区域 -->
       <rect :x="device.width / 5" y="8" :width="device.width * 4 / 5 - 10" :height="device.height - 16" fill="rgba(0,0,0,0.15)" rx="4"/>
 
-      <!-- 设备图标 -->
-      <g class="device-icon-group" :transform="`translate(${device.width / 2 + 10}, 12)`">
-        <component :is="LatheIcon" :status="device.computedStatus" :size="28" />
-      </g>
-
       <!-- 设备名称 -->
       <text
         :x="device.width / 2"
-        :y="device.height - 8"
+        :y="device.height / 2 + 5"
         text-anchor="middle"
         fill="#fff"
         font-size="13"
@@ -139,20 +134,25 @@
         :filter="`url(#shadow-${device.id})`"
         class="device-body"
       />
-      <!-- 天车图标 -->
-      <g class="device-icon-group" :transform="`translate(${device.width / 2 - 12}, 5)`">
-        <component :is="CraneIcon" :status="device.computedStatus" :size="24" />
-      </g>
       <text
         :x="device.width / 2"
-        :y="device.height - 6"
+        :y="device.height / 2 + 3"
         text-anchor="middle"
         fill="#fff"
-        font-size="8"
+        font-size="9"
         font-weight="500"
       >
         {{ device.name }}
       </text>
+      <!-- 状态指示灯 -->
+      <circle
+        :cx="device.width - 6"
+        :cy="6"
+        r="3"
+        :fill="statusColor"
+      >
+        <animate v-if="isFault" attributeName="opacity" values="1;0.3;1" dur="0.6s" repeatCount="indefinite"/>
+      </circle>
     </template>
 
     <!-- 普通设备 -->
@@ -171,17 +171,12 @@
       <!-- 顶部装饰线 -->
       <rect x="3" y="3" :width="device.width - 6" :height="isCompact ? 1 : 2" rx="1" fill="rgba(255,255,255,0.15)"/>
 
-      <!-- 非紧凑设备显示 -->
-      <template v-if="!isCompact">
-        <!-- 设备图标区域 -->
-        <g class="device-icon-group" :transform="`translate(${device.width / 2 - 15}, 8)`">
-          <component :is="currentIcon" :status="device.computedStatus" :size="30" />
-        </g>
-
+      <!-- 非紧凑非集成设备显示 -->
+      <template v-if="!isCompact && !isIntegrated">
         <!-- 设备名称 -->
         <text
           :x="device.width / 2"
-          :y="device.height - 16"
+          :y="device.height / 2 + 4"
           text-anchor="middle"
           fill="#fff"
           font-size="10"
@@ -202,33 +197,62 @@
           </circle>
           <circle r="1.5" cy="-1" cx="0" fill="rgba(255,255,255,0.6)"/>
         </g>
-
-        <!-- 状态文字 -->
-        <text
-          :x="device.width / 2"
-          :y="device.height - 4"
-          text-anchor="middle"
-          fill="rgba(255,255,255,0.8)"
-          font-size="8"
-        >
-          {{ statusLabel }}
-        </text>
-
-        <!-- 立体库/堆垛系统容量条 -->
-        <g v-if="(device.type === 'warehouse' || device.type === 'stacker') && device.capacity" class="capacity-bar">
-          <rect x="8" :y="device.height - 32" :width="device.width - 16" height="6" rx="3" fill="rgba(0,0,0,0.3)"/>
-          <rect x="8" :y="device.height - 32" :width="(device.width - 16) * (device.used / device.capacity)" height="6" rx="3" fill="rgba(74, 222, 128, 0.9)">
-            <animate attributeName="opacity" values="0.9;0.6;0.9" dur="3s" repeatCount="indefinite"/>
-          </rect>
-          <text :x="device.width / 2" :y="device.height - 26" text-anchor="middle" fill="#fff" font-size="7" font-weight="500">
-            {{ device.used }}/{{ device.capacity }}
-          </text>
-        </g>
       </template>
 
-      <!-- 紧凑设备显示（集成装置） -->
-      <template v-else>
-        <!-- 紧凑设备的简短名称 -->
+      <!-- 紧凑设备显示（字号9，支持换行） -->
+      <template v-else-if="isCompact">
+        <!-- 紧凑设备名称（支持两行） -->
+        <text
+          v-if="compactNameLines.length === 1"
+          :x="device.width / 2"
+          :y="device.height / 2 + 3"
+          text-anchor="middle"
+          fill="#fff"
+          font-size="9"
+          font-weight="500"
+          class="device-name"
+        >
+          {{ compactNameLines[0] }}
+        </text>
+        <template v-else>
+          <text
+            :x="device.width / 2"
+            :y="device.height / 2 - 5"
+            text-anchor="middle"
+            fill="#fff"
+            font-size="9"
+            font-weight="500"
+            class="device-name"
+          >
+            {{ compactNameLines[0] }}
+          </text>
+          <text
+            :x="device.width / 2"
+            :y="device.height / 2 + 8"
+            text-anchor="middle"
+            fill="#fff"
+            font-size="9"
+            font-weight="500"
+            class="device-name"
+          >
+            {{ compactNameLines[1] }}
+          </text>
+        </template>
+
+        <!-- 小状态灯 -->
+        <circle
+          :cx="device.width - 6"
+          :cy="6"
+          r="3"
+          :fill="statusColor"
+          class="status-light"
+        >
+          <animate v-if="isFault" attributeName="opacity" values="1;0.3;1" dur="0.6s" repeatCount="indefinite"/>
+        </circle>
+      </template>
+
+      <!-- 集成设备显示（防护套、货叉，字号7，简称） -->
+      <template v-else-if="isIntegrated">
         <text
           :x="device.width / 2"
           :y="device.height / 2 + 3"
@@ -238,7 +262,7 @@
           font-weight="500"
           class="device-name"
         >
-          {{ compactLabel }}
+          {{ integratedLabel }}
         </text>
 
         <!-- 小状态灯 -->
@@ -258,43 +282,6 @@
 
 <script setup>
 import { computed } from 'vue'
-import { statusConfig } from '../api/mockData'
-
-// 导入所有图标组件
-import MeasureIcon from './icons/MeasureIcon.vue'
-import PressIcon from './icons/PressIcon.vue'
-import PlatformIcon from './icons/PlatformIcon.vue'
-import ConveyorIcon from './icons/ConveyorIcon.vue'
-import WarehouseIcon from './icons/WarehouseIcon.vue'
-import CabinetIcon from './icons/CabinetIcon.vue'
-import RoomIcon from './icons/RoomIcon.vue'
-import PowerIcon from './icons/PowerIcon.vue'
-import DefaultIcon from './icons/DefaultIcon.vue'
-
-// 创建简单的图标组件
-const LatheIcon = {
-  props: ['status', 'size'],
-  template: `
-    <svg :width="size" :height="size" viewBox="0 0 40 40">
-      <rect x="5" y="10" width="30" height="20" rx="3" fill="currentColor" opacity="0.8"/>
-      <rect x="8" y="13" width="12" height="14" rx="2" fill="rgba(0,0,0,0.3)"/>
-      <circle cx="32" cy="20" r="5" fill="rgba(255,255,255,0.3)"/>
-      <rect x="10" y="16" width="6" height="8" rx="1" fill="rgba(255,255,255,0.2)"/>
-    </svg>
-  `
-}
-
-const CraneIcon = {
-  props: ['status', 'size'],
-  template: `
-    <svg :width="size" :height="size" viewBox="0 0 40 40">
-      <rect x="5" y="5" width="30" height="4" rx="1" fill="currentColor" opacity="0.9"/>
-      <rect x="18" y="9" width="4" height="20" fill="currentColor" opacity="0.7"/>
-      <rect x="10" y="29" width="20" height="6" rx="2" fill="currentColor" opacity="0.8"/>
-      <circle cx="20" cy="32" r="2" fill="rgba(255,255,255,0.5)"/>
-    </svg>
-  `
-}
 
 const props = defineProps({
   device: {
@@ -305,10 +292,14 @@ const props = defineProps({
 
 defineEmits(['click'])
 
-// 是否为紧凑设备（集成装置）
+// 是否为集成设备（防护套、货叉）
+const isIntegrated = computed(() => {
+  return props.device.type === 'protect' || props.device.type === 'forklift'
+})
+
+// 是否为紧凑设备（宽度<=70或高度<=25，但不是集成设备）
 const isCompact = computed(() => {
-  return props.device.width <= 70 || props.device.height <= 25 ||
-         props.device.type === 'protect' || props.device.type === 'forklift'
+  return (props.device.width <= 70 || props.device.height <= 25) && !isIntegrated.value
 })
 
 // 状态颜色
@@ -332,12 +323,13 @@ const statusLightColor = computed(() => {
   return colors[props.device.computedStatus] || '#9ca3af'
 })
 
-const statusLabel = computed(() => {
-  return statusConfig[props.device.computedStatus]?.label || '未知'
-})
-
 const isFault = computed(() => {
   return props.device.computedStatus === 'fault' || props.device.computedStatus === 'longFault'
+})
+
+// 转盘是否需要旋转（只有运行中才旋转）
+const shouldRotate = computed(() => {
+  return props.device.computedStatus === 'running'
 })
 
 // 简短名称（用于显示）
@@ -349,44 +341,34 @@ const shortName = computed(() => {
   return name
 })
 
-// 紧凑设备标签
-const compactLabel = computed(() => {
-  const name = props.device.name
+// 集成设备标签（防护套、货叉用简称）
+const integratedLabel = computed(() => {
   if (props.device.type === 'protect') {
     return '防护套'
   }
   if (props.device.type === 'forklift') {
     return '货叉'
   }
-  return name.substring(0, 4)
+  return props.device.name.substring(0, 4)
 })
 
-// 根据设备类型返回对应图标组件
-const currentIcon = computed(() => {
-  const iconMap = {
-    grind: PressIcon,        // 磨合设备 → 压装图标
-    detect: MeasureIcon,     // 检测设备 → 测量图标
-    unload: ConveyorIcon,    // 退卸设备 → 传输图标
-    rust: PlatformIcon,      // 除锈设备 → 平台图标
-    flaw: CabinetIcon,       // 探伤设备 → 电控柜图标
-    oil: ConveyorIcon,       // 涂油设备 → 传输图标
-    bolt: PressIcon,         // 紧固设备 → 压装图标
-    press: PressIcon,        // 压装设备
-    measure: MeasureIcon,    // 测量设备
-    crane: CraneIcon,        // 天车设备
-    lathe: LatheIcon,        // 车轮车床
-    protect: RoomIcon,       // 防护装置
-    forklift: WarehouseIcon, // 货叉装置
-    stacker: WarehouseIcon,  // 堆垛系统
-    warehouse: WarehouseIcon,// 立体库
-    // 保留旧类型兼容
-    platform: PlatformIcon,
-    conveyor: ConveyorIcon,
-    cabinet: CabinetIcon,
-    room: RoomIcon,
-    power: PowerIcon
+// 紧凑设备名称换行（最多2行）
+const compactNameLines = computed(() => {
+  const name = props.device.name
+  const fontSize = 9
+  const charWidth = fontSize * 0.6 // 估算中文字符宽度
+  const maxWidth = props.device.width - 8 // 留出边距
+
+  const maxCharsPerLine = Math.floor(maxWidth / charWidth)
+  if (maxCharsPerLine <= 0) return [name]
+
+  if (name.length <= maxCharsPerLine) {
+    return [name]
   }
-  return iconMap[props.device.type] || DefaultIcon
+
+  // 分成两行，尽量平均分配
+  const mid = Math.ceil(name.length / 2)
+  return [name.substring(0, mid), name.substring(mid)]
 })
 </script>
 

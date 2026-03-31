@@ -28,8 +28,8 @@ export const useDeviceStore = defineStore('device', () => {
   // 是否自动刷新
   const autoRefresh = ref(true)
 
-  // 刷新间隔（毫秒）
-  const refreshInterval = ref(5000)
+  // 刷新间隔（毫秒）- 1分钟刷新页面数据
+  const refreshInterval = ref(60000)
 
   // 计算属性
   const runningRate = computed(() => {
