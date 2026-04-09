@@ -106,15 +106,18 @@ class InspectionRecord(models.Model):
     location = models.CharField('设备处所', max_length=100, blank=True, default='')
     start_time = models.DateTimeField('开工点检时间', null=True, blank=True)
     end_time = models.DateTimeField('完工点检时间', null=True, blank=True)
+    record_date = models.DateField('记录日期', db_index=True, help_text='同步的是哪一天的数据')
     sync_time = models.DateTimeField('同步时间', auto_now=True)
 
     class Meta:
         verbose_name = '点检记录'
         verbose_name_plural = '点检记录'
         ordering = ['-start_time']
+        # 确保同一设备同一天只有一条记录
+        unique_together = ['device_id', 'record_date']
 
     def __str__(self):
-        return f"{self.device_id} - {self.start_time}"
+        return f"{self.device_id} - {self.record_date}"
 
 
 class RepairRecord(models.Model):
@@ -136,15 +139,18 @@ class RepairRecord(models.Model):
     materials = models.CharField('材料消耗', max_length=200, blank=True, default='')
     is_resolved = models.BooleanField('是否已修复', default=False)
     external_id = models.IntegerField('外部记录ID', null=True, blank=True, help_text='用于避免重复同步')
+    record_date = models.DateField('记录日期', db_index=True, help_text='同步的是哪一天的数据')
     sync_time = models.DateTimeField('同步时间', auto_now=True)
 
     class Meta:
         verbose_name = '维修记录'
         verbose_name_plural = '维修记录'
         ordering = ['-fault_date']
+        # 确保同一设备同一天只有一条记录
+        unique_together = ['device_id', 'record_date']
 
     def __str__(self):
-        return f"{self.device_id} - {self.fault_date}"
+        return f"{self.device_id} - {self.record_date}"
 
 
 class SyncConfig(models.Model):

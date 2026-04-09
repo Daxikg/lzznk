@@ -100,7 +100,8 @@ class DataSyncService:
             data = response.json()
 
             # 解析数据并保存（智能更新逻辑）
-            sync_date = timezone.now().strptime(date, '%Y-%m-%d').date() if date else timezone.now().date()
+            # 计算记录日期（同步的是哪一天的数据）
+            record_date = timezone.now().strptime(date, '%Y-%m-%d').date() if date else timezone.now().date()
             count = 0
             updated_count = 0
             skipped_count = 0
@@ -110,16 +111,14 @@ class DataSyncService:
                     if not equipment_no:
                         continue
 
-                    start_time = cls._parse_timestamp(item.get('startTime'))
-
-                    # 查找该日期该设备的点检记录
+                    # 根据 device_id + record_date 查找记录（唯一标识）
                     existing = InspectionRecord.objects.filter(
                         device_id=equipment_no,
-                        start_time__date=sync_date
+                        record_date=record_date
                     ).first()
 
                     if existing:
-                        # 比较数据是否相同
+                        # 比较数据是否相同（除sync_time外）
                         if cls._compare_inspection_data(existing, item):
                             skipped_count += 1  # 数据相同，跳过
                             continue
@@ -127,18 +126,20 @@ class DataSyncService:
                             # 数据不同，更新记录
                             existing.device_name = item.get('name', '')
                             existing.location = item.get('position', '')
+                            existing.start_time = cls._parse_timestamp(item.get('startTime'))
                             existing.end_time = cls._parse_timestamp(item.get('endTime'))
                             existing.save()
                             updated_count += 1
                             count += 1
                     else:
-                        # 今天无记录，新增
+                        # 无匹配记录，新增
                         InspectionRecord.objects.create(
                             device_id=equipment_no,
                             device_name=item.get('name', ''),
                             location=item.get('position', ''),
-                            start_time=start_time,
+                            start_time=cls._parse_timestamp(item.get('startTime')),
                             end_time=cls._parse_timestamp(item.get('endTime')),
+                            record_date=record_date,
                         )
                         count += 1
 
@@ -194,7 +195,8 @@ class DataSyncService:
             data = response.json()
 
             # 解析数据并保存（智能更新逻辑）
-            sync_date = timezone.now().strptime(date, '%Y-%m-%d').date() if date else timezone.now().date()
+            # 计算记录日期（同步的是哪一天的数据）
+            record_date = timezone.now().strptime(date, '%Y-%m-%d').date() if date else timezone.now().date()
             count = 0
             skipped_count = 0
             with transaction.atomic():
@@ -207,29 +209,21 @@ class DataSyncService:
                     if not device_id:
                         continue
 
-                    # 解析时间
-                    fault_date = cls._parse_timestamp(item.get('faultDate'))
-                    repair_date = cls._parse_timestamp(item.get('fixDate'))
-                    is_resolved = repair_date is not None
-                    external_id = item.get('id')
-
-                    # 查找该日期该设备的维修记录（按外部ID或设备ID+日期）
-                    existing = None
-                    if external_id:
-                        existing = RepairRecord.objects.filter(external_id=external_id).first()
-                    if not existing:
-                        existing = RepairRecord.objects.filter(
-                            device_id=device_id,
-                            fault_date__date=sync_date
-                        ).first()
+                    # 根据 device_id + record_date 查找记录（唯一标识）
+                    existing = RepairRecord.objects.filter(
+                        device_id=device_id,
+                        record_date=record_date
+                    ).first()
 
                     if existing:
-                        # 比较数据是否相同
+                        # 比较数据是否相同（除sync_time外）
                         if cls._compare_repair_data(existing, item):
                             skipped_count += 1  # 数据相同，跳过
                             continue
                         else:
                             # 数据不同，更新记录
+                            fault_date = cls._parse_timestamp(item.get('faultDate'))
+                            repair_date = cls._parse_timestamp(item.get('fixDate'))
                             existing.device_name = item.get('name', '')
                             existing.location = item.get('position', '')
                             existing.model = item.get('model', '')
@@ -244,13 +238,14 @@ class DataSyncService:
                             existing.worker = item.get('fixer', '')
                             existing.result = item.get('fixDescribe', '')
                             existing.materials = item.get('material', '')
-                            existing.is_resolved = is_resolved
-                            if external_id:
-                                existing.external_id = external_id
+                            existing.is_resolved = repair_date is not None
+                            existing.external_id = item.get('id')
                             existing.save()
                             count += 1
                     else:
-                        # 今天无记录，新增
+                        # 无匹配记录，新增
+                        fault_date = cls._parse_timestamp(item.get('faultDate'))
+                        repair_date = cls._parse_timestamp(item.get('fixDate'))
                         RepairRecord.objects.create(
                             device_id=device_id,
                             device_name=item.get('name', ''),
@@ -267,8 +262,9 @@ class DataSyncService:
                             worker=item.get('fixer', ''),
                             result=item.get('fixDescribe', ''),
                             materials=item.get('material', ''),
-                            is_resolved=is_resolved,
-                            external_id=external_id,
+                            is_resolved=repair_date is not None,
+                            external_id=item.get('id'),
+                            record_date=record_date,
                         )
                         count += 1
 
@@ -317,17 +313,15 @@ class DataSyncService:
             new_status = 'offline'
             fault_time = None
 
-            # 1. 先检查当天的维修记录
-            today_faults = RepairRecord.objects.filter(
+            # 1. 先检查当天的维修记录（使用record_date筛选）
+            today_repair = RepairRecord.objects.filter(
                 device_id=device.device_id,
-                fault_date__date=today
-            ).order_by('-fault_date')
+                record_date=today
+            ).first()
 
             # 找出当天有故障日期但没有维修日期的记录
-            unresolved_today = today_faults.filter(repair_date__isnull=True).first()
-
-            if unresolved_today:
-                fault_time = unresolved_today.fault_date
+            if today_repair and not today_repair.repair_date:
+                fault_time = today_repair.fault_date
                 # 判断是否超过2小时
                 hours_since_fault = (now - fault_time).total_seconds() / 3600
                 if hours_since_fault > cls.LONG_FAULT_HOURS:
@@ -335,22 +329,22 @@ class DataSyncService:
                 else:
                     new_status = 'fault'
             else:
-                # 2. 检查点检状态（只查询当天的点检记录）
-                latest_inspection = InspectionRecord.objects.filter(
+                # 2. 检查点检状态（使用record_date筛选）
+                today_inspection = InspectionRecord.objects.filter(
                     device_id=device.device_id,
-                    start_time__date=today
-                ).order_by('-start_time').first()
+                    record_date=today
+                ).first()
 
-                if latest_inspection:
-                    device.inspection_start = latest_inspection.start_time
-                    device.inspection_end = latest_inspection.end_time
-                    device.inspection_location = latest_inspection.location
+                if today_inspection:
+                    device.inspection_start = today_inspection.start_time
+                    device.inspection_end = today_inspection.end_time
+                    device.inspection_location = today_inspection.location
 
                     # 有开工时间且无完工时间 = 运行中
-                    if latest_inspection.start_time and not latest_inspection.end_time:
+                    if today_inspection.start_time and not today_inspection.end_time:
                         new_status = 'running'
                     # 有完工时间 = 离线
-                    elif latest_inspection.end_time:
+                    elif today_inspection.end_time:
                         new_status = 'offline'
                 else:
                     device.inspection_start = None
