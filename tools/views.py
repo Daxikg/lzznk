@@ -23,7 +23,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from .models import Team, ToolCategory, Tool, ToolLoanRecord, \
-    SimpleTeamPermission, RepairRecord, MaintenanceRecord
+    SimpleTeamPermission, RepairRecord, MaintenanceRecord, ScrapRecord, ScrapImage
 from .forms import CreateUserForm, UpdateUserForm, TeamForm, ToolCategoryForm, CreateToolForm, UpdateToolForm, LoanRequestForm, ReturnToolForm, \
     MaintenanceRecordForm, RepairRecordForm
 
@@ -938,7 +938,7 @@ def delete_tool(request, tool_id):
 
 @login_required
 def scrap_tool(request, tool_id):
-    """报废工具 - 仅具备工具操作权限的用户可访问"""
+    """报废工具 - 仅具备工具操作权限的用户可访问，必须上传至少一张照片或PDF文件"""
     if not check_tool_operation_permission(request.user):
         messages.error(request, "权限不足：您没有报废工具的权限。")
         return redirect('tools:manage_tools')
@@ -949,11 +949,42 @@ def scrap_tool(request, tool_id):
         tool_name = tool.name
         scrap_reason = request.POST.get('scrap_reason', '').strip()
 
+        # 检查报废原因是否填写
         if not scrap_reason:
             messages.error(request, "请填写报废原因！")
             return redirect('tools:update_tool', tool_id=tool_id)
 
+        # 检查是否上传了至少一个文件（照片或PDF）
+        files = request.FILES.getlist('scrap_files')
+        if not files:
+            messages.error(request, "报废时必须上传至少一张照片或PDF文件作为凭证！")
+            return redirect('tools:update_tool', tool_id=tool_id)
+
+        # 验证所有上传的文件是否为图片或PDF
+        allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'pdf']
+        for f in files:
+            ext = f.name.split('.')[-1].lower()
+            if ext not in allowed_extensions:
+                messages.error(request, f"文件 '{f.name}' 格式不支持，只支持图片(jpg/png/gif等)和PDF文件！")
+                return redirect('tools:update_tool', tool_id=tool_id)
+
         try:
+            # 获取当前用户的Admin对象作为报废人
+            admin_user = Admin.objects.get(username=request.user.username)
+
+            # 创建报废记录
+            scrap_record = ScrapRecord.objects.create(
+                tool=tool,
+                scrap_person=admin_user,
+                scrap_reason=scrap_reason
+            )
+
+            # 处理多文件上传
+            for file in files:
+                scrap_image = ScrapImage.objects.create(file=file)
+                scrap_record.images.add(scrap_image)
+
+            # 更新工具状态为报废
             tool.status = '报废'
             # 将报废原因追加到备注中
             if tool.remark:
@@ -961,7 +992,8 @@ def scrap_tool(request, tool_id):
             else:
                 tool.remark = f"[报废原因]: {scrap_reason}"
             tool.save()
-            messages.success(request, f"工具 '{tool_name}' 已标记为报废！")
+
+            messages.success(request, f"工具 '{tool_name}' 已标记为报废，报废记录已保存！")
         except Exception as e:
             messages.error(request, f"报废工具失败：{str(e)}")
         return redirect('tools:manage_tools')
@@ -972,9 +1004,14 @@ def scrap_tool(request, tool_id):
 
 @login_required
 def loan_tool(request, tool_id):
-    """申请申领工具 - 智能审批流程"""
+    """申请申领工具 - 智能审批流程，支持模态框"""
     tool = get_object_or_404(Tool, id=tool_id)
     if tool.status != '正常':
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': f"工具 '{tool.name}' 当前状态为 '{tool.status}'，无法申领。"
+            })
         messages.error(request, f"工具 '{tool.name}' 当前状态为 '{tool.status}'，无法申领。")
         return redirect('tools:manage_tools')
 
@@ -986,14 +1023,12 @@ def loan_tool(request, tool_id):
         if form.is_valid():
             loan_record = form.save(commit=False)
             loan_record.tool = tool
-            
+
             # 处理申领时间字段
             loan_datetime = form.cleaned_data.get('loan_datetime')
             if loan_datetime:
-                # 如果用户提供了申领时间，使用用户输入的时间
                 loan_record.loan_time = loan_datetime
-            # 如果没有提供，保持auto_now_add的默认行为
-            
+
             # 关联申领人ID
             borrowing_person_id = request.POST.get('borrowing_person_id')
             if borrowing_person_id:
@@ -1003,33 +1038,55 @@ def loan_tool(request, tool_id):
             try:
                 loan_record.borrower = Admin.objects.get(username=request.user.username)
             except Admin.DoesNotExist:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'message': "用户信息不存在"})
                 messages.error(request, "用户信息不存在")
                 return redirect('tools:manage_tools')
-            
-            # 智能审批逻辑：有审批权限的用户直接申领，无权限的需要审批
+
+            # 智能审批逻辑
             if has_approval_permission:
-                # 有审批权限，直接设置为已发放
                 loan_record.status = '已发放'
                 loan_record.save()
-                messages.success(request, f"工具申领成功！")
+                message = f"工具 '{tool.name}' 申领成功！"
             else:
-                # 无审批权限，需要审批
                 loan_record.status = '已申请'
                 loan_record.save()
-                messages.success(request, f"工具申领申请已提交，等待审批！")
-            
+                message = f"工具 '{tool.name}' 申领申请已提交，等待审批！"
+
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': message})
+            messages.success(request, message)
             return redirect('tools:user_dashboard')
         else:
-            # 表单验证失败，显示错误信息
+            # 表单验证失败
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                error_messages = []
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        error_messages.append(f"{field}: {error}")
+                return JsonResponse({
+                    'success': False,
+                    'message': '表单验证失败: ' + '; '.join(error_messages),
+                    'errors': form.errors
+                })
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"{field}: {error}")
     else:
-        # GET请求，初始化表单
+        # GET请求
         form = LoanRequestForm(current_user=request.user)
-    
+
+        # AJAX请求返回模态框HTML
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            html = render_to_string('tools/loan_modal.html', {
+                'form': form,
+                'tool': tool,
+                'has_approval_permission': has_approval_permission
+            }, request=request)
+            return JsonResponse({'success': True, 'html': html})
+
     return render(request, 'tools/loan_tool.html', {
-        'form': form, 
+        'form': form,
         'tool': tool,
         'has_approval_permission': has_approval_permission
     })
@@ -1146,11 +1203,13 @@ def ajax_approve_loan(request, loan_id):
 
 @login_required
 def return_tool(request, loan_id):
-    """申请归还工具 - 智能审批流程"""
+    """申请归还工具 - 智能审批流程，支持模态框"""
     # 获取对应的Admin用户
     try:
         admin_user = Admin.objects.get(username=request.user.username)
     except Admin.DoesNotExist:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': "用户信息不存在"})
         messages.error(request, "用户信息不存在")
         return redirect('tools:user_dashboard')
 
@@ -1158,10 +1217,8 @@ def return_tool(request, loan_id):
     has_manage_permission = check_tools_permission(request.user, required_permission='manage_tools')
 
     if has_manage_permission:
-        # 有管理权限的用户可以为任何人申请归还
         loan_record = get_object_or_404(ToolLoanRecord, id=loan_id, status='已发放')
     else:
-        # 没有管理权限的用户，只能归还本班组申领的工具
         banzu_dict = dict(Admin.banzu_choices)
         user_team_name = banzu_dict.get(admin_user.banzu, '')
         loan_record = get_object_or_404(
@@ -1170,36 +1227,60 @@ def return_tool(request, loan_id):
             status='已发放',
             borrowing_team=user_team_name
         )
-    
+
     # 检查用户是否有审批权限
     has_approval_permission = check_tools_permission(request.user, required_permission='approve_loans')
-    
+
     if request.method == 'POST':
         form = ReturnToolForm(request.POST)
         if form.is_valid():
-            # 智能审批逻辑：有审批权限的用户直接归还，无权限的需要审批
             if has_approval_permission:
-                # 有审批权限，直接完成归还
                 loan_record.actual_return_time = form.cleaned_data['actual_return_time']
                 loan_record.remarks = form.cleaned_data['remarks']
                 loan_record.status = '已归还'
-                loan_record.tool.status = '正常'  # 工具状态变回正常
+                loan_record.tool.status = '正常'
                 loan_record.tool.save()
                 loan_record.save()
-                messages.success(request, f"工具归还成功！")
+                message = f"工具 '{loan_record.tool.name}' 归还成功！"
             else:
-                # 无审批权限，需要审批
                 loan_record.actual_return_time = form.cleaned_data['actual_return_time']
                 loan_record.remarks = form.cleaned_data['remarks']
-                loan_record.status = '归还申请'  # 改为归还申请状态
+                loan_record.status = '归还申请'
                 loan_record.save()
-                messages.success(request, f"归还申请已提交，等待审批。")
-            
+                message = f"工具 '{loan_record.tool.name}' 归还申请已提交，等待审批。"
+
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': message})
+            messages.success(request, message)
             return redirect('tools:user_dashboard')
+        else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                error_messages = []
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        error_messages.append(f"{field}: {error}")
+                return JsonResponse({
+                    'success': False,
+                    'message': '表单验证失败: ' + '; '.join(error_messages),
+                    'errors': form.errors
+                })
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
     else:
         form = ReturnToolForm(initial={'actual_return_time': timezone.now()})
+
+        # AJAX请求返回模态框HTML
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            html = render_to_string('tools/return_modal.html', {
+                'form': form,
+                'loan_record': loan_record,
+                'has_approval_permission': has_approval_permission
+            }, request=request)
+            return JsonResponse({'success': True, 'html': html})
+
     return render(request, 'tools/return_tool.html', {
-        'form': form, 
+        'form': form,
         'loan_record': loan_record,
         'has_approval_permission': has_approval_permission
     })
@@ -1301,6 +1382,31 @@ def get_tool_detail_api(request, tool_id):
         else:
             current_status = tool.status
 
+        # 获取报废记录及附件（如果是报废工具）
+        scrap_records_data = []
+        if tool.status == '报废':
+            scrap_records = ScrapRecord.objects.filter(tool=tool).select_related('scrap_person').prefetch_related('images').order_by('-scrap_time')
+            for record in scrap_records:
+                images_data = []
+                for img in record.images.all():
+                    # 判断文件类型
+                    file_ext = img.file.name.split('.')[-1].lower()
+                    is_image = file_ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp']
+                    images_data.append({
+                        'url': img.file.url,
+                        'name': img.file.name.split('/')[-1],
+                        'is_image': is_image,
+                        'is_pdf': file_ext == 'pdf',
+                        'uploaded_at': img.uploaded_at.strftime('%Y-%m-%d %H:%M')
+                    })
+                scrap_records_data.append({
+                    'id': record.id,
+                    'scrap_person': record.scrap_person.username,
+                    'scrap_reason': record.scrap_reason,
+                    'scrap_time': record.scrap_time.strftime('%Y-%m-%d %H:%M'),
+                    'images': images_data
+                })
+
         # 构造返回数据
         tool_data = {
             'id': tool.id,
@@ -1317,11 +1423,12 @@ def get_tool_detail_api(request, tool_id):
             'maintenance_cycle': tool.maintenance_cycle,
             'maintenance_cycle_label': maintenance_cycle_label,
             'last_maintenance_date': tool.last_maintenance_date.strftime('%Y-%m-%d') if tool.last_maintenance_date else '',
-            'next_maintenance_date': tool.next_maintenance_date.strftime('%Y-%m-%d') if tool.next_maintenance_date else '',
+            'next_maintenance_date': tool.next_maintenance_date.strftime('%Y-%m-d') if tool.next_maintenance_date else '',
             'remark': tool.remark or '',
             'image': tool.image.url if tool.image else '',
             'technical_docs': tool.technical_docs.url if tool.technical_docs else '',
             'technical_docs_name': tool.technical_docs.name.split('/')[-1] if tool.technical_docs else '',
+            'scrap_records': scrap_records_data,
         }
 
         return JsonResponse({

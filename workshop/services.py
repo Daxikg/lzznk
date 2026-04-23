@@ -289,13 +289,13 @@ class DataSyncService:
         根据点检和维修记录更新设备状态
 
         状态判断逻辑：
+        - 如果设备设置了linked_device：直接使用关联设备的状态，跳过自动判断
         - 如果 auto_status=False：保持手动设置的状态，不自动更新
-        - 如果 auto_status=True：根据点检/维修记录自动判断
-          1. 维修记录（当天）：
-             - 当天有故障日期但没有维修日期 → 故障
-             - 超过2小时仍然没有维修日期 → 长时间故障
-             - 有故障时间且有维修日期 → 恢复（根据点检判断）
-          2. 点检记录：
+        - 如果 auto_status=True 且无关联设备：根据点检/维修记录自动判断
+          1. 优先检查RepairRecord中是否有repair_date为空的数据（所有历史记录）
+             - 如果存在repair_date为空的记录 → 设备为故障状态
+             - 根据fault_date判断是否超过2小时 → 长时间故障
+          2. 如果没有未完成维修记录，则根据点检记录判断：
              - 有开工点检时间但没有完工点检时间 → 运行中
              - 有开工点检时间且有完工点检时间 → 离线
         """
@@ -305,6 +305,16 @@ class DataSyncService:
         now = timezone.now()
 
         for device in devices:
+            # 如果设备设置了linked_device，直接使用关联设备的状态
+            if device.linked_device:
+                linked = device.linked_device
+                if device.status != linked.status or device.fault_time != linked.fault_time:
+                    device.status = linked.status
+                    device.fault_time = linked.fault_time
+                    device.save()
+                    updated_count += 1
+                continue
+
             # 如果禁用自动状态判断，跳过该设备
             if not device.auto_status:
                 continue
@@ -313,23 +323,25 @@ class DataSyncService:
             new_status = 'offline'
             fault_time = None
 
-            # 1. 先检查当天的维修记录（使用record_date筛选）
-            today_repair = RepairRecord.objects.filter(
+            # 1. 检查是否存在repair_date为空的维修记录（所有历史记录）
+            unresolved_repair = RepairRecord.objects.filter(
                 device_id=device.device_id,
-                record_date=today
-            ).first()
+                repair_date__isnull=True
+            ).order_by('-fault_date').first()
 
-            # 找出当天有故障日期但没有维修日期的记录
-            if today_repair and not today_repair.repair_date:
-                fault_time = today_repair.fault_date
-                # 判断是否超过2小时
-                hours_since_fault = (now - fault_time).total_seconds() / 3600
-                if hours_since_fault > cls.LONG_FAULT_HOURS:
-                    new_status = 'longFault'
+            if unresolved_repair:
+                # 存在未完成的维修记录，设备为故障状态
+                fault_time = unresolved_repair.fault_date
+                if fault_time:
+                    hours_since_fault = (now - fault_time).total_seconds() / 3600
+                    if hours_since_fault > cls.LONG_FAULT_HOURS:
+                        new_status = 'longFault'
+                    else:
+                        new_status = 'fault'
                 else:
                     new_status = 'fault'
             else:
-                # 2. 检查点检状态（使用record_date筛选）
+                # 2. 没有未完成维修记录，检查点检状态
                 today_inspection = InspectionRecord.objects.filter(
                     device_id=device.device_id,
                     record_date=today
@@ -443,3 +455,89 @@ class DataSyncService:
                 continue
 
         return None
+
+    @classmethod
+    def check_unresolved_repairs(cls):
+        """
+        检查所有repair_date为空的维修记录，重新查询API获取fixDate
+
+        对于每条repair_date为空的RepairRecord：
+        1. 使用该记录的record_date作为date参数查询维修数据API
+        2. 找到对应设备的记录，获取fixDate
+        3. 如果fixDate存在，更新该记录的repair_date及相关字段
+
+        返回: (updated_count, message)
+        """
+        try:
+            config = SyncConfig.objects.get(name='维修数据')
+        except SyncConfig.DoesNotExist:
+            return 0, '请先在后台创建"维修数据"同步配置'
+
+        if not config.is_enabled:
+            return 0, '同步已禁用'
+
+        # 查询所有repair_date为空的记录
+        unresolved_records = RepairRecord.objects.filter(repair_date__isnull=True)
+
+        if not unresolved_records.exists():
+            return 0, '没有待处理的维修记录'
+
+        updated_count = 0
+        errors = []
+
+        # 按record_date分组，减少API调用次数
+        from collections import defaultdict
+        date_records_map = defaultdict(list)
+        for record in unresolved_records:
+            date_records_map[record.record_date].append(record)
+
+        for record_date, records in date_records_map.items():
+            try:
+                # 构建请求URL，使用该组记录的record_date，并添加dpname参数
+                url = config.api_url
+                date_str = record_date.strftime('%Y-%m-%d')
+                url += f'&date={date_str}&dpname=修配车间'
+
+                headers = {}
+                if config.api_key:
+                    headers['Authorization'] = f'Bearer {config.api_key}'
+
+                response = requests.get(url, headers=headers, timeout=30)
+                response.raise_for_status()
+                data = response.json()
+
+                # 构建device_id到API数据的映射
+                api_data_map = {}
+                for item in data:
+                    if isinstance(item, dict):
+                        device_id = item.get('equipmentNo')
+                        if device_id:
+                            api_data_map[device_id] = item
+
+                # 更新该日期下的所有未完成记录
+                for record in records:
+                    api_item = api_data_map.get(record.device_id)
+                    if api_item:
+                        fix_date = cls._parse_timestamp(api_item.get('fixDate'))
+                        if fix_date:
+                            record.repair_date = fix_date
+                            record.repair_team = api_item.get('fixteamsname', '')
+                            record.worker = api_item.get('fixer', '')
+                            record.result = api_item.get('fixDescribe', '')
+                            record.materials = api_item.get('material', '')
+                            record.is_resolved = True
+                            record.save()
+                            updated_count += 1
+
+            except Exception as e:
+                errors.append(f'{date_str}: {str(e)}')
+
+        # 同步完成后更新设备状态
+        if updated_count > 0:
+            cls.update_device_status()
+
+        message = f'更新了 {updated_count} 条维修记录'
+        if errors:
+            message += f'，部分失败: {"; ".join(errors)}'
+
+        return updated_count, message

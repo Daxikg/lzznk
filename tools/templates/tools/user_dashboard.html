@@ -246,10 +246,10 @@
                                         </td>
                                         <td>
                                             {% if record.status == '已发放' or record.status == '逾期' %}
-                                                <a href="{% url 'tools:return_tool' record.id %}"
-                                                   class="btn btn-sm {% if record.record_is_overdue %}btn-danger{% else %}btn-outline-primary{% endif %}">
+                                                <button class="btn btn-sm {% if record.record_is_overdue %}btn-danger{% else %}btn-outline-primary{% endif %}"
+                                                        onclick="showReturnModal({{ record.id }})">
                                                     {% if record.record_is_overdue %}立即归还{% else %}归还{% endif %}
-                                                </a>
+                                                </button>
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -409,6 +409,70 @@
                 }
             }
             return cookieValue;
+        }
+
+        // 归还模态框函数（全局函数，供 onclick 调用）
+        function showReturnModal(loanId) {
+            // 发送AJAX请求获取模态框内容
+            $.ajax({
+                url: `/tools/loans/${loanId}/return/`,
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // 将模态框HTML插入到页面中
+                        $('body').append(response.html);
+
+                        // 显示模态框
+                        $('#returnModal').modal('show');
+
+                        // 处理表单提交
+                        $('#returnForm').on('submit', function (e) {
+                            e.preventDefault();
+
+                            $.ajax({
+                                url: `/tools/loans/${loanId}/return/`,
+                                method: 'POST',
+                                data: $(this).serialize(),
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                success: function (response) {
+                                    if (response.success) {
+                                        $('#returnModal').modal('hide');
+                                        alert(response.message);
+                                        location.reload();
+                                    } else {
+                                        let errorMessage = '归还失败: ' + response.message;
+                                        if (response.errors) {
+                                            errorMessage += '\n\n详细错误信息:';
+                                            for (let field in response.errors) {
+                                                errorMessage += '\n' + field + ': ' + response.errors[field].join(', ');
+                                            }
+                                        }
+                                        alert(errorMessage);
+                                    }
+                                },
+                                error: function () {
+                                    alert('网络错误，请稍后重试');
+                                }
+                            });
+                        });
+
+                        // 模态框关闭后清理DOM
+                        $('#returnModal').on('hidden.bs.modal', function () {
+                            $(this).remove();
+                        });
+                    } else {
+                        alert('获取归还表单失败: ' + response.message);
+                    }
+                },
+                error: function () {
+                    alert('网络错误，请稍后重试');
+                }
+            });
         }
 
         // 等待DOM加载完成

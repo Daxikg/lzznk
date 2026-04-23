@@ -21,21 +21,32 @@ def get_devices(request):
     devices = Device.objects.all()
     data = []
     for device in devices:
+        # 如果设备设置了linked_device，使用关联设备的状态
+        if device.linked_device:
+            status = device.linked_device.status
+            computed_status = device.linked_device.computed_status
+            fault_time = device.linked_device.fault_time
+        else:
+            status = device.status
+            computed_status = device.computed_status
+            fault_time = device.fault_time
+
         item = {
             'id': device.device_id,
             'name': device.name,
             'area': device.area.name if device.area else '',
             'type': device.device_type.code if device.device_type else '',
             'description': device.description,
-            'status': device.status,
-            'computedStatus': device.computed_status,
+            'status': status,
+            'computedStatus': computed_status,
             'x': device.pos_x,
             'y': device.pos_y,
             'width': device.pos_width,
             'height': device.pos_height,
+            'linkedDeviceId': device.linked_device.device_id if device.linked_device else None,
         }
-        if device.fault_time:
-            item['faultTime'] = int(device.fault_time.timestamp() * 1000)
+        if fault_time:
+            item['faultTime'] = int(fault_time.timestamp() * 1000)
         data.append(item)
     return Response(data)
 
@@ -49,26 +60,43 @@ def get_device_detail(request, device_id):
     except Device.DoesNotExist:
         return Response({'error': '设备不存在'}, status=404)
 
+    # 如果设备设置了linked_device，使用关联设备的状态
+    if device.linked_device:
+        linked = device.linked_device
+        status = linked.status
+        computed_status = linked.computed_status
+        fault_time = linked.fault_time
+        linked_info = {
+            'deviceId': linked.device_id,
+            'name': linked.name,
+        }
+    else:
+        status = device.status
+        computed_status = device.computed_status
+        fault_time = device.fault_time
+        linked_info = None
+
     data = {
         'id': device.device_id,
         'name': device.name,
         'area': device.area.name if device.area else '',
         'type': device.device_type.code if device.device_type else '',
         'description': device.description,
-        'status': device.status,
-        'computedStatus': device.computed_status,
+        'status': status,
+        'computedStatus': computed_status,
         'x': device.pos_x,
         'y': device.pos_y,
         'width': device.pos_width,
         'height': device.pos_height,
         'updatedAt': device.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
+        'linkedDevice': linked_info,
     }
     # 二维码图片URL
     if device.qrcode_image:
         data['qrcodeUrl'] = device.qrcode_image.url
-    if device.fault_time:
-        data['faultTime'] = int(device.fault_time.timestamp() * 1000)
-        data['faultStartTime'] = device.fault_time.strftime('%Y-%m-%d %H:%M:%S')
+    if fault_time:
+        data['faultTime'] = int(fault_time.timestamp() * 1000)
+        data['faultStartTime'] = fault_time.strftime('%Y-%m-%d %H:%M:%S')
 
     # 点检信息
     if device.inspection_start:
@@ -160,11 +188,22 @@ def update_device_status(request, device_id):
         device.fault_time = None
     device.save()
 
-    return Response({
+    # 同步更新所有跟随者（linked_device指向本设备的设备）
+    followers = Device.objects.filter(linked_device=device)
+    for follower in followers:
+        follower.status = new_status
+        follower.fault_time = device.fault_time
+        follower.save()
+
+    result = {
         'id': device.device_id,
         'status': device.status,
         'computedStatus': device.computed_status,
-    })
+    }
+    if followers.exists():
+        result['followerIds'] = [d.device_id for d in followers]
+
+    return Response(result)
 
 
 @api_view(['GET'])
@@ -178,8 +217,17 @@ def get_all_data(request):
     device_data = []
     status_counts = {}
     for device in devices:
-        status = device.computed_status
-        status_counts[status] = status_counts.get(status, 0) + 1
+        # 如果设备设置了linked_device，使用关联设备的状态
+        if device.linked_device:
+            status = device.linked_device.status
+            computed_status = device.linked_device.computed_status
+            fault_time = device.linked_device.fault_time
+        else:
+            status = device.status
+            computed_status = device.computed_status
+            fault_time = device.fault_time
+
+        status_counts[computed_status] = status_counts.get(computed_status, 0) + 1
 
         item = {
             'id': device.device_id,
@@ -187,18 +235,19 @@ def get_all_data(request):
             'area': device.area.name if device.area else '',
             'type': device.device_type.code if device.device_type else '',
             'description': device.description,
-            'status': device.status,
-            'computedStatus': status,
+            'status': status,
+            'computedStatus': computed_status,
             'x': device.pos_x,
             'y': device.pos_y,
             'width': device.pos_width,
             'height': device.pos_height,
+            'linkedDeviceId': device.linked_device.device_id if device.linked_device else None,
         }
         # 二维码图片URL
         if device.qrcode_image:
             item['qrcodeUrl'] = device.qrcode_image.url
-        if device.fault_time:
-            item['faultTime'] = int(device.fault_time.timestamp() * 1000)
+        if fault_time:
+            item['faultTime'] = int(fault_time.timestamp() * 1000)
         device_data.append(item)
 
     # 区域数据
@@ -220,6 +269,13 @@ def get_all_data(request):
     offline = status_counts.get('offline', 0)
     running_rate = round((running / total) * 100, 1) if total > 0 else 0
 
+    # 获取最近一次同步时间
+    sync_configs = SyncConfig.objects.filter(last_status='success').order_by('-last_sync')
+    last_sync_time = None
+    if sync_configs.exists():
+        latest_sync = sync_configs.first()
+        last_sync_time = int(latest_sync.last_sync.timestamp() * 1000)
+
     return Response({
         'devices': device_data,
         'areas': area_data,
@@ -230,7 +286,8 @@ def get_all_data(request):
             'longFault': long_fault,
             'offline': offline,
             'runningRate': running_rate,
-        }
+        },
+        'lastSyncTime': last_sync_time,
     })
 
 

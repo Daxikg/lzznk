@@ -261,32 +261,40 @@ class LoanRequestForm(forms.ModelForm):
         # 获取当前用户信息
         self.current_user = kwargs.pop('current_user', None)
         super().__init__(*args, **kwargs)
-        
+
         # 设置申领时间默认为现在
         if not self.initial.get('loan_datetime'):
             now = timezone.now()
             self.fields['loan_datetime'].initial = now
             # 同时设置widget的value属性
             self.fields['loan_datetime'].widget.attrs['value'] = now.strftime('%Y-%m-%dT%H:%M')
-        
+
         # 设置预计归还时间默认为明天此时
         if not self.initial.get('expected_return_time'):
             tomorrow = timezone.now() + timezone.timedelta(days=1)
             self.fields['expected_return_time'].initial = tomorrow
             # 同时设置widget的value属性
             self.fields['expected_return_time'].widget.attrs['value'] = tomorrow.strftime('%Y-%m-%dT%H:%M')
-        
-        # 如果有当前用户信息，设置默认申领班组
-        if self.current_user and hasattr(self.current_user, 'banzu'):
-            from app01.models import Admin
-            banzu_dict = dict(Admin.banzu_choices)
-            default_team = banzu_dict.get(self.current_user.banzu, '')
-            self.fields['borrowing_team'].initial = default_team
-            
-        # 添加班组选择的选项
+
+        # 添加班组选择的选项 - 只筛选指定班组
         from app01.models import Admin
-        team_choices = [('', '---------')] + list(Admin.banzu_choices)
-        self.fields['borrowing_team'].widget = forms.Select(choices=team_choices)
+        allowed_banzu_ids = [2, 3, 6, 7, 12]  # 只显示这些班组
+        filtered_banzu_choices = [('', '---------')] + [
+            (k, v) for k, v in Admin.banzu_choices if k in allowed_banzu_ids
+        ]
+        self.fields['borrowing_team'].widget = forms.Select(choices=filtered_banzu_choices)
+
+        # 设置默认申领班组 - 从Admin模型获取当前用户的班组
+        if self.current_user:
+            try:
+                admin_user = Admin.objects.get(username=self.current_user.username)
+                # 只有当用户的班组在允许列表中时才设置默认值
+                if admin_user.banzu in allowed_banzu_ids:
+                    banzu_dict = dict(Admin.banzu_choices)
+                    default_team = banzu_dict.get(admin_user.banzu, '')
+                    self.fields['borrowing_team'].initial = default_team
+            except Admin.DoesNotExist:
+                pass
         
         # 申领人字段设置为下拉选择
         self.fields['borrowing_person'].widget = forms.Select(choices=[('', '---------')])
@@ -410,14 +418,17 @@ class FaultReportForm(forms.Form):
     def __init__(self, *args, **kwargs):
         # 提前获取 initial 数据
         initial_data = kwargs.get('initial', {})
-        
+
         super().__init__(*args, **kwargs)
-        
-        # 设置班组选择选项
+
+        # 设置班组选择选项 - 只筛选指定班组
         from bzrz.models import TeamUser
-        team_choices = [('', '请选择报修班组')] + list(TeamUser.banzu_choices)
-        self.fields['team'].choices = team_choices
-        
+        allowed_banzu_ids = [2, 3, 6, 7, 12]  # 只显示这些班组
+        filtered_banzu_choices = [('', '请选择报修班组')] + [
+            (k, v) for k, v in TeamUser.banzu_choices if k in allowed_banzu_ids
+        ]
+        self.fields['team'].choices = filtered_banzu_choices
+
         # 如果有初始数据，设置默认班组
         if initial_data and 'team' in initial_data:
             self.fields['team'].initial = initial_data['team']

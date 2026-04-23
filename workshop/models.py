@@ -76,6 +76,9 @@ class Device(models.Model):
     # 二维码图片
     qrcode_image = models.ImageField('设备二维码', upload_to=qrcode_upload_path, blank=True, null=True)
 
+    # 关联设备（状态联动）
+    linked_device = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='跟随设备', help_text='设置后，本设备状态跟随该设备变化')
+
     # 时间戳
     created_at = models.DateTimeField('创建时间', auto_now_add=True)
     updated_at = models.DateTimeField('更新时间', auto_now=True)
@@ -170,3 +173,21 @@ class SyncConfig(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class SchedulerLog(models.Model):
+    """定时任务执行日志"""
+    job_id = models.CharField('任务ID', max_length=50)
+    job_name = models.CharField('任务名称', max_length=100)
+    execute_time = models.DateTimeField('执行时间', auto_now_add=True)
+    is_work_time = models.BooleanField('是否工作时间', default=False)
+    success = models.BooleanField('执行成功', default=False)
+    message = models.TextField('执行结果', blank=True, default='')
+
+    class Meta:
+        verbose_name = '定时任务日志'
+        verbose_name_plural = '定时任务日志'
+        ordering = ['-execute_time']
+
+    def __str__(self):
+        return f'{self.job_name} - {self.execute_time}'

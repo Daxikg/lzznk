@@ -34,9 +34,13 @@
       <div class="header-deco-line right"></div>
 
       <div class="header-left">
+        <!-- 左侧留空 -->
+      </div>
+
+      <div class="header-center">
         <div class="logo-area">
           <div class="logo-icon-wrapper">
-            <div class="logo-icon">⚙️</div>
+            <div class="logo-icon">🚨</div>
             <div class="logo-ring"></div>
             <div class="logo-ring inner"></div>
           </div>
@@ -52,17 +56,6 @@
               <span></span><span></span><span></span>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="header-center">
-        <div class="stats-wrapper">
-          <div class="stats-corner tl"></div>
-          <div class="stats-corner tr"></div>
-          <div class="stats-corner bl"></div>
-          <div class="stats-corner br"></div>
-          <div class="stats-glow"></div>
-          <StatsPanel :statistics="deviceStore.statistics" :runningRate="deviceStore.runningRate" />
         </div>
       </div>
 
@@ -123,18 +116,22 @@
           <!-- 墙体边框装饰 -->
           <rect x="0" y="15" width="1400" height="600" fill="none" stroke="rgba(79, 195, 247, 0.6)" stroke-width="10" rx="8"/>
           <!-- 内部区域分隔线 -->
-          <!-- 轮轴间与探伤间与旋轮间分隔线：实线，宽度为外墙的一半 -->
-          <line :x1="LAYOUT.leftWidth" y1="20" :x2="LAYOUT.leftWidth" y2="610" stroke="rgba(79, 195, 247, 0.6)" stroke-width="5"/>
+          <!-- 轮轴前库与轮轴后库分隔线：实线，中间开50像素缺口代表门（位于第3、4条钢轨中间） -->
+          <line :x1="LAYOUT.leftWidth" y1="20" :x2="LAYOUT.leftWidth" y2="175" stroke="rgba(79, 195, 247, 0.6)" stroke-width="5"/>
+          <line :x1="LAYOUT.leftWidth" y1="225" :x2="LAYOUT.leftWidth" y2="335" stroke="rgba(79, 195, 247, 0.6)" stroke-width="5"/>
+          <line :x1="LAYOUT.leftWidth" y1="385" :x2="LAYOUT.leftWidth" y2="550" stroke="rgba(79, 195, 247, 0.6)" stroke-width="5"/>
+          <line :x1="LAYOUT.leftWidth" y1="570" :x2="LAYOUT.leftWidth" y2="610" stroke="rgba(79, 195, 247, 0.6)" stroke-width="5"/>
+          <!-- 轮轴后库与旋轮间分隔线：实线 -->
           <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth" y1="20" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth" y2="610" stroke="rgba(79, 195, 247, 0.6)" stroke-width="5"/>
           <!-- 旋轮间中间纵向双虚线，每根宽度3，间隔1 -->
-          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth / 2 - 2" y1="40" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth / 2 - 2" y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
-          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth / 2 + 3" y1="40" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth / 2 + 3" y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
+          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth / 2 - 2" y1="60" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth / 2 - 2" y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
+          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth / 2 + 3" y1="60" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth / 2 + 3" y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
           <!-- 旋轮间右边纵向双虚线，每根宽度3，间隔1 -->
-          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth - 20" y1="40" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth - 20" y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
-          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth - 15" y1="40" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth - 15" y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
+          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth - 20" y1="60" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth - 20" y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
+          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth - 15" y1="60" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + LAYOUT.rightWidth - 15" y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
           <!-- 旋轮间左边纵向双虚线，每根宽度3，间隔1 -->
-          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + 15 " y1="40" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + 15 " y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
-          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 " y1="40" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 " y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
+          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + 15 " y1="60" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + 15 " y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
+          <line :x1="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 " y1="60" :x2="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 " y2="580" stroke="rgba(155, 89, 182, 0.5)" stroke-width="3" stroke-dasharray="8,4"/>
 
           <!-- 区域背景 -->
           <g class="areas">
@@ -154,10 +151,10 @@
               />
               <!-- 区域标签背景 -->
               <rect
-                :x="area.x + area.width / 2 - 30"
-                :y="area.y - 18"
-                width="60"
-                height="16"
+                :x="area.x + area.width / 2 - 40"
+                :y="area.y - 25"
+                width="80"
+                height="25"
                 rx="8"
                 :fill="area.borderColor"
                 opacity="0.9"
@@ -165,10 +162,10 @@
               <!-- 区域标签文字 -->
               <text
                 :x="area.x + area.width / 2"
-                :y="area.y - 6"
+                :y="area.y - 7"
                 text-anchor="middle"
                 fill="#fff"
-                font-size="11"
+                font-size="15"
                 font-weight="600"
               >
                 {{ area.name }}
@@ -180,16 +177,35 @@
           <g class="rails">
             <defs>
               <!-- 钢轨渐变（垂直方向） -->
-              <linearGradient id="railHeadGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stop-color="#9aaabc"/>
-                <stop offset="50%" stop-color="#6a7a8a"/>
-                <stop offset="100%" stop-color="#8a9aaa"/>
+              <!-- 钢铁灰 - 真实钢轨质感 -->
+              <linearGradient id="steelGray" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#5a5a5a"/>
+                <stop offset="50%" stop-color="#3a3a3a"/>
+                <stop offset="100%" stop-color="#4a4a4a"/>
               </linearGradient>
-              <!-- 纵向钢轨渐变（水平方向） -->
+              <!-- 金属银 - 金属光泽感 -->
+              <linearGradient id="metalSilver" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#b8b8b8"/>
+                <stop offset="50%" stop-color="#8a8a8a"/>
+                <stop offset="100%" stop-color="#a0a0a0"/>
+              </linearGradient>
+              <!-- 科技蓝灰 - 科技感强 -->
+              <linearGradient id="techBlueGray" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#5a6a7a"/>
+                <stop offset="50%" stop-color="#3a4a5a"/>
+                <stop offset="100%" stop-color="#4a5a6a"/>
+              </linearGradient>
+              <!-- 锈铁棕 - 老旧钢轨真实感 -->
+              <linearGradient id="rustBrown" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#8a6a5a"/>
+                <stop offset="50%" stop-color="#6a4a3a"/>
+                <stop offset="100%" stop-color="#7a5a4a"/>
+              </linearGradient>
+              <!-- 纵向钢轨渐变（水平方向） - 科技蓝灰 -->
               <linearGradient id="railHeadGradientV" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#9aaabc"/>
-                <stop offset="50%" stop-color="#6a7a8a"/>
-                <stop offset="100%" stop-color="#8a9aaa"/>
+                <stop offset="0%" stop-color="#5a6a7a"/>
+                <stop offset="50%" stop-color="#3a4a5a"/>
+                <stop offset="100%" stop-color="#4a5a6a"/>
               </linearGradient>
               <!-- 输送带流动渐变 -->
               <linearGradient id="conveyorFlow" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -222,13 +238,13 @@
               </pattern>
             </defs>
 
-            <!-- 1号钢轨：从轮轴间左边开始，一直延伸到旋轮间离外墙30像素处 -->
+            <!-- 1号钢轨：从轮轴前库左边开始，一直延伸到旋轮间离外墙30像素处 - 科技蓝灰 -->
             <g v-for="(rail, index) in rails" :key="rail.id">
               <template v-if="index === 0">
                 <!-- 上轨 -->
-                <rect x="15" :y="rail.y - 4" :width="1400 - 30 - 15" height="8" fill="url(#railHeadGradient)" rx="2"/>
+                <rect x="15" :y="rail.y - 4" :width="1400 - 30 - 15" height="8" fill="url(#techBlueGray)" rx="2"/>
                 <!-- 下轨 -->
-                <rect x="15" :y="rail.y + 16" :width="1400 - 30 - 15" height="8" fill="url(#railHeadGradient)" rx="2"/>
+                <rect x="15" :y="rail.y + 16" :width="1400 - 30 - 15" height="8" fill="url(#techBlueGray)" rx="2"/>
                 <!-- 钢轨编号 -->
                 <g :transform="`translate(5, ${rail.y + 10})`">
                   <circle r="12" fill="rgba(60, 70, 80, 0.9)" stroke="rgba(150, 160, 170, 0.5)" stroke-width="1"/>
@@ -237,13 +253,13 @@
               </template>
             </g>
 
-            <!-- 2-5号钢轨：从墙体外80像素开始，到旋轮间左边墙体往右20像素处 -->
+            <!-- 2号钢轨：科技蓝灰 -->
             <g v-for="(rail, index) in rails" :key="rail.id">
-              <template v-if="index >= 1 && index <= 4">
+              <template v-if="index === 1">
                 <!-- 上轨 -->
-                <rect x="-80" :y="rail.y - 4" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#railHeadGradient)" rx="2"/>
+                <rect x="-80" :y="rail.y - 4" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#techBlueGray)" rx="2"/>
                 <!-- 下轨 -->
-                <rect x="-80" :y="rail.y + 16" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#railHeadGradient)" rx="2"/>
+                <rect x="-80" :y="rail.y + 16" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#techBlueGray)" rx="2"/>
                 <!-- 钢轨编号 -->
                 <g :transform="`translate(-65, ${rail.y + 10})`">
                   <circle r="12" fill="rgba(60, 70, 80, 0.9)" stroke="rgba(150, 160, 170, 0.5)" stroke-width="1"/>
@@ -252,13 +268,58 @@
               </template>
             </g>
 
-            <!-- 6号钢轨：从墙体外80像素开始，一直延伸到旋轮间离外墙30像素处 -->
+            <!-- 3号钢轨：科技蓝灰 -->
+            <g v-for="(rail, index) in rails" :key="rail.id">
+              <template v-if="index === 2">
+                <!-- 上轨 -->
+                <rect x="-80" :y="rail.y - 4" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#techBlueGray)" rx="2"/>
+                <!-- 下轨 -->
+                <rect x="-80" :y="rail.y + 16" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#techBlueGray)" rx="2"/>
+                <!-- 钢轨编号 -->
+                <g :transform="`translate(-65, ${rail.y + 10})`">
+                  <circle r="12" fill="rgba(60, 70, 80, 0.9)" stroke="rgba(150, 160, 170, 0.5)" stroke-width="1"/>
+                  <text y="4" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="11" font-weight="bold">{{ rail.id.split('-')[1] }}</text>
+                </g>
+              </template>
+            </g>
+
+            <!-- 4号钢轨：科技蓝灰 -->
+            <g v-for="(rail, index) in rails" :key="rail.id">
+              <template v-if="index === 3">
+                <!-- 上轨 -->
+                <rect x="-80" :y="rail.y - 4" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#techBlueGray)" rx="2"/>
+                <!-- 下轨 -->
+                <rect x="-80" :y="rail.y + 16" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#techBlueGray)" rx="2"/>
+                <!-- 钢轨编号 -->
+                <g :transform="`translate(-65, ${rail.y + 10})`">
+                  <circle r="12" fill="rgba(60, 70, 80, 0.9)" stroke="rgba(150, 160, 170, 0.5)" stroke-width="1"/>
+                  <text y="4" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="11" font-weight="bold">{{ rail.id.split('-')[1] }}</text>
+                </g>
+              </template>
+            </g>
+
+            <!-- 5号钢轨：科技蓝灰 -->
+            <g v-for="(rail, index) in rails" :key="rail.id">
+              <template v-if="index === 4">
+                <!-- 上轨 -->
+                <rect x="-80" :y="rail.y - 4" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#techBlueGray)" rx="2"/>
+                <!-- 下轨 -->
+                <rect x="-80" :y="rail.y + 16" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#techBlueGray)" rx="2"/>
+                <!-- 钢轨编号 -->
+                <g :transform="`translate(-65, ${rail.y + 10})`">
+                  <circle r="12" fill="rgba(60, 70, 80, 0.9)" stroke="rgba(150, 160, 170, 0.5)" stroke-width="1"/>
+                  <text y="4" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="11" font-weight="bold">{{ rail.id.split('-')[1] }}</text>
+                </g>
+              </template>
+            </g>
+
+            <!-- 6号钢轨：科技蓝灰 -->
             <g v-for="(rail, index) in rails" :key="rail.id">
               <template v-if="index === 5">
                 <!-- 上轨 -->
-                <rect x="-80" :y="rail.y - 4" :width="1450" height="8" fill="url(#railHeadGradient)" rx="2"/>
+                <rect x="-80" :y="rail.y - 4" :width="1450" height="8" fill="url(#techBlueGray)" rx="2"/>
                 <!-- 下轨 -->
-                <rect x="-80" :y="rail.y + 16" :width="1450" height="8" fill="url(#railHeadGradient)" rx="2"/>
+                <rect x="-80" :y="rail.y + 16" :width="1450" height="8" fill="url(#techBlueGray)" rx="2"/>
                 <!-- 钢轨编号 -->
                 <g :transform="`translate(-65, ${rail.y + 10})`">
                   <circle r="12" fill="rgba(60, 70, 80, 0.9)" stroke="rgba(150, 160, 170, 0.5)" stroke-width="1"/>
@@ -267,7 +328,7 @@
               </template>
             </g>
 
-            <!-- 纵向钢轨1：轮轴间左侧墙体右边30像素处，从钢轨1到钢轨3 -->
+            <!-- 纵向钢轨1：轮轴前库左侧墙体右边30像素处，从钢轨1到钢轨3 -->
             <!-- 左轨（从墙左边算30像素，墙在x=0，所以是x=30） -->
             <rect x="30" :y="LAYOUT.railY[0] - 4" width="8" :height="LAYOUT.railY[2] - LAYOUT.railY[0] + 28" fill="url(#railHeadGradientV)" rx="2"/>
             <!-- 右轨 -->
@@ -279,7 +340,7 @@
             <!-- 右轨 x=270 -->
             <rect x="270" :y="LAYOUT.railY[0] - 4" width="8" :height="LAYOUT.railY[5] - LAYOUT.railY[0] + 28" fill="url(#railHeadGradientV)" rx="2"/>
 
-            <!-- 纵向钢轨3：探伤间右边墙体往左40像素处，从钢轨1上轨到钢轨6下轨 -->
+            <!-- 纵向钢轨3：轮轴后库右边墙体往左40像素处，从钢轨1上轨到钢轨6下轨 -->
             <!-- 左轨 x=940 -->
             <rect x="940" :y="LAYOUT.railY[0] - 4" width="8" :height="LAYOUT.railY[5] - LAYOUT.railY[0] + 28" fill="url(#railHeadGradientV)" rx="2"/>
             <!-- 右轨 x=960 -->
@@ -312,8 +373,9 @@
                 rx="4"
               />
               <text
+                v-if="room.name"
                 :x="room.x + room.width / 2"
-                :y="room.y + room.height / 2 + 4"
+                :y="room.labelBelow ? room.y + room.height + 15 : room.y + room.height / 2 + 4"
                 text-anchor="middle"
                 :fill="room.textColor || 'rgba(200, 220, 255, 0.9)'"
                 font-size="14"
@@ -323,6 +385,137 @@
               </text>
             </g>
           </g>
+
+          <!-- 沙发（俯视图纵向：宽15高40，靠背在左，扶手上下，坐垫右侧纵向） -->
+          <g class="sofas">
+            <g v-for="(sofa, index) in sofas" :key="'sofa-' + index" :transform="`translate(${sofa.x}, ${sofa.y})`">
+              <!-- 沙发外框 -->
+              <rect
+                x="0"
+                y="0"
+                :width="sofa.width"
+                :height="sofa.height"
+                rx="2"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.6)"
+                stroke-width="1"
+              />
+              <!-- 靠背（右侧竖条） -->
+              <rect
+                :x="sofa.width - sofa.width * 0.25 - 1"
+                y="3"
+                :width="sofa.width * 0.25"
+                :height="sofa.height - 6"
+                rx="1"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.4)"
+                stroke-width="0.5"
+              />
+              <!-- 上扶手 -->
+              <line
+                x1="1"
+                y1="1"
+                :x2="sofa.width - 1"
+                y2="1"
+                stroke="rgba(255, 255, 255, 0.5)"
+                stroke-width="1"
+                stroke-linecap="round"
+              />
+              <!-- 下扶手 -->
+              <line
+                x1="1"
+                :y1="sofa.height - 1"
+                :x2="sofa.width - 1"
+                :y2="sofa.height - 1"
+                stroke="rgba(255, 255, 255, 0.5)"
+                stroke-width="1"
+                stroke-linecap="round"
+              />
+              <!-- 四个坐垫（左侧纵向并排） -->
+              <rect
+                x="1"
+                y="3"
+                :width="sofa.width * 0.65"
+                :height="sofa.height * 0.22"
+                rx="1"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.5)"
+                stroke-width="0.5"
+              />
+              <rect
+                x="1"
+                :y="sofa.height * 0.26"
+                :width="sofa.width * 0.65"
+                :height="sofa.height * 0.22"
+                rx="1"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.5)"
+                stroke-width="0.5"
+              />
+              <rect
+                x="1"
+                :y="sofa.height * 0.52"
+                :width="sofa.width * 0.65"
+                :height="sofa.height * 0.22"
+                rx="1"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.5)"
+                stroke-width="0.5"
+              />
+              <rect
+                x="1"
+                :y="sofa.height * 0.78"
+                :width="sofa.width * 0.65"
+                :height="sofa.height * 0.19"
+                rx="1"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.5)"
+                stroke-width="0.5"
+              />
+            </g>
+          </g>
+
+          <!-- 柜子（俯视图：宽30高25） -->
+          <g class="cabinets">
+            <g v-for="(cabinet, index) in cabinets" :key="'cabinet-' + index" :transform="`translate(${cabinet.x}, ${cabinet.y})`">
+              <!-- 柜子外框 -->
+              <rect
+                x="0"
+                y="0"
+                :width="cabinet.width"
+                :height="cabinet.height"
+                rx="2"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.6)"
+                stroke-width="1"
+              />
+              <!-- 柜门分隔线 -->
+              <line
+                :x1="cabinet.width / 2"
+                y1="2"
+                :x2="cabinet.width / 2"
+                :y2="cabinet.height - 2"
+                stroke="rgba(255, 255, 255, 0.4)"
+                stroke-width="0.5"
+              />
+            </g>
+          </g>
+
+          <!-- StatsPanel嵌入SVG，定位在车间整体右下角，间距5px -->
+          <foreignObject x="800" y="620" width="600" height="90">
+            <body xmlns="http://www.w3.org/1999/xhtml" style="margin:0;padding:0;background:transparent;overflow:visible;">
+              <div class="stats-wrapper-svg">
+                <div class="stats-inner">
+                  <div class="stats-corner tl"></div>
+                  <div class="stats-corner tr"></div>
+                  <div class="stats-corner bl"></div>
+                  <div class="stats-corner br"></div>
+                  <div class="stats-glow"></div>
+                  <StatsPanel :statistics="deviceStore.statistics" :runningRate="deviceStore.runningRate" />
+                </div>
+              </div>
+            </body>
+          </foreignObject>
 
           <!-- 设备 -->
           <DeviceItem
@@ -353,7 +546,7 @@
         <div class="area-stats">
           <h4>区域设备统计</h4>
           <div class="area-list">
-            <div class="area-item" v-for="area in ['轮轴间', '探伤间', '旋轮间']" :key="area">
+            <div class="area-item" v-for="area in ['轮轴前库', '轮轴后库', '旋轮间']" :key="area">
               <span class="area-name">{{ area }}</span>
               <span class="area-count">{{ getAreaCount(area) }}台</span>
             </div>
@@ -407,7 +600,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useDeviceStore } from '../stores/deviceStore'
-import { deviceTypeConfig, rails, rooms, LAYOUT } from '../api/mockData'
+import { deviceTypeConfig, rails, rooms, LAYOUT, sofas, cabinets } from '../api/mockData'
 import StatsPanel from '../components/StatsPanel.vue'
 import LegendPanel from '../components/LegendPanel.vue'
 import DeviceItem from '../components/DeviceItem.vue'
@@ -426,8 +619,8 @@ const selectedDevice = ref(null)
 
 // 格式化更新时间
 const formattedUpdateTime = computed(() => {
-  if (!deviceStore.lastUpdate) return '-'
-  const date = new Date(deviceStore.lastUpdate)
+  if (!deviceStore.lastSyncTime) return '-'
+  const date = new Date(deviceStore.lastSyncTime)
   return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
 })
 
@@ -745,15 +938,22 @@ onUnmounted(() => {
 
 .header-left {
   flex: 1;
+}
+
+.header-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
+  justify-content: center;
   align-items: center;
-  justify-content: flex-start;
 }
 
 .logo-area {
   display: flex;
   align-items: center;
   gap: 15px;
+  white-space: nowrap;
 }
 
 .logo-icon-wrapper {
@@ -849,10 +1049,11 @@ onUnmounted(() => {
 }
 
 .title {
-  font-size: 36px;
+  font-size: 50px;
   font-weight: bold;
   margin: 0;
   position: relative;
+  white-space: nowrap;
 }
 
 .title-text {
@@ -884,11 +1085,12 @@ onUnmounted(() => {
 }
 
 .header-center {
-  flex: 1;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0 10px;
 }
 
 .stats-wrapper {
@@ -1071,6 +1273,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin-top: 12px;
 }
 
 .type-stats {
@@ -1286,5 +1489,37 @@ onUnmounted(() => {
 .highlight {
   color: #22c55e;
   font-size: 14px;
+}
+
+/* SVG内嵌StatsPanel样式 */
+.stats-wrapper-svg {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.stats-inner {
+  position: relative;
+  padding: 5px;
+}
+
+.stats-inner .stats-corner {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(79, 195, 247, 0.5);
+  animation: cornerBlink 2s ease-in-out infinite;
+}
+
+.stats-inner .stats-corner.tl { top: 0; left: 0; border-right: none; border-bottom: none; }
+.stats-inner .stats-corner.tr { top: 0; right: 0; border-left: none; border-bottom: none; animation-delay: 0.5s; }
+.stats-inner .stats-corner.bl { bottom: 0; left: 0; border-right: none; border-top: none; animation-delay: 1s; }
+.stats-inner .stats-corner.br { bottom: 0; right: 0; border-left: none; border-top: none; animation-delay: 1.5s; }
+
+.stats-inner .stats-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(79, 195, 247, 0.1), transparent);
+  animation: statsGlow 3s ease-in-out infinite;
 }
 </style>

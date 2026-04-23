@@ -53,11 +53,11 @@ export const LAYOUT = {
   svgWidth: 1400,
   svgHeight: 700,
   // 区域宽度比例：左边3/7，中间2/7，右边2/7
-  leftWidth: 600,      // 轮轴间宽度
-  middleWidth: 400,    // 探伤间宽度
+  leftWidth: 600,      // 轮轴前库宽度
+  middleWidth: 400,    // 轮轴后库宽度
   rightWidth: 400,     // 旋轮间宽度
   // 钢轨Y坐标
-  railY: [80, 150, 220, 320, 390, 460],
+  railY: [80, 140, 240, 300, 400, 460],
   // 设备尺寸
   deviceWidth: 100,
   deviceHeight: 45,
@@ -68,19 +68,19 @@ export const LAYOUT = {
 // 区域边界配置（钢轨贯穿全屏）
 export const areas = [
   {
-    name: '轮轴间',
+    name: '轮轴前库',
     x: 10, y: 40,
     width: LAYOUT.leftWidth - 20,
     height: 540,
-    color: 'rgba(52, 152, 219, 0.06)',
+    color: 'rgba(52, 152, 219, 0.18)',
     borderColor: 'rgba(52, 152, 219, 0.5)'
   },
   {
-    name: '探伤间',
+    name: '轮轴后库',
     x: LAYOUT.leftWidth + 10, y: 40,
     width: LAYOUT.middleWidth - 20,
     height: 540,
-    color: 'rgba(46, 204, 113, 0.06)',
+    color: 'rgba(46, 204, 113, 0.18)',
     borderColor: 'rgba(46, 204, 113, 0.5)'
   },
   {
@@ -88,18 +88,54 @@ export const areas = [
     x: LAYOUT.leftWidth + LAYOUT.middleWidth + 10, y: 40,
     width: LAYOUT.rightWidth - 20,
     height: 540,
-    color: 'rgba(155, 89, 182, 0.06)',
+    color: 'rgba(155, 89, 182, 0.18)',
     borderColor: 'rgba(155, 89, 182, 0.5)'
   },
 ]
 
 // 房间配置
 export const rooms = [
-  { name: '轴承端盖及配件清洗间', x: 50, y: 520, width: 160, height: 50, color: 'rgba(46, 204, 113, 0.15)', textColor: '#2ecc71' },
-  { name: '探伤间休室', x: 220, y: 520, width: 170, height: 50, color: 'rgba(46, 204, 113, 0.15)', textColor: '#2ecc71' },
-  { name: '轮轴间休室', x: 400, y: 520, width: 200, height: 50, color: 'rgba(46, 204, 113, 0.15)', textColor: '#2ecc71' },
-  { name: '配件存放间', x: 0, y: 620, width: 250, height: 60, color: 'rgba(52, 152, 219, 0.15)', textColor: '#4fc3f7' },
-  { name: '工具间', x: 250, y: 620, width: 120, height: 50, color: 'rgba(52, 152, 219, 0.15)', textColor: '#4fc3f7' },
+  { name: '', x: 50, y: 520, width: 160, height: 50, color: 'rgba(46, 204, 113, 0.15)', textColor: '#2ecc71' },
+  { name: '探伤间休室', x: 220, y: 520, width: 180, height: 50, color: 'rgba(46, 204, 113, 0.15)', textColor: '#2ecc71', labelBelow: true },
+  { name: '轮轴间休室', x: 410, y: 520, width: 265, height: 50, color: 'rgba(46, 204, 113, 0.15)', textColor: '#2ecc71', labelBelow: true },
+  { name: '配件存放间', x: 0, y: 620, width: 250, height: 80, color: 'rgba(52, 152, 219, 0.15)', textColor: '#4fc3f7' },
+  { name: '工具间', x: 250, y: 620, width: 120, height: 70, color: 'rgba(52, 152, 219, 0.15)', textColor: '#4fc3f7' },
+]
+
+// 柜子配置（标志牌刻打机房间内的两个柜子）
+// 房间位置：x=50, y=520, width=160, height=50
+export const cabinets = [
+  // 左下角柜子
+  { x: 52, y: 545, width: 30, height: 25 },
+  // 右下角柜子
+  { x: 178, y: 545, width: 30, height: 25 },
+]
+
+// 沙发配置（18把，纵向摆放，宽15高40）
+// 探伤间休室(x=220, y=520, 宽170高50)：放8把，单行排列
+// 轮轴间休室(x=400, y=520, 宽200高50)：放10把，单行排列
+export const sofas = [
+  // 探伤间休室（从右往左排列）
+  { x: 220 + 170 - 10, y: 520 + 5, width: 15, height: 40 },  // 第1把
+  { x: 220 + 170 - 30, y: 520 + 5, width: 15, height: 40 },  // 第2把
+  { x: 220 + 170 - 50, y: 520 + 5, width: 15, height: 40 },  // 第3把
+  { x: 220 + 170 - 70, y: 520 + 5, width: 15, height: 40 },  // 第4把
+  { x: 220 + 170 - 90, y: 520 + 5, width: 15, height: 40 },  // 第5把
+  { x: 220 + 170 - 110, y: 520 + 5, width: 15, height: 40 },  // 第6把
+  // { x: 220 + 170 - 140, y: 520 + 5, width: 15, height: 40 },  // 第7把
+  // { x: 220 + 170 - 160, y: 520 + 5, width: 15, height: 40 },  // 第8把
+
+  // 轮轴间休室（从右往左排列）
+  { x: 400 + 200 - 20, y: 520 + 5, width: 15, height: 40 },   // 第9把
+  { x: 400 + 200 - 40, y: 520 + 5, width: 15, height: 40 },   // 第10把
+  { x: 400 + 200 - 60, y: 520 + 5, width: 15, height: 40 },   // 第11把
+  { x: 400 + 200 - 80, y: 520 + 5, width: 15, height: 40 },   // 第12把
+  { x: 400 + 200 - 100, y: 520 + 5, width: 15, height: 40 },  // 第13把
+  { x: 400 + 200 - 120, y: 520 + 5, width: 15, height: 40 },  // 第14把
+  { x: 400 + 200 - 140, y: 520 + 5, width: 15, height: 40 },  // 第15把
+  // { x: 400 + 200 - 160, y: 520 + 5, width: 15, height: 40 },  // 第16把
+  // { x: 400 + 200 - 180, y: 520 + 5, width: 15, height: 40 },  // 第17把
+  // { x: 400 + 200 - 195, y: 520 + 5, width: 15, height: 40 },  // 第18把
 ]
 
 // 钢轨配置 - 6条钢轨贯穿全屏
@@ -133,7 +169,7 @@ export const mockDevices = []
 
 let deviceId = 1
 
-// ==================== 轮轴间设备 ====================
+// ==================== 轮轴前库设备 ====================
 // 钢轨1-3：轮对自动检测机(宽度缩短40，右移40)、轴承退卸机、轮对除锈机（后两列位置不变）
 const lunZhouDevices123 = [
   { name: '轮对自动检测机', type: 'detect', x_offset: 120, width: 60 },  // 右移40，宽度60
@@ -166,7 +202,7 @@ for (let railIdx = 0; railIdx < 3; railIdx++) {
     mockDevices.push(createDevice(
       `D${String(deviceId++).padStart(3, '0')}`,
       `${device.name}-${railIdx + 1}-${deviceIdx + 1}`,
-      '轮轴间',
+      '轮轴前库',
       device.type,
       x, y,
       width, LAYOUT.deviceHeight
@@ -179,7 +215,7 @@ for (let i = 0; i < 2; i++) {
   mockDevices.push(createDevice(
     `D${String(deviceId++).padStart(3, '0')}`,
     `轴承自动开盖机-${i + 1}`,
-    '轮轴间',
+    '轮轴前库',
     'detect',
     87, LAYOUT.railY[i] + 10 - LAYOUT.deviceHeight / 2,
     40, LAYOUT.deviceHeight
@@ -216,7 +252,7 @@ mockDevices.push(createDevice(
 mockDevices.push(createDevice(
   `D${String(deviceId++).padStart(3, '0')}`,
   '标志牌打印机',
-  '轴承端盖及配件清洗间',
+  '清洗间',
   'detect',
   145, 527,
   60, 40
@@ -233,7 +269,7 @@ for (let railIdx = 3; railIdx < 5; railIdx++) {
     mockDevices.push(createDevice(
       `D${String(deviceId++).padStart(3, '0')}`,
       `${device.name}-${railIdx + 1}-${deviceIdx + 1}`,
-      '轮轴间',
+      '轮轴前库',
       device.type,
       x, y,
       width, LAYOUT.deviceHeight
@@ -251,7 +287,7 @@ lunZhouDevices6.forEach((device, deviceIdx) => {
   mockDevices.push(createDevice(
     `D${String(deviceId++).padStart(3, '0')}`,
     `${device.name}-6-${deviceIdx + 1}`,
-    '轮轴间',
+    '轮轴前库',
     device.type,
     x, y,
     width, LAYOUT.deviceHeight
@@ -265,7 +301,7 @@ for (let i = 0; i < 3; i++) {
   mockDevices.push(createDevice(
     `D${String(deviceId++).padStart(3, '0')}`,
     `转盘-${i + 1}`,
-    '轮轴间',
+    '轮轴前库',
     'turntable',
     24, LAYOUT.railY[i] - 10,  // 圆心在rail.y+10，减去半径20得到y坐标
     40, 40
@@ -278,7 +314,7 @@ for (let i = 0; i < 6; i++) {
   mockDevices.push(createDevice(
     `D${String(deviceId++).padStart(3, '0')}`,
     `转盘-${i + 4}`,
-    '轮轴间',
+    '轮轴前库',
     'turntable',
     245, LAYOUT.railY[i] - 10,
     40, 40
@@ -291,7 +327,7 @@ for (let i = 0; i < 6; i++) {
   mockDevices.push(createDevice(
     `D${String(deviceId++).padStart(3, '0')}`,
     `转盘-${i + 10}`,
-    '探伤间',
+    '轮轴后库',
     'turntable',
     935, LAYOUT.railY[i] - 10,
     40, 40
@@ -305,19 +341,19 @@ mockDevices.push(createDevice(
   '工具间',
   'stacker',
   280, 623,
-  60, 45,
+  60, 70,
   'running',
   { capacity: 500, used: 328 }
 ))
 
-// ==================== 探伤间设备 ====================
+// ==================== 轮轴后库设备 ====================
 // 钢轨1-3：轮对磁粉探伤机、轮对超声波探伤机（人工复探是占位，不算设备）
 const tanShangDevices123 = [
   { name: '轮对磁粉探伤机', type: 'flaw' },
   { name: '轮对超声波探伤机', type: 'flaw' },
 ]
 
-// 钢轨1-3设备（探伤间部分）
+// 钢轨1-3设备（轮轴后库部分）
 // 轮对超声波探伤机往左移动20
 // 轮对超声波探伤机-1改名为相控阵探伤机
 for (let railIdx = 0; railIdx < 3; railIdx++) {
@@ -331,19 +367,19 @@ for (let railIdx = 0; railIdx < 3; railIdx++) {
     mockDevices.push(createDevice(
       `D${String(deviceId++).padStart(3, '0')}`,
       deviceName,
-      '探伤间',
+      '轮轴后库',
       device.type,
       x, y
     ))
   })
 }
 
-// 转轮器（探伤间，钢轨1-3）
+// 转轮器（轮轴后库，钢轨1-3）
 for (let i = 0; i < 3; i++) {
   mockDevices.push(createDevice(
     `D${String(deviceId++).padStart(3, '0')}`,
     `转轮器-${i + 1}`,
-    '探伤间',
+    '轮轴后库',
     'detect',
     LAYOUT.leftWidth + 280, LAYOUT.railY[i] + 10 - 18,
     35, 36
@@ -360,7 +396,7 @@ const tanShangDevices5 = [
 mockDevices.push(createDevice(
   `D${String(deviceId++).padStart(3, '0')}`,
   `轴承压装机-压装线2`,
-  '探伤间',
+  '轮轴后库',
   'press',
   LAYOUT.leftWidth + 30, LAYOUT.railY[4] + 10 - LAYOUT.deviceHeight / 2,
   LAYOUT.deviceWidth, LAYOUT.deviceHeight
@@ -370,7 +406,7 @@ mockDevices.push(createDevice(
 mockDevices.push(createDevice(
   `D${String(deviceId++).padStart(3, '0')}`,
   `轴颈自动测量机-压装线2`,
-  '探伤间',
+  '轮轴后库',
   'measure',
   LAYOUT.leftWidth + 190, LAYOUT.railY[4] + 10 - LAYOUT.deviceHeight / 2,
   LAYOUT.deviceWidth, LAYOUT.deviceHeight
@@ -380,7 +416,7 @@ mockDevices.push(createDevice(
 mockDevices.push(createDevice(
   `D${String(deviceId++).padStart(3, '0')}`,
   `轴承压装机-压装线1`,
-  '探伤间',
+  '轮轴后库',
   'press',
   LAYOUT.leftWidth + 30, LAYOUT.railY[5] + 10 - LAYOUT.deviceHeight / 2,
   LAYOUT.deviceWidth, LAYOUT.deviceHeight
@@ -390,29 +426,29 @@ mockDevices.push(createDevice(
 mockDevices.push(createDevice(
   `D${String(deviceId++).padStart(3, '0')}`,
   `轴颈自动测量机-压装线1`,
-  '探伤间',
+  '轮轴后库',
   'measure',
   LAYOUT.leftWidth + 190, LAYOUT.railY[5] + 10 - LAYOUT.deviceHeight / 2,
   LAYOUT.deviceWidth, LAYOUT.deviceHeight
 ))
 
-// 轮对识别机（探伤间右边墙体往左5像素处，钢轨1-3）
+// 轮对识别机（轮轴后库右边墙体往左5像素处，钢轨1-3）
 for (let i = 0; i < 3; i++) {
   mockDevices.push(createDevice(
     `D${String(deviceId++).padStart(3, '0')}`,
     `轮对识别机-${i + 1}`,
-    '探伤间',
+    '轮轴后库',
     'detect',
     LAYOUT.leftWidth + LAYOUT.middleWidth - 20, LAYOUT.railY[i] + 10 - LAYOUT.deviceHeight / 2,
     15, LAYOUT.deviceHeight
   ))
 }
 
-// 轴承智能选配立体库（钢轨6下方，Y与轮轴间房间平齐）
+// 轴承智能选配立体库（钢轨6下方，Y与轮轴前库房间平齐）
 mockDevices.push(createDevice(
   `D${String(deviceId++).padStart(3, '0')}`,
   '轴承智能选配立体库',
-  '探伤间',
+  '轮轴后库',
   'warehouse',
   LAYOUT.leftWidth + 30, 520,
   190, 45,
@@ -424,7 +460,7 @@ mockDevices.push(createDevice(
 mockDevices.push(createDevice(
   `D${String(deviceId++).padStart(3, '0')}`,
   '轴承内径测量机-1',
-  '探伤间',
+  '轮轴后库',
   'measure',
   LAYOUT.leftWidth + 230, 520,
   40, 20
@@ -432,7 +468,7 @@ mockDevices.push(createDevice(
 mockDevices.push(createDevice(
   `D${String(deviceId++).padStart(3, '0')}`,
   '轴承内径测量机-2',
-  '探伤间',
+  '轮轴后库',
   'measure',
   LAYOUT.leftWidth + 230, 545,
   40, 20
@@ -442,13 +478,13 @@ mockDevices.push(createDevice(
 mockDevices.push(createDevice(
   `D${String(deviceId++).padStart(3, '0')}`,
   '轴承上料机器人',
-  '探伤间',
+  '轮轴后库',
   'detect',
   LAYOUT.leftWidth + 280, 520,
   80, 45
 ))
 
-// 标志牌识别机（3号钢轨起始位置处，轮轴间左边墙体外）
+// 标志牌识别机（3号钢轨起始位置处，轮轴前库左边墙体外）
 mockDevices.push(createDevice(
   `D${String(deviceId++).padStart(3, '0')}`,
   '标志牌识别机',

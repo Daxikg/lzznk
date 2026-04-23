@@ -16,6 +16,14 @@
       </div>
     </div>
 
+    <div class="stat-item offline">
+      <div class="stat-icon">⚫</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ statistics.offline }}</div>
+        <div class="stat-label">离线</div>
+      </div>
+    </div>
+
     <div class="stat-item fault">
       <div class="stat-icon">⚠️</div>
       <div class="stat-content">
@@ -29,14 +37,6 @@
       <div class="stat-content">
         <div class="stat-value">{{ statistics.longFault }}</div>
         <div class="stat-label">长时间故障</div>
-      </div>
-    </div>
-
-    <div class="stat-item offline">
-      <div class="stat-icon">⚫</div>
-      <div class="stat-content">
-        <div class="stat-value">{{ statistics.offline }}</div>
-        <div class="stat-label">离线</div>
       </div>
     </div>
   </div>

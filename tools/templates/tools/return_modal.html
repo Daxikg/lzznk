@@ -1,0 +1,124 @@
+<div class="modal fade" id="returnModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fa fa-undo mr-2"></i>归还工具</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="returnForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- 工具信息 -->
+                    <div class="mb-3">
+                        <h6 class="border-bottom pb-2 mb-2 text-muted small">
+                            <i class="fa fa-info-circle mr-1"></i>工具信息
+                        </h6>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted mb-0">工具编号</label>
+                                    <div class="font-weight-bold">{{ loan_record.tool.code }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted mb-0">工具名称</label>
+                                    <div class="font-weight-bold">{{ loan_record.tool.name }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted mb-0">申领人</label>
+                                    <div class="font-weight-bold">{{ loan_record.borrowing_person }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted mb-0">申领班组</label>
+                                    <div class="font-weight-bold">{{ loan_record.borrowing_team }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted mb-0">申领时间</label>
+                                    <div class="font-weight-bold">{{ loan_record.loan_time|date:"Y-m-d H:i" }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted mb-0">预计归还时间</label>
+                                    <div class="font-weight-bold">{{ loan_record.expected_return_time|date:"Y-m-d H:i" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if has_approval_permission %}
+                    <div class="alert alert-success py-2 mb-3">
+                        <i class="fa fa-check-circle mr-1"></i> 您有审批权限，归还将直接生效
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info py-2 mb-3">
+                        <i class="fa fa-info-circle mr-1"></i> 归还申请需要等待审批
+                    </div>
+                    {% endif %}
+
+                    <hr class="my-3">
+
+                    <!-- 归还信息 -->
+                    <h6 class="border-bottom pb-2 mb-3 text-muted small">
+                        <i class="fa fa-undo mr-1"></i>归还信息
+                    </h6>
+
+                    <!-- 实际归还时间 -->
+                    <div class="form-group">
+                        <label for="id_actual_return_time_modal">实际归还时间</label>
+                        <input type="datetime-local" name="actual_return_time" id="id_actual_return_time_modal" class="form-control" value="{{ form.actual_return_time.value|default:'' }}">
+                        <small class="text-muted">默认为当前时间</small>
+                    </div>
+
+                    <!-- 归还备注 -->
+                    <div class="form-group mb-0">
+                        <label for="id_remarks_modal">归还备注</label>
+                        <textarea name="remarks" id="id_remarks_modal" class="form-control" rows="3" placeholder="可选，填写归还备注信息">{{ form.remarks.value|default:'' }}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-success"><i class="fa fa-check mr-1"></i>确认归还</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const returnTimeInput = document.getElementById('id_actual_return_time_modal');
+
+    // 设置时间默认值
+    function setDateTimeDefault() {
+        if (returnTimeInput && !returnTimeInput.value) {
+            const now = new Date();
+            returnTimeInput.value = formatDateTime(now);
+        }
+    }
+
+    function formatDateTime(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    setDateTimeDefault();
+})();
+</script>

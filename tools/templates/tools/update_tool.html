@@ -222,28 +222,38 @@
 <div class="modal fade" id="scrapToolModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title"><i class="fa fa-trash-alt mr-2"></i>确认报废</h5>
-                <button type="button" class="close text-white" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p class="mb-2">确定要将工具 <strong id="scrapToolName" class="text-dark"></strong> 标记为报废吗？报废后工具将无法继续使用。</p>
-                <div class="form-group mt-3">
-                    <label>报废原因 <span class="text-danger">*</span></label>
-                    <textarea name="scrap_reason" id="scrapReason" class="form-control" rows="3" placeholder="请填写报废原因..." required></textarea>
-                    <small class="text-muted">请详细说明报废原因，此信息将保存到工具备注中。</small>
+            <form id="scrapToolForm" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><i class="fa fa-trash-alt mr-2"></i>确认报废</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                <form id="scrapToolForm" method="post" style="display: inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="scrap_reason" id="scrapReasonInput">
+                <div class="modal-body">
+                    <p class="mb-3">确定要将工具 <strong id="scrapToolName" class="text-dark"></strong> 标记为报废吗？报废后工具将无法继续使用。</p>
+                    <div class="form-group">
+                        <label>报废原因 <span class="text-danger">*</span></label>
+                        <textarea name="scrap_reason" id="scrapReason" class="form-control" rows="3" placeholder="请填写报废原因..." required></textarea>
+                        <small class="text-muted">请详细说明报废原因，此信息将保存到报废记录中。</small>
+                    </div>
+                    <div class="form-group">
+                        <label>报废凭证 <span class="text-danger">*</span>（必须上传至少一张照片或PDF文件）</label>
+                        <div class="input-group">
+                            <div class="custom-file">
+                                <input type="file" name="scrap_files" class="custom-file-input" id="id_scrap_files" accept="image/*,.pdf" multiple required>
+                                <label class="custom-file-label text-truncate" for="id_scrap_files" id="scrap_files_label">选择照片或PDF文件...</label>
+                            </div>
+                        </div>
+                        <small class="text-muted">支持 JPG、PNG、GIF 等图片格式及 PDF 文件。可同时选择多个文件。</small>
+                        <div id="selectedFilesPreview" class="mt-2"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
                     <button type="submit" class="btn btn-dark" id="scrapSubmitBtn">确认报废</button>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -259,6 +269,17 @@ function confirmScrapTool(toolId, toolName) {
     document.getElementById('scrapToolName').textContent = toolName;
     document.getElementById('scrapToolForm').action = `{% url 'tools:scrap_tool' tool_id=999 %}`.replace('999', toolId);
     document.getElementById('scrapReason').value = '';
+    // 清空文件选择和预览
+    const fileInput = document.getElementById('id_scrap_files');
+    fileInput.value = '';
+    fileInput.files = new DataTransfer().files;  // 清空文件列表
+    document.getElementById('selectedFilesPreview').innerHTML = '';
+    // 重置 label 文字
+    const label = document.getElementById('scrap_files_label');
+    if (label) {
+        label.textContent = '选择照片或PDF文件...';
+        label.style.color = '';
+    }
     $('#scrapToolModal').modal('show');
 }
 
@@ -266,16 +287,88 @@ function confirmScrapTool(toolId, toolName) {
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('scrapToolForm').addEventListener('submit', function(e) {
         const reason = document.getElementById('scrapReason').value.trim();
+        const files = document.getElementById('id_scrap_files').files;
+
         if (!reason) {
             e.preventDefault();
             alert('请填写报废原因！');
             return false;
         }
-        document.getElementById('scrapReasonInput').value = reason;
+
+        if (files.length === 0) {
+            e.preventDefault();
+            alert('请上传至少一张照片或PDF文件作为报废凭证！');
+            return false;
+        }
+
+        // 验证文件格式
+        const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'pdf'];
+        for (let i = 0; i < files.length; i++) {
+            const fileName = files[i].name.toLowerCase();
+            const ext = fileName.split('.').pop();
+            if (!allowedExtensions.includes(ext)) {
+                e.preventDefault();
+                alert(`文件 "${files[i].name}" 格式不支持，只支持图片(jpg/png/gif等)和PDF文件！`);
+                return false;
+            }
+        }
     });
+
+    // 文件选择显示文件名和预览（优化版）
+    const scrapFilesInput = document.getElementById('id_scrap_files');
+    const scrapFilesLabel = document.getElementById('scrap_files_label');
+    const previewDiv = document.getElementById('selectedFilesPreview');
+
+    scrapFilesInput.addEventListener('change', function() {
+        updateFilesPreview();
+    });
+
+    function updateFilesPreview() {
+        const files = scrapFilesInput.files;
+        previewDiv.innerHTML = '';
+
+        if (files.length > 0) {
+            // 更新 label 显示文件数量
+            scrapFilesLabel.textContent = `已选择 ${files.length} 个文件`;
+            scrapFilesLabel.style.color = '#28a745';
+
+            // 创建文件预览列表
+            let previewHtml = '<div class="border rounded p-2 bg-light mt-2" style="max-height: 200px; overflow-y: auto;">';
+            previewHtml += '<strong class="text-success mb-2">已选择文件：</strong>';
+            previewHtml += '<div class="row">';
+
+            for (let i = 0; i < files.length; i++) {
+                const fileName = files[i].name;
+                const fileSize = (files[i].size / 1024).toFixed(1) + ' KB';
+                const ext = fileName.split('.').pop().toLowerCase();
+                const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext);
+                const isPdf = ext === 'pdf';
+
+                previewHtml += `
+                    <div class="col-12 mb-2">
+                        <div class="d-flex align-items-center justify-content-between p-2 rounded" style="background: #fff; border: 1px solid #dee2e6;">
+                            <div class="d-flex align-items-center flex-grow-1" style="min-width: 0;">
+                                ${isImage ? '<i class="fa fa-image text-success mr-2"></i>' : isPdf ? '<i class="fa fa-file-pdf text-danger mr-2"></i>' : '<i class="fa fa-file text-secondary mr-2"></i>'}
+                                <div style="min-width: 0;">
+                                    <small class="font-weight-bold d-block" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px;">${fileName}</small>
+                                    <small class="text-muted">${fileSize}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            previewHtml += '</div></div>';
+            previewDiv.innerHTML = previewHtml;
+        } else {
+            scrapFilesLabel.textContent = '选择照片或PDF文件...';
+            scrapFilesLabel.style.color = '';
+        }
+    }
 });
 
-// 文件选择显示文件名
+// 文件选择显示文件名（原有功能）
 document.addEventListener('DOMContentLoaded', function() {
     $('#id_image').on('change', function() {
         var fileName = $(this).val().split('\\').pop();

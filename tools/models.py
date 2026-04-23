@@ -206,6 +206,32 @@ class MaintenanceImage(models.Model):
         return f"Image for {self.uploaded_at}"
 
 
+class ScrapRecord(models.Model):
+    """报废记录表"""
+    tool = models.ForeignKey(Tool, on_delete=models.CASCADE, verbose_name="工具")
+    scrap_person = models.ForeignKey('app01.Admin', on_delete=models.CASCADE, verbose_name="报废人")
+    scrap_reason = models.TextField(verbose_name="报废原因")
+    scrap_time = models.DateTimeField(auto_now_add=True, verbose_name="报废时间")
+    images = models.ManyToManyField('ScrapImage', blank=True, verbose_name="相关附件")
+
+    def __str__(self):
+        return f"{self.tool.code} - 报废 - {self.scrap_time.strftime('%Y-%m-%d')}"
+
+    class Meta:
+        verbose_name = "报废记录"
+        verbose_name_plural = "报废记录"
+
+
+class ScrapImage(models.Model):
+    """报废记录中的附件（图片或PDF）"""
+    file = models.FileField(upload_to='scrap_files/', verbose_name="附件文件",
+                           help_text="支持图片或PDF文件")
+    uploaded_at = models.DateTimeField(auto_now_add=True, verbose_name="上传时间")
+
+    def __str__(self):
+        return f"附件 - {self.uploaded_at.strftime('%Y-%m-%d %H:%M')}"
+
+
 class RepairRecord(models.Model):
     """维修记录表"""
     tool = models.ForeignKey(Tool, on_delete=models.CASCADE, verbose_name="工具")

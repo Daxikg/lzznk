@@ -25,6 +25,9 @@ export const useDeviceStore = defineStore('device', () => {
   // 最后更新时间
   const lastUpdate = ref(null)
 
+  // 最后同步时间（来自API）
+  const lastSyncTime = ref(null)
+
   // 是否自动刷新
   const autoRefresh = ref(true)
 
@@ -56,6 +59,7 @@ export const useDeviceStore = defineStore('device', () => {
       devices.value = data.devices
       areas.value = data.areas
       statistics.value = data.statistics
+      lastSyncTime.value = data.lastSyncTime ? new Date(data.lastSyncTime) : null
       lastUpdate.value = new Date()
     } catch (error) {
       console.error('获取数据失败:', error)
@@ -121,6 +125,7 @@ export const useDeviceStore = defineStore('device', () => {
     statistics,
     loading,
     lastUpdate,
+    lastSyncTime,
     autoRefresh,
     refreshInterval,
     runningRate,

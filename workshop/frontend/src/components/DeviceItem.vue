@@ -124,35 +124,195 @@
 
     <!-- 天车设备特殊显示 -->
     <template v-else-if="device.type === 'crane'">
-      <!-- 天车主体 -->
-      <rect
-        :width="device.width"
-        :height="device.height"
-        rx="6"
-        ry="6"
-        :fill="`url(#grad-${device.id})`"
-        :filter="`url(#shadow-${device.id})`"
-        class="device-body"
-      />
-      <text
-        :x="device.width / 2"
-        :y="device.height / 2 + 3"
-        text-anchor="middle"
-        fill="#fff"
-        font-size="9"
-        font-weight="500"
-      >
-        {{ device.name }}
-      </text>
-      <!-- 状态指示灯 -->
-      <circle
-        :cx="device.width - 6"
-        :cy="6"
-        r="3"
-        :fill="statusColor"
-      >
-        <animate v-if="isFault" attributeName="opacity" values="1;0.3;1" dur="0.6s" repeatCount="indefinite"/>
-      </circle>
+      <!-- 悬臂吊特殊显示 -->
+      <template v-if="device.name.includes('悬臂吊')">
+        <!-- 中心立柱 -->
+        <rect
+          :x="device.width / 2 - 3"
+          y="0"
+          width="6"
+          :height="device.height - 2"
+          rx="3"
+          :fill="statusColor"
+          :filter="`url(#shadow-${device.id})`"
+        />
+        <!-- 立柱顶部装饰 -->
+        <circle
+          :cx="device.width / 2"
+          cy="3"
+          r="4"
+          :fill="statusLightColor"
+          :filter="`url(#glow-${device.id})`"
+        />
+
+        <!-- 旋转臂（运行时旋转动画） -->
+        <g :transform="`translate(${device.width / 2}, 4)`">
+          <line
+            x1="0"
+            y1="0"
+            :x2="device.width / 2 - 8"
+            y2="0"
+            :stroke="statusColor"
+            stroke-width="4"
+            stroke-linecap="round"
+          >
+            <animateTransform
+              v-if="shouldRotate"
+              attributeName="transform"
+              type="rotate"
+              values="0;360"
+              dur="8s"
+              repeatCount="indefinite"
+            />
+          </line>
+          <!-- 臂端吊绳 -->
+          <g :transform="`translate(${device.width / 2 - 8}, 0)`">
+            <line
+              x1="0"
+              y1="0"
+              x2="0"
+              :y2="device.height - 8"
+              stroke="rgba(255,255,255,0.5)"
+              stroke-width="1.5"
+            >
+              <animateTransform
+                v-if="shouldRotate"
+                attributeName="transform"
+                type="rotate"
+                values="0;360"
+                dur="8s"
+                repeatCount="indefinite"
+              />
+            </line>
+            <!-- 吊钩 -->
+            <circle
+              cx="0"
+              :cy="device.height - 6"
+              r="3"
+              :fill="statusColor"
+            >
+              <animateTransform
+                v-if="shouldRotate"
+                attributeName="transform"
+                type="rotate"
+                values="0;360"
+                dur="8s"
+                repeatCount="indefinite"
+              />
+            </circle>
+          </g>
+        </g>
+
+        <!-- 设备名称 -->
+        <text
+          :x="device.width / 2"
+          :y="-3"
+          text-anchor="middle"
+          fill="rgba(255,255,255,0.9)"
+          font-size="9"
+          font-weight="500"
+        >
+          {{ device.name }}
+        </text>
+
+        <!-- 状态指示灯 -->
+        <circle
+          :cx="4"
+          :cy="4"
+          r="2"
+          :fill="statusColor"
+        >
+          <animate v-if="isFault" attributeName="opacity" values="1;0.3;1" dur="0.6s" repeatCount="indefinite"/>
+        </circle>
+      </template>
+
+      <!-- 普通天车（航架天车等） -->
+      <template v-else>
+        <!-- 天车桥架（顶部横梁） -->
+        <rect
+          x="0"
+          y="0"
+          :width="device.width"
+          height="6"
+          rx="2"
+          :fill="statusColor"
+          :filter="`url(#shadow-${device.id})`"
+        />
+        <!-- 横梁底部装饰线 -->
+        <rect
+          x="2"
+          y="4"
+          :width="device.width - 4"
+          height="1.5"
+          rx="1"
+          fill="rgba(255,255,255,0.2)"
+        />
+
+        <!-- 小车+吊钩整体（运行时一起左右移动） -->
+        <g :transform="`translate(${device.width / 2 - 10}, 1)`">
+          <animateTransform
+            v-if="shouldRotate"
+            attributeName="transform"
+            type="translate"
+            values="0,0; 10,0; 0,0; -10,0; 0,0"
+            dur="4s"
+            repeatCount="indefinite"
+            additive="sum"
+          />
+          <!-- 小车 -->
+          <rect
+            width="20"
+            height="4"
+            rx="1"
+            :fill="statusLightColor"
+          />
+          <!-- 吊钩钢丝绳 -->
+          <line
+            x1="10"
+            y1="4"
+            x2="10"
+            :y2="device.height - 12"
+            stroke="rgba(255,255,255,0.5)"
+            stroke-width="1.5"
+          />
+          <!-- 吊钩 -->
+          <g :transform="`translate(10, ${device.height - 10})`">
+            <!-- 吊钩主体（钩形） -->
+            <path
+              d="M 0 -2 L 0 3 Q 4 5 5 3 Q 5 0 3 -2"
+              fill="none"
+              :stroke="statusColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              :filter="`url(#glow-${device.id})`"
+            />
+            <!-- 吊钩顶部固定点 -->
+            <circle r="2" :fill="statusLightColor"/>
+          </g>
+        </g>
+
+        <!-- 设备名称（显示在横梁上方） -->
+        <text
+          :x="device.width / 2"
+          :y="-3"
+          text-anchor="middle"
+          fill="rgba(255,255,255,0.9)"
+          font-size="9"
+          font-weight="500"
+        >
+          {{ device.name }}
+        </text>
+
+        <!-- 状态指示灯 -->
+        <circle
+          :cx="device.width - 4"
+          :cy="3"
+          r="2"
+          :fill="statusColor"
+        >
+          <animate v-if="isFault" attributeName="opacity" values="1;0.3;1" dur="0.6s" repeatCount="indefinite"/>
+        </circle>
+      </template>
     </template>
 
     <!-- 普通设备 -->

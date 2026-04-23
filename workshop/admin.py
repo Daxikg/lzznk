@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Device, DeviceArea, DeviceType, InspectionRecord, RepairRecord, SyncConfig
+from .models import Device, DeviceArea, DeviceType, InspectionRecord, RepairRecord, SyncConfig, SchedulerLog
 
 
 @admin.register(DeviceType)
@@ -19,7 +19,7 @@ class DeviceAreaAdmin(admin.ModelAdmin):
 
 @admin.register(Device)
 class DeviceAdmin(admin.ModelAdmin):
-    list_display = ['device_id', 'name', 'area', 'device_type', 'status', 'auto_status', 'pos_x', 'pos_y', 'pos_width', 'pos_height', 'has_qrcode', 'updated_at']
+    list_display = ['device_id', 'name', 'area', 'device_type', 'status', 'auto_status', 'linked_device', 'pos_x', 'pos_y', 'pos_width', 'pos_height', 'has_qrcode', 'updated_at']
     list_filter = ['status', 'auto_status', 'area', 'device_type']
     search_fields = ['device_id', 'name']
     list_editable = ['name', 'area', 'device_type', 'status', 'auto_status']
@@ -35,6 +35,9 @@ class DeviceAdmin(admin.ModelAdmin):
         }),
         ('状态信息', {
             'fields': ('status', 'fault_time', 'inspection_start', 'inspection_end', 'inspection_location')
+        }),
+        ('设备跟随', {
+            'fields': ('linked_device',)
         }),
         ('设备二维码', {
             'fields': ('qrcode_image',)
@@ -72,3 +75,17 @@ class SyncConfigAdmin(admin.ModelAdmin):
     list_display = ['name', 'api_url', 'is_enabled', 'sync_interval', 'last_sync', 'last_status']
     list_editable = ['is_enabled', 'sync_interval']
     readonly_fields = ['last_sync', 'last_status', 'last_error']
+
+
+@admin.register(SchedulerLog)
+class SchedulerLogAdmin(admin.ModelAdmin):
+    list_display = ['job_name', 'execute_time', 'is_work_time', 'success', 'message']
+    list_filter = ['job_name', 'is_work_time', 'success', 'execute_time']
+    ordering = ['-execute_time']
+    readonly_fields = ['job_id', 'job_name', 'execute_time', 'is_work_time', 'success', 'message']
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False

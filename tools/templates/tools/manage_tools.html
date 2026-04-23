@@ -65,7 +65,7 @@
                         <table class="table table-hover">
                             <thead class="thead-light">
                                 <tr>
-                                    <th>编号</th>
+                                    <th>编码</th>
                                     <th>名称</th>
                                     <th>型号</th>
                                     <th>分类</th>
@@ -81,7 +81,7 @@
                             <tbody>
                             {% for tool in all_tools %}
                                 <tr>
-                                    <td>{{ tool.id }}</td>
+                                    <td>{{ tool.code }}</td>
                                     <td>{{ tool.name }}</td>
                                     <td>{{ tool.specification }}</td>
                                     <td>{{ tool.category.name }}</td>
@@ -126,13 +126,19 @@
                                         {% endif %}
                                     </td>
                                     <td>
+                                        {% if can_manage_tools %}
+                                            <a href="{% url 'tools:update_tool' tool.id %}"
+                                               class="btn btn-sm btn-outline-primary">编辑</a>
+                                        {% endif %}
                                         <button class="btn btn-sm btn-outline-secondary"
                                                 onclick="showToolDetailModal({{ tool.id }})">
                                             <i class="fa fa-eye"></i> 详情
                                         </button>
                                         {% if tool.is_available_for_loan %}
-                                            <a href="{% url 'tools:loan_tool' tool.id %}"
-                                               class="btn btn-sm btn-primary">申领</a>
+                                            <button class="btn btn-sm btn-primary"
+                                                    onclick="showLoanModal({{ tool.id }}, '{{ tool.name|escapejs }}')">
+                                                申领
+                                            </button>
                                         {% else %}
                                             <button class="btn btn-sm btn-outline-secondary" disabled>不可申领</button>
                                         {% endif %}
@@ -143,8 +149,6 @@
                                             </button>
                                         {% endif %}
                                         {% if can_manage_tools %}
-                                            <a href="{% url 'tools:update_tool' tool.id %}"
-                                               class="btn btn-sm btn-outline-primary">编辑</a>
                                             <button class="btn btn-sm btn-outline-info"
                                                     onclick="showMaintenanceModal({{ tool.id }}, '{{ tool.name|escapejs }}')">
                                                 保养
@@ -225,13 +229,19 @@
                                 {% endif %}
                             </td>
                             <td>
+                                {% if can_manage_tools %}
+                                    <a href="{% url 'tools:update_tool' tool.id %}"
+                                       class="btn btn-sm btn-outline-primary">编辑</a>
+                                {% endif %}
                                 <button class="btn btn-sm btn-outline-secondary"
                                         onclick="showToolDetailModal({{ tool.id }})">
                                     <i class="fa fa-eye"></i> 详情
                                 </button>
                                 {% if tool.is_available_for_loan %}
-                                    <a href="{% url 'tools:loan_tool' tool.id %}"
-                                       class="btn btn-sm btn-primary">申领</a>
+                                    <button class="btn btn-sm btn-primary"
+                                            onclick="showLoanModal({{ tool.id }}, '{{ tool.name|escapejs }}')">
+                                        申领
+                                    </button>
                                 {% else %}
                                     <button class="btn btn-sm btn-outline-secondary" disabled>不可申领</button>
                                 {% endif %}
@@ -242,8 +252,6 @@
                                     </button>
                                 {% endif %}
                                 {% if can_manage_tools %}
-                                    <a href="{% url 'tools:update_tool' tool.id %}"
-                                       class="btn btn-sm btn-outline-primary">编辑</a>
                                     <button class="btn btn-sm btn-outline-info"
                                             onclick="showMaintenanceModal({{ tool.id }}, '{{ tool.name|escapejs }}')">
                                         保养
@@ -316,19 +324,21 @@
                                     {% endif %}
                                 </td>
                                 <td>
+                                    {% if can_manage_tools %}
+                                        <a href="{% url 'tools:update_tool' record.tool.id %}"
+                                           class="btn btn-sm btn-outline-primary">编辑</a>
+                                    {% endif %}
                                     <button class="btn btn-sm btn-outline-secondary"
                                             onclick="showToolDetailModal({{ record.tool.id }})">
                                         <i class="fa fa-eye"></i> 详情
                                     </button>
                                     {% if record.can_return %}
-                                        <a href="{% url 'tools:return_tool' record.id %}"
-                                           class="btn btn-sm btn-success">
+                                        <button class="btn btn-sm btn-success"
+                                                onclick="showReturnModal({{ record.id }})">
                                             <i class="fa fa-undo mr-1"></i>归还
-                                        </a>
+                                        </button>
                                     {% endif %}
                                     {% if can_manage_tools %}
-                                        <a href="{% url 'tools:update_tool' record.tool.id %}"
-                                           class="btn btn-sm btn-outline-primary">编辑</a>
                                         <button class="btn btn-sm btn-outline-info"
                                                 onclick="showMaintenanceModal({{ record.tool.id }}, '{{ record.tool.name|escapejs }}')">
                                             保养
@@ -416,14 +426,16 @@
                                 {% endif %}
                             </td>
                             <td>
+                                {% if can_manage_tools %}
+                                    <a href="{% url 'tools:update_tool' tool.id %}"
+                                       class="btn btn-sm btn-outline-primary">编辑</a>
+                                {% endif %}
                                 <button class="btn btn-sm btn-outline-secondary"
                                         onclick="showToolDetailModal({{ tool.id }})">
                                     <i class="fa fa-eye"></i> 详情
                                 </button>
                                 <button class="btn btn-sm btn-outline-secondary" disabled>不可申领</button>
                                 {% if can_manage_tools %}
-                                    <a href="{% url 'tools:update_tool' tool.id %}"
-                                       class="btn btn-sm btn-outline-primary">编辑</a>
                                     <button class="btn btn-sm btn-outline-info"
                                             onclick="showMaintenanceModal({{ tool.id }}, '{{ tool.name|escapejs }}')">
                                         保养
@@ -672,6 +684,70 @@
                                     `}
                                 </div>
                             </div>
+                            ${tool.scrap_records && tool.scrap_records.length > 0 ? `
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <h6 class="border-bottom pb-2 mb-3 text-dark">
+                                            <i class="fa fa-trash-alt mr-1"></i>报废记录
+                                        </h6>
+                                        ${tool.scrap_records.map(record => `
+                                            <div class="card mb-3" style="background: #f8f9fa;">
+                                                <div class="card-body py-2">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <small class="text-muted"><strong>报废人：</strong></small>
+                                                            <small>${record.scrap_person}</small>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <small class="text-muted"><strong>报废时间：</strong></small>
+                                                            <small>${record.scrap_time}</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <small class="text-muted"><strong>报废原因：</strong></small>
+                                                        <small>${record.scrap_reason}</small>
+                                                    </div>
+                                                    ${record.images && record.images.length > 0 ? `
+                                                        <div class="mt-3">
+                                                            <small class="text-muted"><strong>报废凭证：</strong></small>
+                                                            <div class="row mt-2">
+                                                                ${record.images.map(img => `
+                                                                    <div class="col-md-4 col-sm-6 mb-2">
+                                                                        ${img.is_image ? `
+                                                                            <div class="position-relative">
+                                                                                <img src="${img.url}" alt="报废凭证" class="img-fluid rounded border" style="max-height: 150px; width: 100%; object-fit: cover;" onclick="showImagePreview('${img.url}', '${img.name}')">
+                                                                                <small class="d-block text-center text-muted mt-1">${img.name}</small>
+                                                                            </div>
+                                                                        ` : img.is_pdf ? `
+                                                                            <div class="d-flex align-items-center p-2 rounded border" style="background: #fff;">
+                                                                                <i class="fa fa-file-pdf fa-2x text-danger mr-2"></i>
+                                                                                <div class="flex-grow-1">
+                                                                                    <small class="font-weight-bold d-block">${img.name}</small>
+                                                                                    <a href="${img.url}" target="_blank" class="btn btn-sm btn-outline-danger mt-1">
+                                                                                        <i class="fa fa-external-link-alt mr-1"></i>预览PDF
+                                                                                    </a>
+                                                                                </div>
+                                                                            </div>
+                                                                        ` : `
+                                                                            <div class="d-flex align-items-center p-2 rounded border">
+                                                                                <i class="fa fa-file fa-2x text-secondary mr-2"></i>
+                                                                                <div class="flex-grow-1">
+                                                                                    <small class="font-weight-bold">${img.name}</small>
+                                                                                    <a href="${img.url}" target="_blank" class="btn btn-sm btn-outline-secondary mt-1">下载</a>
+                                                                                </div>
+                                                                            </div>
+                                                                        `}
+                                                                    </div>
+                                                                `).join('')}
+                                                            </div>
+                                                        </div>
+                                                    ` : ''}
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
                         `;
                     } else {
                         contentDiv.innerHTML = `
@@ -715,6 +791,40 @@
                 'docx': 'fa-file-word text-primary'
             };
             return iconMap[ext] || 'fa-file';
+        }
+
+        // 显示图片预览模态框
+        function showImagePreview(url, name) {
+            // 创建图片预览模态框
+            let modalHtml = `
+                <div class="modal fade" id="imagePreviewModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">${name}</h5>
+                                <button type="button" class="close" data-dismiss="modal">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body text-center p-0">
+                                <img src="${url}" alt="${name}" style="max-width: 100%; max-height: 80vh;">
+                            </div>
+                            <div class="modal-footer">
+                                <a href="${url}" target="_blank" class="btn btn-outline-primary">
+                                    <i class="fa fa-external-link-alt mr-1"></i>在新窗口打开
+                                </a>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            $('body').append(modalHtml);
+            $('#imagePreviewModal').modal('show');
+            // 模态框关闭后清理DOM
+            $('#imagePreviewModal').on('hidden.bs.modal', function() {
+                $(this).remove();
+            });
         }
 
         function confirmDeleteTool(toolId, toolName) {
@@ -895,6 +1005,132 @@
                         });
                     } else {
                         alert('获取报修表单失败: ' + response.message);
+                    }
+                },
+                error: function () {
+                    alert('网络错误，请稍后重试');
+                }
+            });
+        }
+
+        function showLoanModal(toolId, toolName) {
+            // 发送AJAX请求获取模态框内容
+            $.ajax({
+                url: `/tools/tools/${toolId}/loan/`,
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // 将模态框HTML插入到页面中
+                        $('body').append(response.html);
+
+                        // 显示模态框
+                        $('#loanModal').modal('show');
+
+                        // 处理表单提交
+                        $('#loanForm').on('submit', function (e) {
+                            e.preventDefault();
+
+                            $.ajax({
+                                url: `/tools/tools/${toolId}/loan/`,
+                                method: 'POST',
+                                data: $(this).serialize(),
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                success: function (response) {
+                                    if (response.success) {
+                                        $('#loanModal').modal('hide');
+                                        alert(response.message);
+                                        location.reload();
+                                    } else {
+                                        let errorMessage = '申领失败: ' + response.message;
+                                        if (response.errors) {
+                                            errorMessage += '\n\n详细错误信息:';
+                                            for (let field in response.errors) {
+                                                errorMessage += '\n' + field + ': ' + response.errors[field].join(', ');
+                                            }
+                                        }
+                                        alert(errorMessage);
+                                    }
+                                },
+                                error: function () {
+                                    alert('网络错误，请稍后重试');
+                                }
+                            });
+                        });
+
+                        // 模态框关闭后清理DOM
+                        $('#loanModal').on('hidden.bs.modal', function () {
+                            $(this).remove();
+                        });
+                    } else {
+                        alert('获取申领表单失败: ' + response.message);
+                    }
+                },
+                error: function () {
+                    alert('网络错误，请稍后重试');
+                }
+            });
+        }
+
+        function showReturnModal(loanId) {
+            // 发送AJAX请求获取模态框内容
+            $.ajax({
+                url: `/tools/loans/${loanId}/return/`,
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // 将模态框HTML插入到页面中
+                        $('body').append(response.html);
+
+                        // 显示模态框
+                        $('#returnModal').modal('show');
+
+                        // 处理表单提交
+                        $('#returnForm').on('submit', function (e) {
+                            e.preventDefault();
+
+                            $.ajax({
+                                url: `/tools/loans/${loanId}/return/`,
+                                method: 'POST',
+                                data: $(this).serialize(),
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                success: function (response) {
+                                    if (response.success) {
+                                        $('#returnModal').modal('hide');
+                                        alert(response.message);
+                                        location.reload();
+                                    } else {
+                                        let errorMessage = '归还失败: ' + response.message;
+                                        if (response.errors) {
+                                            errorMessage += '\n\n详细错误信息:';
+                                            for (let field in response.errors) {
+                                                errorMessage += '\n' + field + ': ' + response.errors[field].join(', ');
+                                            }
+                                        }
+                                        alert(errorMessage);
+                                    }
+                                },
+                                error: function () {
+                                    alert('网络错误，请稍后重试');
+                                }
+                            });
+                        });
+
+                        // 模态框关闭后清理DOM
+                        $('#returnModal').on('hidden.bs.modal', function () {
+                            $(this).remove();
+                        });
+                    } else {
+                        alert('获取归还表单失败: ' + response.message);
                     }
                 },
                 error: function () {

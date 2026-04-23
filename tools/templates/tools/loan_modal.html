@@ -1,0 +1,223 @@
+<div class="modal fade" id="loanModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fa fa-hand-holding mr-2"></i>申领工具</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="loanForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- 工具信息 -->
+                    <div class="mb-3">
+                        <h6 class="border-bottom pb-2 mb-2 text-muted small">
+                            <i class="fa fa-info-circle mr-1"></i>工具信息
+                        </h6>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted mb-0">工具编号</label>
+                                    <div class="font-weight-bold">{{ tool.code }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted mb-0">工具名称</label>
+                                    <div class="font-weight-bold">{{ tool.name }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted mb-0">规格型号</label>
+                                    <div class="font-weight-bold">{{ tool.specification }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted mb-0">当前状态</label>
+                                    <div>
+                                        <span class="badge badge-success">{{ tool.status }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if has_approval_permission %}
+                    <div class="alert alert-success py-2 mb-3">
+                        <i class="fa fa-check-circle mr-1"></i> 您有审批权限，申领将直接生效
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info py-2 mb-3">
+                        <i class="fa fa-info-circle mr-1"></i> 申领申请需要等待审批
+                    </div>
+                    {% endif %}
+
+                    <hr class="my-3">
+
+                    <!-- 申领信息 -->
+                    <h6 class="border-bottom pb-2 mb-3 text-muted small">
+                        <i class="fa fa-file-alt mr-1"></i>申领信息
+                    </h6>
+
+                    <!-- 申领班组和申领人 -->
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label for="id_borrowing_team_modal">申领班组 <span class="text-danger">*</span></label>
+                            <select name="borrowing_team" id="id_borrowing_team_modal" class="form-control" required>
+                                <option value="">-- 请选择 --</option>
+                                {% for choice in form.borrowing_team.field.widget.choices %}
+                                    {% if choice.0 %}
+                                        <option value="{{ choice.1 }}" {% if form.borrowing_team.field.initial == choice.1 %}selected{% endif %}>{{ choice.1 }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col">
+                            <label for="id_borrowing_person_modal">申领人 <span class="text-danger">*</span></label>
+                            <select name="borrowing_person" id="id_borrowing_person_modal" class="form-control" required>
+                                <option value="">请先选择班组</option>
+                            </select>
+                            <input type="hidden" name="borrowing_person_id" id="id_borrowing_person_id_modal">
+                        </div>
+                    </div>
+
+                    <!-- 申领时间和预计归还时间 -->
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <label for="id_loan_datetime_modal">申领时间</label>
+                            <input type="datetime-local" name="loan_datetime" id="id_loan_datetime_modal" class="form-control" value="{{ form.loan_datetime.value|default:'' }}">
+                            <small class="text-muted">默认为当前时间</small>
+                        </div>
+                        <div class="form-group col">
+                            <label for="id_expected_return_time_modal">预计归还时间 <span class="text-danger">*</span></label>
+                            <input type="datetime-local" name="expected_return_time" id="id_expected_return_time_modal" class="form-control" required value="{{ form.expected_return_time.value|default:'' }}">
+                        </div>
+                    </div>
+
+                    <!-- 备注 -->
+                    <div class="form-group mb-0">
+                        <label for="id_remarks_modal">备注</label>
+                        <textarea name="remarks" id="id_remarks_modal" class="form-control" rows="2" placeholder="可选，填写备注信息">{{ form.remarks.value|default:'' }}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-check mr-1"></i>提交申领</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const teamSelect = document.getElementById('id_borrowing_team_modal');
+    const personSelect = document.getElementById('id_borrowing_person_modal');
+    const personIdInput = document.getElementById('id_borrowing_person_id_modal');
+    const loanDatetimeInput = document.getElementById('id_loan_datetime_modal');
+    const expectedReturnInput = document.getElementById('id_expected_return_time_modal');
+
+    // 设置时间默认值
+    function setDateTimeDefaults() {
+        if (loanDatetimeInput && !loanDatetimeInput.value) {
+            const now = new Date();
+            loanDatetimeInput.value = formatDateTime(now);
+        }
+
+        if (expectedReturnInput && !expectedReturnInput.value) {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            expectedReturnInput.value = formatDateTime(tomorrow);
+        }
+    }
+
+    function formatDateTime(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    setDateTimeDefaults();
+
+    // 根据班组名称获取班组 ID 的辅助函数
+    function getTeamId(teamName) {
+        const teamMapping = {
+            '架车班': 1,
+            '轮轴班': 2,
+            '台车班': 3,
+            '内制动班': 4,
+            '外制动班': 5,
+            '车钩班': 6,
+            '探伤班': 7,
+            '调车组': 8,
+            '车体班': 9,
+            '预修班': 10,
+            '信息班': 12,
+        };
+        return teamMapping[teamName] || 0;
+    }
+
+    // 加载指定班组的人员列表
+    function loadTeamUsers(teamName) {
+        if (!teamName) {
+            personSelect.innerHTML = '<option value="">请先选择班组</option>';
+            personIdInput.value = '';
+            return;
+        }
+
+        personSelect.innerHTML = '<option value="">加载中...</option>';
+
+        fetch(`/tools/api/team-users/${getTeamId(teamName)}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    personSelect.innerHTML = '<option value="">-- 请选择 --</option>';
+
+                    data.users.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user.name;
+                        option.textContent = `${user.name} (${user.skill || '未设置工种'})`;
+                        option.dataset.userId = user.id;
+                        personSelect.appendChild(option);
+                    });
+                } else {
+                    personSelect.innerHTML = '<option value="">加载失败</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                personSelect.innerHTML = '<option value="">加载失败</option>';
+            });
+    }
+
+    // 当班组选择改变时，加载对应人员
+    teamSelect.addEventListener('change', function() {
+        const selectedTeam = this.value;
+        loadTeamUsers(selectedTeam);
+    });
+
+    // 当人员选择改变时，设置隐藏的 ID 字段
+    personSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption && selectedOption.dataset.userId) {
+            personIdInput.value = selectedOption.dataset.userId;
+        } else {
+            personIdInput.value = '';
+        }
+    });
+
+    // 立即加载默认班组的人员列表
+    const defaultTeam = teamSelect.value;
+    if (defaultTeam) {
+        loadTeamUsers(defaultTeam);
+    }
+})();
+</script>

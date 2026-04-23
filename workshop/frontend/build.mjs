@@ -73,7 +73,7 @@ async function main() {
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/workshop/static/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>车间设备监控大屏</title>
+    <title>轮轴库设备运行状态监控</title>
     <script type="module" crossorigin src="/workshop/static/${jsFile}"></script>
     <link rel="stylesheet" crossorigin href="/workshop/static/${cssFile}">
   </head>
