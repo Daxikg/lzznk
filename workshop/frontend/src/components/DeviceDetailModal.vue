@@ -60,6 +60,102 @@
                 <span class="label">已持续时间</span>
                 <span class="value highlight">{{ faultDuration }}</span>
               </div>
+              <!-- 当前故障详情 -->
+              <div class="fault-row" v-if="currentFault">
+                <span class="label">发现人</span>
+                <span class="value">{{ currentFault.reporter || '-' }}</span>
+              </div>
+              <div class="fault-row" v-if="currentFault">
+                <span class="label">故障情况描述</span>
+                <span class="value">{{ currentFault.phenomenon || '-' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 最近半年统计 -->
+          <div class="stats-section" v-if="device.halfYearStats">
+            <h4>最近半年统计</h4>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <span class="stat-label">点检次数</span>
+                <span class="stat-value">{{ device.halfYearStats.inspectionCount }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">故障次数</span>
+                <span class="stat-value fault">{{ device.halfYearStats.faultCount }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">故障率</span>
+                <span class="stat-value" :class="{ 'fault': device.halfYearStats.faultRate > 5 }">{{ device.halfYearStats.faultRate }}%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 故障记录列表 -->
+          <div class="repair-section" v-if="device.repairRecords && device.repairRecords.length > 0">
+            <h4>最近半年故障记录 <span class="record-count">(共{{ device.repairRecords.length }}条)</span></h4>
+            <div class="repair-list">
+              <div
+                class="repair-item"
+                v-for="(record, index) in device.repairRecords"
+                :key="record.id"
+                :class="{ 'expanded': expandedRecordId === record.id }"
+                @click="toggleRecord(record.id)"
+              >
+                <div class="repair-header">
+                  <div class="repair-summary">
+                    <span class="repair-date">{{ record.faultDate }}</span>
+                    <span class="repair-reporter">{{ record.reporter || '-' }}</span>
+                    <span class="repair-status" :class="{ 'resolved': record.isResolved }">
+                      {{ record.isResolved ? '已修复' : '未修复' }}
+                    </span>
+                  </div>
+                  <span class="expand-icon">{{ expandedRecordId === record.id ? '▼' : '▶' }}</span>
+                </div>
+                <!-- 展开详情 -->
+                <div class="repair-detail" v-if="expandedRecordId === record.id">
+                  <div class="detail-row">
+                    <span class="label">故障日期</span>
+                    <span class="value">{{ record.faultDate }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="label">发现人</span>
+                    <span class="value">{{ record.reporter || '-' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="label">故障情况描述</span>
+                    <span class="value">{{ record.phenomenon || '-' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="label">故障分析</span>
+                    <span class="value">{{ record.analysis || '-' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="label">维修日期</span>
+                    <span class="value">{{ record.repairDate || '-' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="label">维修班组</span>
+                    <span class="value">{{ record.repairTeam || '-' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="label">修理人员</span>
+                    <span class="value">{{ record.worker || '-' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="label">故障处理情况</span>
+                    <span class="value">{{ record.result || '-' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="label">材料消耗</span>
+                    <span class="value">{{ record.materials || '-' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="label">是否已修复</span>
+                    <span class="value" :class="{ 'resolved': record.isResolved }">{{ record.isResolved ? '已修复' : '未修复' }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -69,7 +165,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { statusConfig, deviceTypeConfig } from '../api/mockData'
 import { formatFaultDuration } from '../api/deviceApi'
 
@@ -85,6 +181,18 @@ const props = defineProps({
 })
 
 defineEmits(['close'])
+
+// 展开的故障记录ID
+const expandedRecordId = ref(null)
+
+// 切换展开状态
+const toggleRecord = (id) => {
+  if (expandedRecordId.value === id) {
+    expandedRecordId.value = null
+  } else {
+    expandedRecordId.value = id
+  }
+}
 
 const statusColor = computed(() => {
   return statusConfig[props.device?.computedStatus]?.color || '#95a5a6'
@@ -116,6 +224,21 @@ const faultStartTime = computed(() => {
   const date = new Date(props.device.faultTime)
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
 })
+
+// 当前故障（最近的未修复故障记录）
+const currentFault = computed(() => {
+  if (!props.device?.repairRecords) return null
+  // 找最近的未修复故障
+  const unresolved = props.device.repairRecords.filter(r => !r.isResolved)
+  if (unresolved.length > 0) {
+    return unresolved[0]
+  }
+  // 如果都已修复，返回最近一条
+  if (props.device.repairRecords.length > 0) {
+    return props.device.repairRecords[0]
+  }
+  return null
+})
 </script>
 
 <style scoped>
@@ -142,8 +265,10 @@ const faultStartTime = computed(() => {
   background: linear-gradient(135deg, #1a2a3a, #2c3e50);
   border-radius: 12px;
   border: 1px solid rgba(79, 195, 247, 0.3);
-  min-width: 400px;
-  max-width: 500px;
+  min-width: 450px;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   animation: slideIn 0.3s ease;
 }
@@ -247,16 +372,21 @@ const faultStartTime = computed(() => {
 }
 
 /* 信息区块 */
-.info-section, .fault-section, .warehouse-section, .qrcode-section {
+.info-section, .fault-section, .warehouse-section, .qrcode-section, .stats-section, .repair-section {
   margin-bottom: 20px;
 }
 
-.info-section h4, .fault-section h4, .warehouse-section h4, .qrcode-section h4 {
+.info-section h4, .fault-section h4, .warehouse-section h4, .qrcode-section h4, .stats-section h4, .repair-section h4 {
   margin: 0 0 12px 0;
   font-size: 14px;
   color: #4fc3f7;
   border-bottom: 1px solid rgba(79, 195, 247, 0.2);
   padding-bottom: 8px;
+}
+
+.record-count {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
 }
 
 /* 二维码区域 */
@@ -309,6 +439,11 @@ const faultStartTime = computed(() => {
   display: flex;
   justify-content: space-between;
   padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.fault-row:last-child {
+  border-bottom: none;
 }
 
 .fault-row .label {
@@ -319,11 +454,142 @@ const faultStartTime = computed(() => {
 .fault-row .value {
   color: #fff;
   font-size: 12px;
+  max-width: 60%;
+  word-break: break-all;
 }
 
 .fault-row .value.highlight {
   color: #e74c3c;
   font-weight: 600;
+}
+
+/* 统计数据 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #4fc3f7;
+}
+
+.stat-value.fault {
+  color: #e74c3c;
+}
+
+/* 故障记录列表 */
+.repair-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.repair-item {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.repair-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.repair-item.expanded {
+  background: rgba(79, 195, 247, 0.1);
+}
+
+.repair-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+}
+
+.repair-summary {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.repair-date {
+  font-size: 12px;
+  color: #fff;
+}
+
+.repair-reporter {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.repair-status {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
+}
+
+.repair-status.resolved {
+  background: rgba(46, 204, 113, 0.2);
+  color: #2ecc71;
+}
+
+.expand-icon {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* 展开详情 */
+.repair-detail {
+  padding: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-row {
+  display: flex;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row .label {
+  width: 100px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+}
+
+.detail-row .value {
+  flex: 1;
+  color: #fff;
+  font-size: 11px;
+}
+
+.detail-row .value.resolved {
+  color: #2ecc71;
 }
 
 /* 仓储信息 */

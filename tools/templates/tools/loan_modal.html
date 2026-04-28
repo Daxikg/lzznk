@@ -79,10 +79,15 @@
                         </div>
                         <div class="form-group col">
                             <label for="id_borrowing_person_modal">申领人 <span class="text-danger">*</span></label>
-                            <select name="borrowing_person" id="id_borrowing_person_modal" class="form-control" required>
+                            <select name="borrowing_person_select" id="id_borrowing_person_modal" class="form-control" required>
                                 <option value="">请先选择班组</option>
                             </select>
                             <input type="hidden" name="borrowing_person_id" id="id_borrowing_person_id_modal">
+                            <!-- 自定义申领人输入框 -->
+                            <div id="custom_person_input_wrapper" class="mt-2" style="display: none;">
+                                <input type="text" name="borrowing_person_custom" id="id_borrowing_person_custom_modal" class="form-control" placeholder="请输入申领人姓名">
+                                <small class="text-muted">人员不在系统内时，可手动填写姓名</small>
+                            </div>
                         </div>
                     </div>
 
@@ -119,8 +124,11 @@
     const teamSelect = document.getElementById('id_borrowing_team_modal');
     const personSelect = document.getElementById('id_borrowing_person_modal');
     const personIdInput = document.getElementById('id_borrowing_person_id_modal');
+    const customPersonWrapper = document.getElementById('custom_person_input_wrapper');
+    const customPersonInput = document.getElementById('id_borrowing_person_custom_modal');
     const loanDatetimeInput = document.getElementById('id_loan_datetime_modal');
     const expectedReturnInput = document.getElementById('id_expected_return_time_modal');
+    const loanForm = document.getElementById('loanForm');
 
     // 设置时间默认值
     function setDateTimeDefaults() {
@@ -170,10 +178,14 @@
         if (!teamName) {
             personSelect.innerHTML = '<option value="">请先选择班组</option>';
             personIdInput.value = '';
+            customPersonWrapper.style.display = 'none';
+            customPersonInput.value = '';
             return;
         }
 
         personSelect.innerHTML = '<option value="">加载中...</option>';
+        customPersonWrapper.style.display = 'none';
+        customPersonInput.value = '';
 
         fetch(`/tools/api/team-users/${getTeamId(teamName)}/`)
             .then(response => response.json())
@@ -188,13 +200,32 @@
                         option.dataset.userId = user.id;
                         personSelect.appendChild(option);
                     });
+
+                    // 添加"自定义填写"选项
+                    const customOption = document.createElement('option');
+                    customOption.value = '__custom__';
+                    customOption.textContent = '✏️ 自定义填写（人员不在系统内）';
+                    customOption.dataset.custom = 'true';
+                    personSelect.appendChild(customOption);
                 } else {
                     personSelect.innerHTML = '<option value="">加载失败</option>';
+                    // 即使加载失败，也添加自定义填写选项
+                    const customOption = document.createElement('option');
+                    customOption.value = '__custom__';
+                    customOption.textContent = '✏️ 自定义填写（人员不在系统内）';
+                    customOption.dataset.custom = 'true';
+                    personSelect.appendChild(customOption);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 personSelect.innerHTML = '<option value="">加载失败</option>';
+                // 即使加载失败，也添加自定义填写选项
+                const customOption = document.createElement('option');
+                customOption.value = '__custom__';
+                customOption.textContent = '✏️ 自定义填写（人员不在系统内）';
+                customOption.dataset.custom = 'true';
+                personSelect.appendChild(customOption);
             });
     }
 
@@ -204,13 +235,57 @@
         loadTeamUsers(selectedTeam);
     });
 
-    // 当人员选择改变时，设置隐藏的 ID 字段
+    // 当人员选择改变时，处理选择和自定义填写
     personSelect.addEventListener('change', function() {
         const selectedOption = this.options[this.selectedIndex];
-        if (selectedOption && selectedOption.dataset.userId) {
-            personIdInput.value = selectedOption.dataset.userId;
-        } else {
+
+        if (selectedOption && selectedOption.dataset.custom === 'true') {
+            // 显示自定义填写输入框
+            customPersonWrapper.style.display = 'block';
             personIdInput.value = '';
+            customPersonInput.focus();
+        } else {
+            // 隐藏自定义填写输入框
+            customPersonWrapper.style.display = 'none';
+            customPersonInput.value = '';
+
+            if (selectedOption && selectedOption.dataset.userId) {
+                personIdInput.value = selectedOption.dataset.userId;
+            } else {
+                personIdInput.value = '';
+            }
+        }
+    });
+
+    // 表单提交前处理
+    loanForm.addEventListener('submit', function(e) {
+        const selectedOption = personSelect.options[personSelect.selectedIndex];
+
+        // 创建或更新实际的 borrowing_person 字段
+        let existingInput = loanForm.querySelector('input[name="borrowing_person"]');
+        if (!existingInput) {
+            existingInput = document.createElement('input');
+            existingInput.type = 'hidden';
+            existingInput.name = 'borrowing_person';
+            loanForm.appendChild(existingInput);
+        }
+
+        if (selectedOption && selectedOption.dataset.custom === 'true') {
+            // 使用自定义填写的人名
+            if (customPersonInput.value.trim()) {
+                existingInput.value = customPersonInput.value.trim();
+                personIdInput.value = ''; // 清空 ID，表示是自定义填写
+            } else {
+                e.preventDefault();
+                alert('请填写申领人姓名');
+                customPersonInput.focus();
+            }
+        } else if (selectedOption && selectedOption.value) {
+            // 使用下拉选择的人名
+            existingInput.value = selectedOption.value;
+        } else {
+            e.preventDefault();
+            alert('请选择或填写申领人');
         }
     });
 

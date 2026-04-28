@@ -113,8 +113,18 @@
 
           <!-- 外部实体墙体 -->
           <rect x="0" y="15" width="1400" height="600" fill="#1a2a3a" stroke="none" rx="8"/>
-          <!-- 墙体边框装饰 -->
-          <rect x="0" y="15" width="1400" height="600" fill="none" stroke="rgba(79, 195, 247, 0.6)" stroke-width="10" rx="8"/>
+          <!-- 墙体边框装饰（左边开多个门） -->
+          <!-- 墙体高度600，可开多个门，每个门宽50像素 -->
+          <!-- 门1：y=340-390（中心位置） -->
+          <!-- 门2：y=180-230（上方位置） -->
+          <!-- 门3：y=490-530（下方位置） -->
+          <path
+            d="M 0,180 L 0,15 L 1400,15 L 1400,615 L 0,615 L 0,540 M 0,490 L 0,390 M 0,340 L 0,230"
+            fill="none"
+            stroke="rgba(79, 195, 247, 0.6)"
+            stroke-width="10"
+            stroke-linecap="round"
+          />
           <!-- 内部区域分隔线 -->
           <!-- 轮轴前库与轮轴后库分隔线：实线，中间开50像素缺口代表门（位于第3、4条钢轨中间） -->
           <line :x1="LAYOUT.leftWidth" y1="20" :x2="LAYOUT.leftWidth" y2="175" stroke="rgba(79, 195, 247, 0.6)" stroke-width="5"/>
@@ -236,6 +246,43 @@
                 <line x1="0" y1="15" x2="15" y2="15" stroke="#7a8a9a" stroke-width="3"/>
                 <animateTransform attributeName="patternTransform" type="translate" values="0 20;0 0" dur="1.5s" repeatCount="indefinite"/>
               </pattern>
+
+              <!-- 方向箭头相关定义 -->
+              <!-- 橙色箭头发光效果 -->
+              <filter id="orangeArrowGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+              <!-- 橙色箭头发光效果（脉冲） -->
+              <filter id="orangeArrowPulse" x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+              <!-- 橙色箭头符号（向右，收入线） -->
+              <symbol id="arrowRight" viewBox="0 0 30 20">
+                <path d="M 0,10 L 20,10 L 15,5 M 20,10 L 15,15" fill="none" stroke="#e67e22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              </symbol>
+              <!-- 橙色箭头符号（向左，支出线/压装线） -->
+              <symbol id="arrowLeft" viewBox="0 0 30 20">
+                <path d="M 30,10 L 10,10 L 15,5 M 10,10 L 15,15" fill="none" stroke="#e67e22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              </symbol>
+
+              <!-- 铁路轮对俯视图（简化工程CAD风格） -->
+              <symbol id="wheelPairSimple" viewBox="0 0 15 51">
+                <!-- 上矩形（宽度15，高度3） -->
+                <rect x="0" y="5" width="15" height="5" fill="none" stroke="#ffffff" stroke-width="1"/>
+                <!-- 中心车轴（宽度5，高度45） -->
+                <rect x="5" y="0" width="5" height="40" fill="none" stroke="#ffffff" stroke-width="1"/>
+                <!-- 下矩形（宽度15，高度3） -->
+                <rect x="0" y="30" width="15" height="5" fill="none" stroke="#ffffff" stroke-width="1"/>
+              </symbol>
             </defs>
 
             <!-- 1号钢轨：从轮轴前库左边开始，一直延伸到旋轮间离外墙30像素处 - 科技蓝灰 -->
@@ -245,10 +292,10 @@
                 <rect x="15" :y="rail.y - 4" :width="1400 - 30 - 15" height="8" fill="url(#techBlueGray)" rx="2"/>
                 <!-- 下轨 -->
                 <rect x="15" :y="rail.y + 16" :width="1400 - 30 - 15" height="8" fill="url(#techBlueGray)" rx="2"/>
-                <!-- 钢轨编号 -->
+                <!-- 钢轨编号（浅橙色背景，橙色边框和字体） -->
                 <g :transform="`translate(5, ${rail.y + 10})`">
-                  <circle r="12" fill="rgba(60, 70, 80, 0.9)" stroke="rgba(150, 160, 170, 0.5)" stroke-width="1"/>
-                  <text y="4" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="11" font-weight="bold">{{ rail.id.split('-')[1] }}</text>
+                  <rect x="-38" y="-12" width="56" height="24" rx="4" fill="rgba(230, 126, 34, 0.1)" stroke="#e67e22" stroke-width="1"/>
+                  <text x="-8" y="5" text-anchor="middle" fill="#e67e22" font-size="11" font-weight="bold">{{ rail.name }}</text>
                 </g>
               </template>
             </g>
@@ -260,10 +307,10 @@
                 <rect x="-80" :y="rail.y - 4" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#techBlueGray)" rx="2"/>
                 <!-- 下轨 -->
                 <rect x="-80" :y="rail.y + 16" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#techBlueGray)" rx="2"/>
-                <!-- 钢轨编号 -->
-                <g :transform="`translate(-65, ${rail.y + 10})`">
-                  <circle r="12" fill="rgba(60, 70, 80, 0.9)" stroke="rgba(150, 160, 170, 0.5)" stroke-width="1"/>
-                  <text y="4" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="11" font-weight="bold">{{ rail.id.split('-')[1] }}</text>
+                <!-- 钢轨编号（浅橙色背景，橙色边框和字体） -->
+                <g :transform="`translate(5, ${rail.y + 10})`">
+                  <rect x="-38" y="-12" width="56" height="24" rx="4" fill="rgba(230, 126, 34, 0.1)" stroke="#e67e22" stroke-width="1"/>
+                  <text x="-8" y="5" text-anchor="middle" fill="#e67e22" font-size="11" font-weight="bold">{{ rail.name }}</text>
                 </g>
               </template>
             </g>
@@ -275,10 +322,10 @@
                 <rect x="-80" :y="rail.y - 4" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#techBlueGray)" rx="2"/>
                 <!-- 下轨 -->
                 <rect x="-80" :y="rail.y + 16" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#techBlueGray)" rx="2"/>
-                <!-- 钢轨编号 -->
-                <g :transform="`translate(-65, ${rail.y + 10})`">
-                  <circle r="12" fill="rgba(60, 70, 80, 0.9)" stroke="rgba(150, 160, 170, 0.5)" stroke-width="1"/>
-                  <text y="4" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="11" font-weight="bold">{{ rail.id.split('-')[1] }}</text>
+                <!-- 钢轨编号（浅橙色背景，橙色边框和字体） -->
+                <g :transform="`translate(5, ${rail.y + 10})`">
+                  <rect x="-38" y="-12" width="56" height="24" rx="4" fill="rgba(230, 126, 34, 0.1)" stroke="#e67e22" stroke-width="1"/>
+                  <text x="-8" y="5" text-anchor="middle" fill="#e67e22" font-size="11" font-weight="bold">{{ rail.name }}</text>
                 </g>
               </template>
             </g>
@@ -290,10 +337,10 @@
                 <rect x="-80" :y="rail.y - 4" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#techBlueGray)" rx="2"/>
                 <!-- 下轨 -->
                 <rect x="-80" :y="rail.y + 16" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#techBlueGray)" rx="2"/>
-                <!-- 钢轨编号 -->
-                <g :transform="`translate(-65, ${rail.y + 10})`">
-                  <circle r="12" fill="rgba(60, 70, 80, 0.9)" stroke="rgba(150, 160, 170, 0.5)" stroke-width="1"/>
-                  <text y="4" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="11" font-weight="bold">{{ rail.id.split('-')[1] }}</text>
+                <!-- 钢轨编号（浅橙色背景，橙色边框和字体） -->
+                <g :transform="`translate(5, ${rail.y + 10})`">
+                  <rect x="-38" y="-12" width="56" height="24" rx="4" fill="rgba(230, 126, 34, 0.1)" stroke="#e67e22" stroke-width="1"/>
+                  <text x="-8" y="5" text-anchor="middle" fill="#e67e22" font-size="11" font-weight="bold">{{ rail.name }}</text>
                 </g>
               </template>
             </g>
@@ -305,10 +352,10 @@
                 <rect x="-80" :y="rail.y - 4" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#techBlueGray)" rx="2"/>
                 <!-- 下轨 -->
                 <rect x="-80" :y="rail.y + 16" :width="LAYOUT.leftWidth + LAYOUT.middleWidth + 20 + 80" height="8" fill="url(#techBlueGray)" rx="2"/>
-                <!-- 钢轨编号 -->
-                <g :transform="`translate(-65, ${rail.y + 10})`">
-                  <circle r="12" fill="rgba(60, 70, 80, 0.9)" stroke="rgba(150, 160, 170, 0.5)" stroke-width="1"/>
-                  <text y="4" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="11" font-weight="bold">{{ rail.id.split('-')[1] }}</text>
+                <!-- 钢轨编号（浅橙色背景，橙色边框和字体） -->
+                <g :transform="`translate(5, ${rail.y + 10})`">
+                  <rect x="-38" y="-12" width="56" height="24" rx="4" fill="rgba(230, 126, 34, 0.1)" stroke="#e67e22" stroke-width="1"/>
+                  <text x="-8" y="5" text-anchor="middle" fill="#e67e22" font-size="11" font-weight="bold">{{ rail.name }}</text>
                 </g>
               </template>
             </g>
@@ -320,10 +367,10 @@
                 <rect x="-80" :y="rail.y - 4" :width="1450" height="8" fill="url(#techBlueGray)" rx="2"/>
                 <!-- 下轨 -->
                 <rect x="-80" :y="rail.y + 16" :width="1450" height="8" fill="url(#techBlueGray)" rx="2"/>
-                <!-- 钢轨编号 -->
-                <g :transform="`translate(-65, ${rail.y + 10})`">
-                  <circle r="12" fill="rgba(60, 70, 80, 0.9)" stroke="rgba(150, 160, 170, 0.5)" stroke-width="1"/>
-                  <text y="4" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="11" font-weight="bold">{{ rail.id.split('-')[1] }}</text>
+                <!-- 钢轨编号（浅橙色背景，橙色边框和字体） -->
+                <g :transform="`translate(5, ${rail.y + 10})`">
+                  <rect x="-38" y="-12" width="56" height="24" rx="4" fill="rgba(230, 126, 34, 0.1)" stroke="#e67e22" stroke-width="1"/>
+                  <text x="-8" y="5" text-anchor="middle" fill="#e67e22" font-size="11" font-weight="bold">{{ rail.name }}</text>
                 </g>
               </template>
             </g>
@@ -357,11 +404,107 @@
             <rect x="1363" :y="LAYOUT.railY[0] - 4" width="15" :height="(LAYOUT.railY[5] - LAYOUT.railY[0] + 28) / 2 - 10" fill="url(#conveyorPattern)" rx="2"/>
             <!-- 下段 -->
             <rect x="1363" :y="LAYOUT.railY[0] - 4 + (LAYOUT.railY[5] - LAYOUT.railY[0] + 28) / 2 + 10" width="15" :height="(LAYOUT.railY[5] - LAYOUT.railY[0] + 28) / 2 - 10" fill="url(#conveyorPattern)" rx="2"/>
+
+            <!-- 方向箭头动画 -->
+            <!-- 收入线1、2、3：橙色发光箭头，从左往右，脉冲呼吸效果 -->
+            <g v-for="(rail, index) in rails" :key="'arrow-' + rail.id">
+              <!-- 收入线（index 0, 1, 2）- 橙色发光箭头脉冲动画 -->
+              <template v-if="index === 0">
+                <g :transform="`translate(0, ${rail.y + 10})`">
+                  <use href="#arrowRight" x="220" y="-10" width="30" height="20" filter="url(#orangeArrowGlow)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite"/>
+                  </use>
+                  <use href="#arrowRight" x="420" y="-10" width="30" height="20" filter="url(#orangeArrowGlow)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="0.25s"/>
+                  </use>
+                  <use href="#arrowRight" x="610" y="-10" width="30" height="20" filter="url(#orangeArrowGlow)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+                  </use>
+                  <use href="#arrowRight" x="860" y="-10" width="30" height="20" filter="url(#orangeArrowGlow)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="0.75s"/>
+                  </use>
+                  <use href="#arrowRight" x="1100" y="-10" width="30" height="20" filter="url(#orangeArrowGlow)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="1s"/>
+                  </use>
+                  <use href="#arrowRight" x="1310" y="-10" width="30" height="20" filter="url(#orangeArrowGlow)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="1.25s"/>
+                  </use>
+                </g>
+              </template>
+
+              <template v-if="index >= 1 && index <= 2">
+                <g :transform="`translate(0, ${rail.y + 10})`">
+                  <use href="#arrowRight" x="-70" y="-10" width="30" height="20" filter="url(#orangeArrowGlow)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite"/>
+                  </use>
+                  <use href="#arrowRight" x="220" y="-10" width="30" height="20" filter="url(#orangeArrowGlow)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="0.25s"/>
+                  </use>
+                  <use href="#arrowRight" x="420" y="-10" width="30" height="20" filter="url(#orangeArrowGlow)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+                  </use>
+                  <use href="#arrowRight" x="610" y="-10" width="30" height="20" filter="url(#orangeArrowGlow)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="0.75s"/>
+                  </use>
+                  <use href="#arrowRight" x="860" y="-10" width="30" height="20" filter="url(#orangeArrowGlow)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="1s"/>
+                  </use>
+                </g>
+              </template>
+
+              <!-- 支出线（index 3）- 橙色渐变箭头，从右往左 -->
+              <template v-if="index >= 3 && index <= 4">
+                <g :transform="`translate(0, ${rail.y + 10})`">
+                  <use href="#arrowLeft" x="900" y="-10" width="30" height="20" filter="url(#orangeArrowPulse)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+                  </use>
+                  <use href="#arrowLeft" x="740" y="-10" width="30" height="20" filter="url(#orangeArrowPulse)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="0.75s"/>
+                  </use>
+                  <use href="#arrowLeft" x="360" y="-10" width="30" height="20" filter="url(#orangeArrowPulse)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="1s"/>
+                  </use>
+                  <use href="#arrowLeft" x="210" y="-10" width="30" height="20" filter="url(#orangeArrowPulse)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="1.25s"/>
+                  </use>
+                  <use href="#arrowLeft" x="-70" y="-10" width="30" height="20" filter="url(#orangeArrowPulse)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+                  </use>
+                </g>
+              </template>
+
+              <!-- 压装线1、2（index 4, 5）- 橙色渐变箭头，从右往左 -->
+              <template v-if="index === 5">
+                <g :transform="`translate(0, ${rail.y + 10})`">
+                  <use href="#arrowLeft" x="1310" y="-10" width="30" height="20" filter="url(#orangeArrowPulse)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite"/>
+                  </use>
+                  <use href="#arrowLeft" x="1100" y="-10" width="30" height="20" filter="url(#orangeArrowPulse)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="0.25s"/>
+                  </use>
+                  <use href="#arrowLeft" x="900" y="-10" width="30" height="20" filter="url(#orangeArrowPulse)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+                  </use>
+                  <use href="#arrowLeft" x="740" y="-10" width="30" height="20" filter="url(#orangeArrowPulse)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="0.75s"/>
+                  </use>
+                  <use href="#arrowLeft" x="360" y="-10" width="30" height="20" filter="url(#orangeArrowPulse)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="1s"/>
+                  </use>
+                  <use href="#arrowLeft" x="210" y="-10" width="30" height="20" filter="url(#orangeArrowPulse)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="1.25s"/>
+                  </use>
+                  <use href="#arrowLeft" x="-70" y="-10" width="30" height="20" filter="url(#orangeArrowPulse)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+                  </use>
+                </g>
+              </template>
+            </g>
           </g>
 
           <!-- 房间 -->
           <g class="rooms">
-            <g v-for="room in rooms" :key="room.name">
+            <g v-for="room in rooms" :key="room.name + room.x">
               <rect
                 :x="room.x"
                 :y="room.y"
@@ -383,6 +526,28 @@
               >
                 {{ room.name }}
               </text>
+            </g>
+          </g>
+
+          <!-- 门标识（扇形门，放在房间左上角） -->
+          <g class="doors">
+            <g v-for="(door, index) in doors" :key="'door-' + index">
+              <!-- 扇形门：从左上角向房间内开启，90度扇形，虚线标识 -->
+              <!-- 使用path绘制扇形，从270度到180度（逆时针） -->
+              <path
+                :d="`M ${door.x} ${door.y} L ${door.x + door.radius} ${door.y} A ${door.radius} ${door.radius} 0 0 1 ${door.x} ${door.y + door.radius} Z`"
+                fill="rgba(255, 255, 255, 0.1)"
+                stroke="rgba(255, 255, 255, 0.6)"
+                stroke-width="1"
+                stroke-dasharray="3,2"
+              />
+              <!-- 门轴标记（小圆点） -->
+              <circle
+                :cx="door.x"
+                :cy="door.y"
+                r="2"
+                fill="rgba(255, 255, 255, 0.5)"
+              />
             </g>
           </g>
 
@@ -501,6 +666,79 @@
             </g>
           </g>
 
+          <!-- 写字桌（俯视图：宽20高30） -->
+          <g class="desks">
+            <g v-for="(desk, index) in desks" :key="'desk-' + index" :transform="`translate(${desk.x}, ${desk.y})`">
+              <!-- 写字桌外框 -->
+              <rect
+                x="0"
+                y="0"
+                :width="desk.width"
+                :height="desk.height"
+                rx="2"
+                fill="rgba(139, 90, 43, 0.3)"
+                stroke="rgba(255, 255, 255, 0.6)"
+                stroke-width="1"
+              />
+              <!-- 桌面纹理 -->
+              <line
+                x1="2"
+                :y1="desk.height * 0.5"
+                :x2="desk.width - 2"
+                :y2="desk.height * 0.5"
+                stroke="rgba(255, 255, 255, 0.3)"
+                stroke-width="0.5"
+              />
+            </g>
+          </g>
+
+          <!-- 凳子（俯视图：宽12高12） -->
+          <g class="stools">
+            <g v-for="(stool, index) in stools" :key="'stool-' + index" :transform="`translate(${stool.x}, ${stool.y})`">
+              <!-- 凳子外框 -->
+              <rect
+                x="0"
+                y="0"
+                :width="stool.width"
+                :height="stool.height"
+                rx="2"
+                fill="rgba(139, 90, 43, 0.2)"
+                stroke="rgba(255, 255, 255, 0.5)"
+                stroke-width="1"
+              />
+            </g>
+          </g>
+
+          <!-- 铁路轮对俯视图（简化工程CAD风格，白色线条） -->
+          <use href="#wheelPairSimple" x="1040" y="70" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1090" y="70" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1200" y="70" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1340" y="70" width="15" height="51"/>
+
+          <use href="#wheelPairSimple" x="1030" y="130" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1050" y="130" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1070" y="130" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1310" y="130" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1330" y="130" width="15" height="51"/>
+
+          <use href="#wheelPairSimple" x="1030" y="230" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1050" y="230" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1330" y="230" width="15" height="51"/>
+
+          <use href="#wheelPairSimple" x="1030" y="290" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1050" y="290" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1070" y="290" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1310" y="290" width="15" height="51"/>
+
+          <use href="#wheelPairSimple" x="1050" y="390" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1070" y="390" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1310" y="390" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1330" y="390" width="15" height="51"/>
+
+          <use href="#wheelPairSimple" x="1040" y="450" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1250" y="450" width="15" height="51"/>
+          <use href="#wheelPairSimple" x="1330" y="450" width="15" height="51"/>
+
           <!-- StatsPanel嵌入SVG，定位在车间整体右下角，间距5px -->
           <foreignObject x="800" y="620" width="600" height="90">
             <body xmlns="http://www.w3.org/1999/xhtml" style="margin:0;padding:0;background:transparent;overflow:visible;">
@@ -600,7 +838,8 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useDeviceStore } from '../stores/deviceStore'
-import { deviceTypeConfig, rails, rooms, LAYOUT, sofas, cabinets } from '../api/mockData'
+import { deviceTypeConfig, rails, rooms, LAYOUT, sofas, cabinets, desks, stools, doors } from '../api/mockData'
+import { getDeviceDetail } from '../api/deviceApi'
 import StatsPanel from '../components/StatsPanel.vue'
 import LegendPanel from '../components/LegendPanel.vue'
 import DeviceItem from '../components/DeviceItem.vue'
@@ -643,10 +882,16 @@ const faultDevices = computed(() => {
 const getFaultTime = (device) => {
   if (!device.faultTime) return ''
   const duration = Date.now() - device.faultTime
-  const hours = Math.floor(duration / (1000 * 60 * 60))
+  const days = Math.floor(duration / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
   const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60))
-  if (hours > 0) return `${hours}h${minutes}m`
-  return `${minutes}min`
+
+  // 构建中文格式显示
+  let result = ''
+  if (days > 0) result += `${days}天`
+  if (hours > 0) result += `${hours}小时`
+  if (minutes > 0 || result === '') result += `${minutes}分钟`
+  return result
 }
 
 // 更新当前时间
@@ -656,10 +901,19 @@ const updateCurrentTime = () => {
   currentTime.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
 }
 
-// 点击设备
-const handleDeviceClick = (device) => {
-  selectedDevice.value = device
-  showDetail.value = true
+// 点击设备 - 获取完整设备详情
+const handleDeviceClick = async (device) => {
+  try {
+    // 调用API获取完整设备详情（包含统计数据和故障记录）
+    const detailData = await getDeviceDetail(device.id)
+    selectedDevice.value = detailData
+    showDetail.value = true
+  } catch (e) {
+    console.error('获取设备详情失败:', e)
+    // 如果API失败，使用基本设备数据
+    selectedDevice.value = device
+    showDetail.value = true
+  }
 }
 
 // 自动刷新定时器

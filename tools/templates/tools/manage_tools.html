@@ -170,7 +170,7 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th>编号</th>
+                        <th>编码</th>
                         <th>名称</th>
                         <th>型号</th>
                         <th>分类</th>
@@ -186,7 +186,7 @@
                     <tbody>
                     {% for tool in available_tools %}
                         <tr>
-                            <td>{{ tool.id }}</td>
+                            <td>{{ tool.code }}</td>
                             <td>{{ tool.name }}</td>
                             <td>{{ tool.specification }}</td>
                             <td>{{ tool.category.name }}</td>
@@ -271,7 +271,7 @@
                 <table class="table table-centered table-nowrap mb-0">
                     <thead class="table-light">
                     <tr>
-                        <th>编号</th>
+                        <th>编码</th>
                         <th>工具名称</th>
                         <th>申领人</th>
                         <th>申领班组</th>
@@ -288,7 +288,7 @@
                     {% if borrowed_records %}
                         {% for record in borrowed_records %}
                             <tr>
-                                <td>{{ record.tool.id }}</td>
+                                <td>{{ record.tool.code }}</td>
                                 <td>{{ record.tool.name }}</td>
                                 <td>{{ record.borrowing_person }}</td>
                                 <td>{{ record.borrowing_team }}</td>
@@ -367,7 +367,7 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th>编号</th>
+                        <th>编码</th>
                         <th>名称</th>
                         <th>型号</th>
                         <th>分类</th>
@@ -383,7 +383,7 @@
                     <tbody>
                     {% for tool in faulty_tools %}
                         <tr>
-                            <td>{{ tool.id }}</td>
+                            <td>{{ tool.code }}</td>
                             <td>{{ tool.name }}</td>
                             <td>{{ tool.specification }}</td>
                             <td>{{ tool.category.name }}</td>
@@ -455,7 +455,7 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th>编号</th>
+                        <th>编码</th>
                         <th>名称</th>
                         <th>型号</th>
                         <th>分类</th>
@@ -470,7 +470,7 @@
                     <tbody>
                     {% for tool in scrapped_tools %}
                         <tr>
-                            <td>{{ tool.id }}</td>
+                            <td>{{ tool.code }}</td>
                             <td>{{ tool.name }}</td>
                             <td>{{ tool.specification }}</td>
                             <td>{{ tool.category.name }}</td>

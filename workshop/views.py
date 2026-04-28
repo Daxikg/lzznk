@@ -118,6 +118,51 @@ def get_device_detail(request, device_id):
             'isResolved': latest_repair.is_resolved,
         }
 
+    # 获取最近半年的统计数据
+    from datetime import datetime, timedelta
+    six_months_ago = timezone.now() - timedelta(days=180)
+
+    # 点检次数
+    inspection_count = InspectionRecord.objects.filter(
+        device_id=device_id,
+        start_time__gte=six_months_ago
+    ).count()
+
+    # 故障次数
+    fault_count = RepairRecord.objects.filter(
+        device_id=device_id,
+        fault_date__gte=six_months_ago
+    ).count()
+
+    # 故障率（故障次数 / 点检次数）
+    fault_rate = round((fault_count / inspection_count) * 100, 2) if inspection_count > 0 else 0
+
+    data['halfYearStats'] = {
+        'inspectionCount': inspection_count,
+        'faultCount': fault_count,
+        'faultRate': fault_rate,
+    }
+
+    # 获取最近半年的故障记录列表
+    repair_records = RepairRecord.objects.filter(
+        device_id=device_id,
+        fault_date__gte=six_months_ago
+    ).order_by('-fault_date')
+
+    data['repairRecords'] = [{
+        'id': r.id,
+        'faultDate': r.fault_date.strftime('%Y-%m-%d %H:%M:%S') if r.fault_date else '',
+        'reporter': r.reporter,
+        'phenomenon': r.phenomenon,
+        'analysis': r.analysis,
+        'repairDate': r.repair_date.strftime('%Y-%m-%d %H:%M:%S') if r.repair_date else '',
+        'repairTeam': r.repair_team,
+        'worker': r.worker,
+        'result': r.result,
+        'materials': r.materials,
+        'isResolved': r.is_resolved,
+    } for r in repair_records]
+
     return Response(data)
 
 

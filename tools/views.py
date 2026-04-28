@@ -1029,10 +1029,14 @@ def loan_tool(request, tool_id):
             if loan_datetime:
                 loan_record.loan_time = loan_datetime
 
-            # 关联申领人ID
+            # 关联申领人ID（自定义填写时可能为空）
             borrowing_person_id = request.POST.get('borrowing_person_id')
-            if borrowing_person_id:
-                loan_record.borrowing_person_id = int(borrowing_person_id)
+            if borrowing_person_id and borrowing_person_id.strip():
+                try:
+                    loan_record.borrowing_person_id = int(borrowing_person_id.strip())
+                except (ValueError, TypeError):
+                    # 如果转换失败，保持为空（自定义填写的情况）
+                    pass
 
             # 设置借款人（当前登录用户对应的Admin对象）
             try:
@@ -1506,92 +1510,6 @@ def get_tool_category_api(request, category_id):
         return JsonResponse({'success': False, 'message': '未找到该工具类别'})
     except Exception as e:
         return JsonResponse({'success': False, 'message': f'服务器错误: {str(e)}'})
-
-
-@login_required
-def update_tool_category(request, category_id):
-    """更新工具类别权限配置"""
-    if not check_tools_permission(request.user, required_permission='manage_categories'):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'success': False, 'message': '权限不足'}, status=403)
-        messages.error(request, "权限不足")
-        return redirect('tools:user_dashboard')
-    
-    try:
-        category = ToolCategory.objects.get(id=category_id)
-        
-        if request.method == 'POST':
-            # 处理AJAX请求
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                try:
-                    data = json.loads(request.body)
-                    
-                    # 更新类别名称
-                    if 'name' in data:
-                        category.name = data['name']
-                    
-                    # 更新权限字段（如果有提供）
-                    if 'can_borrow_default' in data:
-                        category.can_borrow_default = data['can_borrow_default']
-                    if 'can_manage_default' in data:
-                        category.can_manage_default = data['can_manage_default']
-                    if 'can_maintain_default' in data:
-                        category.can_maintain_default = data['can_maintain_default']
-                    if 'can_approve_default' in data:
-                        category.can_approve_default = data['can_approve_default']
-                    if 'can_admin_default' in data:
-                        category.can_admin_default = data['can_admin_default']
-                    
-                    category.save()
-                    
-                    return JsonResponse({
-                        'success': True, 
-                        'message': f'工具类别 "{category.name}" 更新成功！'
-                    })
-                except json.JSONDecodeError:
-                    return JsonResponse({'success': False, 'message': '无效的JSON数据'})
-                except Exception as e:
-                    return JsonResponse({'success': False, 'message': f'更新失败: {str(e)}'})
-            
-            # 处理普通表单提交
-            else:
-                # 获取表单数据
-                name = request.POST.get('name')
-                if name:
-                    category.name = name
-                    category.save()
-                    messages.success(request, f'工具类别 "{category.name}" 更新成功！')
-                return redirect('tools:simple_permissions')
-        
-        # GET请求 - 返回类别详情
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'success': True,
-                'data': {
-                    'id': category.id,
-                    'name': category.name,
-                    'description': '',  # ToolCategory模型没有description字段
-                    'can_borrow_default': getattr(category, 'can_borrow_default', True),
-                    'can_manage_default': getattr(category, 'can_manage_default', False),
-                    'can_maintain_default': getattr(category, 'can_maintain_default', True),
-                    'can_approve_default': getattr(category, 'can_approve_default', False),
-                    'can_admin_default': getattr(category, 'can_admin_default', False)
-                }
-            })
-        
-        # 普通GET请求
-        return render(request, 'tools/update_tool_category.html', {'category': category})
-        
-    except ToolCategory.DoesNotExist:
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'success': False, 'message': '未找到该工具类别'})
-        messages.error(request, "未找到该工具类别")
-        return redirect('tools:simple_permissions')
-    except Exception as e:
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'success': False, 'message': f'服务器错误: {str(e)}'})
-        messages.error(request, f"操作失败: {str(e)}")
-        return redirect('tools:simple_permissions')
 
 
 @login_required

@@ -116,14 +116,14 @@ export const cabinets = [
 // 轮轴间休室(x=400, y=520, 宽200高50)：放10把，单行排列
 export const sofas = [
   // 探伤间休室（从右往左排列）
-  { x: 220 + 170 - 10, y: 520 + 5, width: 15, height: 40 },  // 第1把
-  { x: 220 + 170 - 30, y: 520 + 5, width: 15, height: 40 },  // 第2把
+  // { x: 220 + 170 - 10, y: 520 + 5, width: 15, height: 40 },  // 第1把
+  // { x: 220 + 170 - 30, y: 520 + 5, width: 15, height: 40 },  // 第2把
   { x: 220 + 170 - 50, y: 520 + 5, width: 15, height: 40 },  // 第3把
   { x: 220 + 170 - 70, y: 520 + 5, width: 15, height: 40 },  // 第4把
   { x: 220 + 170 - 90, y: 520 + 5, width: 15, height: 40 },  // 第5把
   { x: 220 + 170 - 110, y: 520 + 5, width: 15, height: 40 },  // 第6把
-  // { x: 220 + 170 - 140, y: 520 + 5, width: 15, height: 40 },  // 第7把
-  // { x: 220 + 170 - 160, y: 520 + 5, width: 15, height: 40 },  // 第8把
+  { x: 220 + 170 - 130, y: 520 + 5, width: 15, height: 40 },  // 第7把
+  // { x: 220 + 170 - 150, y: 520 + 5, width: 15, height: 40 },  // 第8把
 
   // 轮轴间休室（从右往左排列）
   { x: 400 + 200 - 20, y: 520 + 5, width: 15, height: 40 },   // 第9把
@@ -138,14 +138,62 @@ export const sofas = [
   // { x: 400 + 200 - 195, y: 520 + 5, width: 15, height: 40 },  // 第18把
 ]
 
+// 写字桌配置
+// 轮轴间休室右边沙发右边的空闲区域上半部分：x从610到670，3个桌子横向排列
+// 探伤间休室沙发右边空闲区域：x约370-390，上下对称分布2个桌子
+export const desks = [
+  // 轮轴间休室（上半部分横向排列）
+  // 写字桌1（最右边）
+  { x: 650, y: 520 + 2, width: 20, height: 15 },
+  // 写字桌2
+  { x: 630, y: 520 + 2, width: 20, height: 15 },
+  // 写字桌3
+  { x: 610, y: 520 + 2, width: 20, height: 15 },
+
+  // 探伤间休室（上下对称分布，沙发右边）
+  // 写字桌4（上半部分）
+  { x: 380, y: 520 + 10, width: 20, height: 15 },
+  // 写字桌5（下半部分）
+  { x: 380, y: 520 + 25, width: 20, height: 15 },
+]
+
+// 凳子配置（放在写字桌旁边，上下对称分布）
+// 凳子宽12高12
+export const stools = [
+  // 轮轴间休室（桌子下方）
+  // 凳子1（写字桌1下方）
+  { x: 655, y: 520 + 20, width: 10, height: 10 },
+  // 凳子2（写字桌2下方）
+  { x: 635, y: 520 + 20, width: 10, height: 10 },
+  // 凳子3（写字桌3下方）
+  { x: 615, y: 520 + 20, width: 10, height: 10 },
+
+  // 探伤间休室（上下对称）
+  // 凳子4（写字桌4上方，桌子在上半部分，凳子在桌子下方）
+  { x: 386, y: 520, width: 8, height: 8 },
+  // 凳子5（写字桌5下方，桌子在下半部分，凳子在桌子下方）
+  { x: 386, y: 520 + 42, width: 8, height: 8 },
+]
+
+// 门标识配置（扇形门，放在房间左上角）
+// 门半径约12像素，扇形角度90度（从左上角向内开）
+export const doors = [
+  // 标志牌刻打机房间（工具间）左上角
+  { x: 60, y: 520, radius: 20 },
+  // 探伤间休室左上角
+  { x: 230, y: 520, radius: 20 },
+  // 轮轴间休室左上角
+  { x: 420, y: 520, radius: 20 },
+]
+
 // 钢轨配置 - 6条钢轨贯穿全屏
 export const rails = [
-  { id: 'rail-1', y: LAYOUT.railY[0], name: '1号钢轨' },
-  { id: 'rail-2', y: LAYOUT.railY[1], name: '2号钢轨' },
-  { id: 'rail-3', y: LAYOUT.railY[2], name: '3号钢轨' },
-  { id: 'rail-4', y: LAYOUT.railY[3], name: '4号钢轨' },
-  { id: 'rail-5', y: LAYOUT.railY[4], name: '5号钢轨' },
-  { id: 'rail-6', y: LAYOUT.railY[5], name: '6号钢轨' },
+  { id: 'rail-1', y: LAYOUT.railY[0], name: '收入线1' },
+  { id: 'rail-2', y: LAYOUT.railY[1], name: '收入线2' },
+  { id: 'rail-3', y: LAYOUT.railY[2], name: '收入线3' },
+  { id: 'rail-4', y: LAYOUT.railY[3], name: '支出线' },
+  { id: 'rail-5', y: LAYOUT.railY[4], name: '压装线1' },
+  { id: 'rail-6', y: LAYOUT.railY[5], name: '压装线2' },
 ]
 
 // 生成设备的辅助函数

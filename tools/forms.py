@@ -151,6 +151,12 @@ class ToolCategoryForm(forms.ModelForm):
     class Meta:
         model = ToolCategory
         fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '请输入类别名称'
+            })
+        }
 
 
 class CreateToolForm(forms.ModelForm):
@@ -250,13 +256,10 @@ class LoanRequestForm(forms.ModelForm):
         required=False,
         help_text='默认为当前时间，可修改'
     )
-    
-    # 显式定义borrowing_person_id字段
-    borrowing_person_id = forms.CharField(
-        required=False,
-        widget=forms.HiddenInput()
-    )
-    
+
+    # borrowing_person_id 不在表单中定义，由视图手动处理
+    # 因为模型是 IntegerField，但前端可能传空字符串（自定义填写时）
+
     def __init__(self, *args, **kwargs):
         # 获取当前用户信息
         self.current_user = kwargs.pop('current_user', None)
@@ -303,28 +306,21 @@ class LoanRequestForm(forms.ModelForm):
         
     class Meta:
         model = ToolLoanRecord
-        fields = ['borrowing_team', 'borrowing_person', 'borrowing_person_id', 'loan_datetime', 'expected_return_time', 'remarks']
+        fields = ['borrowing_team', 'borrowing_person', 'loan_datetime', 'expected_return_time', 'remarks']
         widgets = {
             'expected_return_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'borrowing_team': forms.Select(),
-            'borrowing_person': forms.Select(),
+            'borrowing_person': forms.TextInput(attrs={'class': 'form-control'}),
         }
-        
+
     def clean_borrowing_person(self):
         """验证申领人信息"""
         borrowing_person = self.cleaned_data.get('borrowing_person')
-        borrowing_person_id = self.cleaned_data.get('borrowing_person_id')
-        
-        # 如果从cleaned_data获取不到，尝试从原始数据获取
-        if not borrowing_person_id and 'borrowing_person_id' in self.data:
-            borrowing_person_id = self.data.get('borrowing_person_id')
-            # 如果是字符串，尝试转换为整数
-            if isinstance(borrowing_person_id, str) and borrowing_person_id.isdigit():
-                borrowing_person_id = int(borrowing_person_id)
-        
-        if borrowing_person and not borrowing_person_id:
-            raise forms.ValidationError("请选择有效的申领人")
-        
+
+        # 必须填写申领人（可以是选择的或自定义填写的）
+        if not borrowing_person:
+            raise forms.ValidationError("请选择或填写申领人")
+
         return borrowing_person
 
 

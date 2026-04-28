@@ -150,7 +150,7 @@ class ToolLoanRecord(models.Model):
     borrowing_person = models.CharField(max_length=50, verbose_name="申领人", help_text="实际使用工具的人员姓名")
     borrowing_person_id = models.IntegerField(null=True, blank=True, verbose_name="申领人ID",
                                             help_text="申领人对应的TeamUser ID，用于关联查询")
-    loan_time = models.DateTimeField(auto_now_add=True, verbose_name="申领时间")
+    loan_time = models.DateTimeField(default=timezone.now, verbose_name="申领时间")
     expected_return_time = models.DateTimeField(null=True, blank=True, verbose_name="预计归还时间")
     actual_return_time = models.DateTimeField(null=True, blank=True, verbose_name="实际归还时间")
     status = models.CharField(max_length=20, choices=[('已申请', '已申请'), ('已发放', '已发放'), ('归还申请', '归还申请'), ('已归还', '已归还'),
